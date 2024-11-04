@@ -12,8 +12,8 @@ window.addEventListener('scroll', function() {
 
 let currentImageIndex = 0;
 const images = [
-    '/web2/images/sesame.png',
-    '/web2/images/br.png'
+    'images/sesame.png',
+    'images/br.png'
 ];
 
 const rotatingImage = document.getElementById('rotating-image');
