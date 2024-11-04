@@ -30,8 +30,8 @@
 @media screen and (min-width: 1025px) {
     
     body {
-        background-color: #17140c; /* 確保 body 背景顏色一致 */
-        overflow: auto; /* 保持正常滾動 */
+        background-color: #17140c;
+        overflow: auto;
     }
 
     header {
@@ -90,14 +90,14 @@
     .p2-right {
         flex: 0 0 30%;
         display: flex;
-        flex-direction: column; /* 設定為縱向排列 */
-        align-items: center; /* 水平置中 */
-        justify-content: center; /* 垂直置中 */
-        text-align: center; /* 文字置中 */
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
     
     .p2-right p {
-        margin: 5px 0; /* 每個段落的上下間距 */
+        margin: 5px 0;
     }
     
     .c1 {
