@@ -1,0 +1,34 @@
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看訂位</title>
+    <link rel="stylesheet" href="css/view.css">
+</head>
+<body>
+    <h1>訂位列表</h1>
+
+    <div class="reservations-container">
+        <% if (reservations.length === 0) { %>
+            <p>目前沒有任何訂位。</p>
+        <% } else { %>
+            <% reservations.reverse().forEach(reservation => { %>
+                <div class="reservation-card">
+                    <p>名稱: <%= reservation.name %> <%= reservation.gender %></p>
+                    <p>電話: <%= reservation.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1-$2-$3') %></p>
+                    <p>電子郵件: <%= reservation.email %></p>
+                    <p>
+                        日期: <%= new Date(reservation.date).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' }) %>
+                        (<%= ['日', '一', '二', '三', '四', '五', '六'][new Date(reservation.date).getDay()] %>)
+                    </p>
+                    <p>時間: <%= (reservation.time) %></p>
+                    <p>成人: <%= reservation.adults %></p>
+                    <p>小孩: <%= reservation.children || 0 %></p>
+                    <p>兒童椅: <%= reservation.highChair || 0 %></p>
+                    <p>備註: <%= reservation.notes || '無' %></p>
+                </div>
+            <% }); %>
+        <% } %>
+    </div>
+</body>
+</html>
