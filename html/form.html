@@ -1,0 +1,85 @@
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/web2/images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
+    <title>芝麻柚子 とんかつ</title>
+    <link rel="stylesheet" href="/web2/css/form.css">
+</head>
+<body>
+    <div class="header-container">
+        <img id="logo-banner" src="/web2/images/sesame.png" alt="芝麻柚子豬排專賣店">
+        <h1 id="title">芝麻柚子 とんかつ</h1>
+    </div>
+
+    <form id="reservationForm" action="/reservations" method="POST">
+        <div class="row">
+            <div class="field">
+                <label for="adults">大人數量：</label>
+                <select id="adults" name="adults" required></select>
+            </div>
+        
+            <div class="field">
+                <label for="children">小孩數量：</label>
+                <select id="children" name="children"></select>
+            </div>
+        
+            <div class="field" id="highChairField" style="display: none;">
+                <label for="highChair">兒童椅數量：</label>
+                <select id="highChair" name="highChair"></select>
+            </div>
+        
+            <div class="field date-field">
+                <label for="date">選擇用餐日期：</label>
+                <input type="date" id="date" name="date" required onchange="updateTimeButtons()" />
+            </div>
+        </div>
+
+        <div id="time-picker-container" style="display: none;">
+            <div id="morning-time-buttons" class="time-buttons"></div>
+            <div id="afternoon-time-buttons" class="time-buttons"></div>
+        </div>
+        
+        <div id="time-buttons"></div>
+        
+        <input type="hidden" id="selectedTime" name="time" />
+
+        <div id="gender-container">
+            <label for="gender">性別:</label>
+            <label><input type="radio" name="gender" value="先生" required> 先生</label>
+            <label><input type="radio" name="gender" value="小姐"> 小姐</label>
+        </div>        
+
+        <label for="name">姓名：</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="phone">電話：</label>
+        <input type="text" id="phone" name="phone" required placeholder="0912345678">
+
+        <div id="contactInfoDiv" style="display: none;">
+            <label for="email">電子郵件：</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="notes">備註：</label>
+            <textarea id="notes" name="notes"></textarea>
+        </div>
+
+        <button type="submit">提交訂位</button>
+        <p id="message" style="color: red;"></p>
+        <p id="successMessage" style="display: none; color: green;">訂位成功！</p>
+    </form>
+
+    <button id="viewReservationsBtn">查看訂位</button>
+
+    <div id="passwordModal" style="display:none;">
+        <form id="passwordForm" action="/protected-views" method="POST">
+            <label for="password">密碼：</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">確認</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/web2/js/form.js"></script>
+</body>
+</html>
