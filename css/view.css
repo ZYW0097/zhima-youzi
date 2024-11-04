@@ -11,9 +11,9 @@ h1 {
 
 .reservations-container {
     display: flex;
-    flex-wrap: wrap; /* 允許換行 */
-    gap: 20px; /* 每個卡片之間的間隔 */
-    justify-content: flex-start; /* 從左到右排列 */
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
 }
 
 .reservation-card {
@@ -21,10 +21,10 @@ h1 {
     padding: 15px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    flex: 0 1 calc(33.333% - 20px); /* 每行顯示三個卡片，並考慮間隔 */
-    box-sizing: border-box; /* 確保內邊距和邊框計入總寬度 */
+    flex: 0 1 calc(33.333% - 20px); 
+    box-sizing: border-box;
 }
 
 .reservation-card p {
-    margin: 5px 0; /* 每個段落的上下邊距 */
+    margin: 5px 0;
 }
