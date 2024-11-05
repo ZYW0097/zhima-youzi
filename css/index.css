@@ -17,8 +17,70 @@
 }
 
 /* phone */
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 375px) {
+    body {
+        background-color: #17140c;
+        overflow: auto;
+    }
 
+    header {
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* 將內容左右分開 */
+        padding: 1rem 5%; /* 在小型設備上調整內邊距 */
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+    }
+
+    .home-icon {
+        position: absolute; /* 使用絕對定位 */
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%); /* 垂直置中 */
+        max-width: 50px; /* 限制圖標的最大寬度 */
+        max-height: 65px; /* 限制圖標的最大高度 */
+        object-fit: contain; /* 確保圖標比例正確 */
+    }
+
+    .menu-icon {
+        color: black; /* 設定漢堡圖標的顏色 */
+        display: block; /* 確保圖標顯示 */
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        margin-left: auto; /* 自動左邊距，將其推到右邊 */
+        font-size: 24px;
+    }
+
+    #menu {
+        display: none; /* 初始隱藏選單 */
+        flex-direction: column; /* 垂直排列 */
+        position: absolute; /* 使選單可重疊 */
+        top: 60px; /* 根據需要調整位置 */
+        right: 0; /* 將選單對齊右側 */
+        background-color: black; /* 背景顏色 */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 加陰影 */
+        z-index: 101; /* 確保選單在header之上 */
+    }
+
+    #menu.show {
+        display: flex; /* 顯示選單 */
+    }
+
+    #menu a {
+        padding: 10px; /* 增加內邊距 */
+        color: white; /* 鏈接顏色 */
+        text-decoration: none; /* 去掉下劃線 */
+        border-bottom: 1px solid #eee; /* 添加分隔線 */
+    }
+
+    #menu a:hover {
+        background-color: #333; /* 鼠標懸停顯示背景 */
+    }
 }
 
 /* pad */
@@ -32,6 +94,9 @@
     body {
         background-color: #17140c;
         overflow: auto;
+    }
+    #menu {
+        display: none;
     }
 
     header {
@@ -59,8 +124,8 @@
 
     .p1 {
         overflow: hidden;
-        background-image: linear-gradient(to right, #17140c 30%, transparent 60%), 
-                  url('https://raw.githubusercontent.com/ZYW0097/zhima-youzi/main/images/br.png');
+        background-image: linear-gradient(to right,  #17140c 30%, transparent 60%), 
+                          url('/web2/images/br.png');
         background-size: cover;
         background-position: right;
         background-repeat: no-repeat;
@@ -86,20 +151,7 @@
         justify-content: center;
         position: relative;
     }
-    
-    .p2-right {
-        flex: 0 0 30%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-    
-    .p2-right p {
-        margin: 5px 0;
-    }
-    
+
     .c1 {
         position: absolute;
         top: 5%;
@@ -115,7 +167,7 @@
     .image-container {
         position: relative;
         width: 60%;
-        height: 400px;
+        height: 500px;
         margin: 0 auto;
     }
     
@@ -127,16 +179,24 @@
     }
     
     .nav-button {
-        padding: 10px 20px;
+        width: 30px;
+        height: 30px;
+        padding: 0;
         font-size: 16px;
         cursor: pointer;
         margin: 0 10px;
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        background-color: gray;
-        border: none;
-        border-radius: 50px;
+        background-color: transparent;
+        border: 1px solid black;
+        border-radius: 50%;
+    }
+
+    .nav-button:hover {
+        background-color: black;
+        border-color: black;
+        color: white;
     }
     
     #prev-button {
@@ -157,6 +217,60 @@
         text-decoration: none;
         margin: 0 30px;
         font-size: 18px;
+    }
+    
+    .p2-right {
+        flex: 0 0 30%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        text-align: left;
+        gap: 20px;
+        font-size: 20px;
+        font-weight: bold; 
+    }
+    
+    .google-star {
+        color: gold; 
+        font-size: 18px; 
+        margin-left: 20px; 
+    }
+    
+    .p2-right a {
+        color: #0073e6; 
+        font-size: 16px; 
+        margin-left: 20px;
+        text-decoration: none; 
+    }
+    
+    .icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+
+    .social {
+        display: flex;
+        align-items: center;
+        margin-top: 20px;
+    }
+    
+    .social a {
+        font-size: 14px;
+        color: black;
+        margin-left: 0 8px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .p2-right p {
+        margin: 0;
+        padding: 15px 0;
+        width: 100%;
+        display: flex;
+        align-items: center;
     }
 
     .title {
