@@ -60,7 +60,7 @@
     .p1 {
         overflow: hidden;
         background-image: linear-gradient(to right,  #17140c 30%, transparent 60%), 
-                          url=('images/br.png');
+                          url=("images/br.png");
         background-size: cover;
         background-position: right;
         background-repeat: no-repeat;
