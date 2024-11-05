@@ -12,8 +12,8 @@ window.addEventListener('scroll', function() {
 
 let currentImageIndex = 0;
 const images = [
-    'images/sesame.png',
-    'images/br.png'
+    '/web2/images/sesame.png',
+    '/web2/images/br.png'
 ];
 
 const rotatingImage = document.getElementById('rotating-image');
@@ -40,6 +40,11 @@ document.getElementById('next-button').addEventListener('click', function() {
     currentIndex = (currentIndex < images.length - 1) ? currentIndex + 1 : 0;
     rotatingImage.src = images[currentIndex];
 });
+
+function toggleMenu() {
+    const menu = document.getElementById('menu'); // 獲取選單元素
+    menu.classList.toggle('show'); // 切換顯示樣式
+}
 
 // async function getGoogleRating() {
 //     const response = await fetch('https://g.co/kgs/nJGLpzC'); 
