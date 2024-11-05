@@ -2,15 +2,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
+    <link href="/web2/images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
     <title>芝麻柚子 とんかつ</title>
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="/web2/css/index.css">
 </head>
 <body>
     <header>
         <a href="index.html" class="home-icon">
-            <img src="images/header-icon.png" alt="網站首頁" style="width:150px; height: auto;">
+            <img src="/web2/images/header-icon.png" alt="網站首頁" style="width:150px; height: auto;">
         </a>
+        <div class="menu-icon" onclick="toggleMenu()">&#9776;</div>
         <nav>
             <a href="index.html">-首頁</a>
             <a href="menu.html">-查看菜單</a>
@@ -30,19 +31,36 @@
         <h1 class="c1">關於芝麻柚子</h1>
         <div class="p2-left">
             <div class="image-container">
-                <img src="images/sesame.png" alt="店內環境" class="p2-image" id="rotating-image">
+                <img src="/web2/images/sesame.png" alt="店內環境" class="p2-image" id="rotating-image">
             </div>
             <button id="prev-button" class="nav-button">&lt</button>
             <button id="next-button" class="nav-button">&gt</button>
         </div>
         <div class="p2-right">
-            <p>1</p>
-            <p>2</p>
-            <p>3</p>
-            <p>4</p>
-            <p>5</p>
-            <p>6</p>
-            <p>7</p>
+            <p><img src="/web2/images/svg/pig.svg" class="icon">芝麻柚子-日式豬排餐廳</p>
+            <p><img src="/web2/images/svg/map.svg" class="icon">302新竹縣竹北市光明一路490號</p>
+            <p><img src="/web2/images/svg/phone.svg" class="icon">03 558 7360</p>
+            <p><img src="/web2/images/svg/time.svg" class="icon">營業時間</p>
+            <p><img src="/web2/images/svg/good.svg" class="icon">3.9
+                <span class="google-star">
+                    ★★★★☆
+                </span>
+                <a href="https://www.google.com/search?q=%E8%8A%9D%E9%BA%BB%E6%9F%9A%E5%AD%90&oq=%E8%8A%9D%E9%BA%BB%E6%9F%9A%E5%AD%90&gs_lcrp=EgZjaHJvbWUqDAgAECMYJxiABBiKBTIMCAAQIxgnGIAEGIoFMhAIARAuGK8BGMcBGIAEGI4FMgwIAhAjGCcYgAQYigUyBwgDEAAYgAQyBwgEEAAYgAQyBggFEEUYPTIGCAYQRRg8MgYIBxBFGDzSAQgxNzM3ajBqN6gCCLACAQ&sourceid=chrome&ie=UTF-8#" target="_blank">
+                    Google評論</a>
+            </p>
+            <p><img src="/web2/images/svg/cash.svg" class="icon">$400-600</p>
+
+            <div class="social">
+                <a href="https://www.instagram.com/zhima_youzi?igsh=bjZ5OTdlYnllbmk4" target="_blank">
+                    <img src="/web2/images/svg/ig.svg" class="icon" alt="Instagram">zhima_youzi
+                </a>
+                <a href="https://www.facebook.com/share/gszhxPVem5o1DJwA/?mibextid=LQQJ4d" target="_blank">
+                    <img src="/web2/images/svg/fb.svg" class="icon" alt="Facebook">芝麻柚子豬排專賣店
+                </a>
+                <a href="https://lin.ee/kAzhhv1" target="_blank">
+                    <img src="/web2/images/svg/line.svg" class="icon" alt="LINE" target="_blank">芝麻柚子 とんかつ
+                </a>
+            </div>
         </div>
     </section>
     
@@ -50,6 +68,6 @@
         &copy; 2024 ZYW
     </footer>
 
-    <script src="js/script.js"></script>
+    <script src="/web2/js/script.js"></script>
 </body>
 </html>
