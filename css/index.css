@@ -17,70 +17,141 @@
 }
 
 /* phone */
-@media screen and (max-width: 375px) {
-    body {
-        background-color: #17140c;
-        overflow: auto;
+@media (min-width: 375px) and (max-width: 425px) {
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
     }
 
-    header {
-        background: white;
-        display: flex;
-        align-items: center;
-        justify-content: space-between; /* 將內容左右分開 */
-        padding: 1rem 5%; /* 在小型設備上調整內邊距 */
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 100;
+    body {
+        background-color: white;
     }
 
     .home-icon {
-        position: absolute; /* 使用絕對定位 */
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%); /* 垂直置中 */
-        max-width: 50px; /* 限制圖標的最大寬度 */
-        max-height: 65px; /* 限制圖標的最大高度 */
-        object-fit: contain; /* 確保圖標比例正確 */
+        display: block; 
+        position: absolute; 
+        left: 5px; 
+        top: 50%; 
+        transform: translateY(-50%); 
+        z-index: 101; 
+        color: white; 
     }
 
-    .menu-icon {
-        color: black; /* 設定漢堡圖標的顏色 */
-        display: block; /* 確保圖標顯示 */
-        width: 30px;
-        height: 30px;
-        cursor: pointer;
-        margin-left: auto; /* 自動左邊距，將其推到右邊 */
-        font-size: 24px;
+    header {
+        background: rgba(255, 255, 255);
+        width: 100%;
+        height: 70px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
     }
 
     #menu {
-        display: none; /* 初始隱藏選單 */
-        flex-direction: column; /* 垂直排列 */
-        position: absolute; /* 使選單可重疊 */
-        top: 60px; /* 根據需要調整位置 */
-        right: 0; /* 將選單對齊右側 */
-        background-color: black; /* 背景顏色 */
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 加陰影 */
-        z-index: 101; /* 確保選單在header之上 */
+        position: relative;
+        float: right;
+        top: 13px;
+        margin-right: 15px;
     }
 
-    #menu.show {
-        display: flex; /* 顯示選單 */
+    #menu label {
+        font-size: 30px;
+        color: black;
+        cursor: pointer;
+        display: block;
+        position: absolute; 
+        top: 0; 
+        right: 0; 
+        z-index: 2; 
     }
 
     #menu a {
-        padding: 10px; /* 增加內邊距 */
-        color: white; /* 鏈接顏色 */
-        text-decoration: none; /* 去掉下劃線 */
-        border-bottom: 1px solid #eee; /* 添加分隔線 */
+        display: none;
+        font-size: 18px;
+        color: white;
+        padding: 1.5rem 0;
+        text-align: center;
+        background-color: #17140c;
+        width: 150px;
+        position: relative;
+        top: 57;
+        margin-right: -15px;
+        z-index: 1;
     }
 
-    #menu a:hover {
-        background-color: #333; /* 鼠標懸停顯示背景 */
+    #menu input[type="checkbox"] {
+        display: none;
     }
+
+    #menu input[type="checkbox"]:checked ~ a {
+        display: block;
+    }
+
+    .p1 {
+        height: 115vh;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/web2/images/store.jpeg');
+        background-size: cover;
+        background-position: 50% center;
+        overflow: hidden;
+        display: flex;
+        justify-content: center; 
+        align-items: center;
+        text-align: center; 
+    }
+
+    .t1, .t2, .t3 {
+        font-family: "Potta One", system-ui;
+        opacity: 0; 
+        transform: translateY(30px); 
+        animation-duration: 3s; 
+        animation-timing-function: ease-out; 
+        animation-fill-mode: forwards; 
+        letter-spacing: 5px;
+    }
+
+    .t1 {
+        animation: fadeInUp 2s 0.2s forwards;;
+        font-size: 50px;
+        font-weight: 300;
+        color: #bad21f
+    }
+    
+    .t2 {
+        animation: fadeInUp 3s 0.6s forwards;;
+        font-size: 50px;
+        font-weight: 300;
+        color: #c8323e
+    }
+
+    .t3 {
+        animation: fadeInUp 2s 1.2s forwards;;
+        transform: translateX(20%); 
+        font-weight: 300;
+        font-size: 50px;
+        color: white;
+    }
+    
+    .p2 {
+        height: 115vh;
+        background-color: white;
+    }
+
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0; 
+            transform: translateY(30px); 
+        }
+        100% {
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }
+    
+
 }
 
 /* pad */
