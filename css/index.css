@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Potta+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Zen+Antique&display=swap');
 
 ::-webkit-scrollbar {
     display: none;
@@ -104,7 +105,6 @@
     }
 
     .t1, .t2, .t3 {
-        font-family: "Potta One", system-ui;
         opacity: 0; 
         transform: translateY(30px); 
         animation-duration: 3s; 
@@ -114,6 +114,7 @@
     }
 
     .t1 {
+        font-family: "Potta One", system-ui;
         animation: fadeInUp 2s 0.2s forwards;;
         font-size: 50px;
         font-weight: 300;
@@ -121,6 +122,7 @@
     }
     
     .t2 {
+        font-family: "Potta One", system-ui;
         animation: fadeInUp 3s 0.6s forwards;;
         font-size: 50px;
         font-weight: 300;
@@ -128,6 +130,7 @@
     }
 
     .t3 {
+        font-family: "Zen Antique", system-ui;
         animation: fadeInUp 2s 1.2s forwards;;
         transform: translateX(20%); 
         font-weight: 300;
@@ -357,23 +360,22 @@
         text-align: center;
     }
 
-    .t1, .t2, .t3 {
-        font-family: "Potta One", system-ui;
-    }
-
     .t1 {
+        font-family: "Potta One", system-ui;
         font-size: 70px;
         font-weight: 300;
         color: #bad21f
     }
     
     .t2 {
+        font-family: "Potta One", system-ui;
         font-size: 70px;
         font-weight: 300;
         color: #c8323e
     }
 
     .t3 {
+        font-family: "Zen Antique", system-ui;
         transform: translateX(50%); 
         font-weight: 300;
         font-size: 70px;
