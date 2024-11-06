@@ -41,9 +41,18 @@ document.getElementById('next-button').addEventListener('click', function() {
     rotatingImage.src = images[currentIndex];
 });
 
-function toggleMenu() {
-    const menu = document.getElementById('menu'); // 獲取選單元素
-    menu.classList.toggle('show'); // 切換顯示樣式
+document.addEventListener('touchmove', function(event) {
+
+    if (event.touches.length === 1) {
+  
+  
+      event.preventDefault();
+  
+  
+    }
+  
+  
+  }, { passive: false });
 }
 
 // async function getGoogleRating() {
