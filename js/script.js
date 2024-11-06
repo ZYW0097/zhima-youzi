@@ -53,10 +53,3 @@ document.addEventListener('touchmove', function(event) {
   
   
   }, { passive: false });
-}
-
-// async function getGoogleRating() {
-//     const response = await fetch('https://g.co/kgs/nJGLpzC'); 
-//     const data = await response.json();
-//     return data.rating;
-// }
