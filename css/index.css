@@ -93,7 +93,7 @@
 
     .p1 {
         height: 115vh;
-        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/web2/images/store.jpeg');
+        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://raw.githubusercontent.com/ZYW0097/zhima-youzi/refs/heads/main/images/store.jpeg');
         background-size: cover;
         background-position: 50% center;
         overflow: hidden;
