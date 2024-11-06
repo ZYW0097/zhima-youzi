@@ -166,7 +166,12 @@
         background-color: #17140c;
         overflow: auto;
     }
-    #menu {
+    
+    input {
+        display: none;
+    }
+
+    label {
         display: none;
     }
 
