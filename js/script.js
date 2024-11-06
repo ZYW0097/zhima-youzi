@@ -41,15 +41,15 @@ document.getElementById('next-button').addEventListener('click', function() {
     rotatingImage.src = images[currentIndex];
 });
 
-document.addEventListener('touchmove', function(event) {
+// document.addEventListener('touchmove', function(event) {
 
-    if (event.touches.length === 1) {
+//     if (event.touches.length === 1) {
   
   
-      event.preventDefault();
+//       event.preventDefault();
   
   
-    }
+//     }
   
   
-  }, { passive: false });
+//   }, { passive: false });
