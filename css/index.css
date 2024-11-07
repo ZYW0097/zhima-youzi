@@ -185,8 +185,9 @@
     .image-container {
         overflow: hidden;
         position: relative;
-        width: 150px;
+        width: 350px;
         max-width: 100%;
+        max-height: 100px;
     }
     
     .p2-image {
