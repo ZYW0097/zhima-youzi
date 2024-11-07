@@ -19,17 +19,37 @@ const images = [
 const rotatingImage = document.getElementById('rotating-image');
 
 function changeImage() {
-    currentImageIndex = (currentImageIndex + 1) % images.length; 
+    currentImageIndex = (currentImageIndex + 1) % images.length;
     rotatingImage.style.opacity = 0; 
 
     setTimeout(() => {
         rotatingImage.src = images[currentImageIndex]; 
-        rotatingImage.style.opacity = 1
-    }, 500);
+        rotatingImage.style.opacity = 1;
+    }, 500); 
 }
+
 setInterval(changeImage, 5000);
 
-let currentIndex = 0;
+let touchStartX = 0;
+
+rotatingImage.addEventListener('touchstart', function(event) {
+    touchStartX = event.touches[0].clientX;
+});
+
+rotatingImage.addEventListener('touchend', function(event) {
+    const touchEndX = event.changedTouches[0].clientX; 
+    if (touchEndX < touchStartX) {
+        changeImage();
+    } else if (touchEndX > touchStartX) {
+        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        rotatingImage.style.opacity = 0;
+
+        setTimeout(() => {
+            rotatingImage.src = images[currentImageIndex]; 
+            rotatingImage.style.opacity = 1; 
+        }, 500);
+    }
+});
 
 document.getElementById('prev-button').addEventListener('click', function() {
     currentIndex = (currentIndex > 0) ? currentIndex - 1 : images.length - 1;
