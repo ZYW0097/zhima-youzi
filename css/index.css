@@ -421,6 +421,10 @@
         font-size: 20px;
         font-weight: bold; 
     }
+
+    #mobile {
+        display:none;
+    }
     
     .google-star {
         color: gold; 
