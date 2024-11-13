@@ -18,7 +18,6 @@ app.use(express.static(path.join(__dirname, 'html')));
 app.use('/images', express.static('images'));
 app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
-app.use('/font', express.static('font'));
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
@@ -36,8 +35,9 @@ const reservationSchema = new mongoose.Schema({
     time: { type: String, required: true },
     adults: { type: Number, required: true },
     children: { type: Number, required: true },
-    highChair: { type: Number, default: 0 },
-    notes: { type: String }  // 新增備註欄位，選填
+    vegetarian: { type: String, default: '否' },
+    specialNeeds: { type: String, default: '無' },
+    notes: { type: String }
 });
 
 const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
@@ -49,6 +49,15 @@ app.get('/', (req, res) => {
 });
 app.get('/form', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'form.html'));
+});
+app.get('/questions', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html', 'questions.html'));
+});
+app.get('/menu', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html', 'menu.html'));
+});
+app.get('/success', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html', 'success.html'));
 });
 
 app.post('/protected-views', (req, res) => {
@@ -78,7 +87,7 @@ app.get('/view', async (req, res) => {
 /// html ///
 
 app.post('/reservations', async (req, res) => {
-    const { name, phone, email, gender, date, time, adults, children, highChair, notes } = req.body;
+    const { name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes } = req.body;
 
     const phoneRegex = /^09\d{8}$/;
     if (!phoneRegex.test(phone)) {
@@ -91,9 +100,6 @@ app.post('/reservations', async (req, res) => {
         return res.status(400).json({ message: '日期不能選擇今天以前' });
     }
 
-    if (children > 0 && highChair > children) {
-        return res.status(400).json({ message: '兒童椅數量不能大於小孩數量' });
-    }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -105,12 +111,22 @@ app.post('/reservations', async (req, res) => {
     }
 
     try {
-        const reservation = new Reservation({ name, phone, email, gender, date, time, adults, children, highChair, notes });
+        const reservation = new Reservation({ name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes });
         await reservation.save();
         res.status(201).json({ message: '訂位成功' });
+        req.session.submitted = true;
+        res.json({ success: true });
     } catch (error) {
         res.status(500).json({ message: '訂位失敗，請稍後再試。', error: error.message });
     }
+});
+
+app.get('/success', (req, res) => {
+    if (!req.session.submitted) {
+        return res.redirect('/form'); 
+    }
+    req.session.submitted = false; 
+    res.sendFile(path.join(__dirname, 'html', 'success.html'));
 });
 
 app.listen(PORT, () => {
