@@ -113,7 +113,6 @@ app.post('/reservations', async (req, res) => {
     try {
         const reservation = new Reservation({ name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes });
         await reservation.save();
-        res.status(201).json({ message: '訂位成功' });
         req.session.submitted = true;
         res.json({ success: true });
     } catch (error) {
