@@ -227,6 +227,9 @@ document.getElementById('passwordForm').addEventListener('submit', function(e) {
 document.getElementById('reservationForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
+    const submitButton = document.querySelector('button[type="submit"]'); 
+    submitButton.disabled = true;
+
     const formData = new FormData(this);
     const formObject = {};
 
