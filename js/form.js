@@ -225,74 +225,44 @@ document.getElementById('passwordForm').addEventListener('submit', function(e) {
 });
 
 document.getElementById('reservationForm').addEventListener('submit', function (e) {
-    e.preventDefault();
+    e.preventDefault(); 
 
-    const submitButton = document.querySelector('button[type="submit"]'); 
+    const submitButton = document.querySelector('button[type="submit"]');
     submitButton.disabled = true;
 
     const formData = new FormData(this);
     const formObject = {};
-
-
     formData.forEach((value, key) => {
         formObject[key] = value;
     });
-
-
     const jsonData = JSON.stringify(formObject);
 
-
+    // 發送 POST 請求
     fetch('/reservations', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: jsonData 
+        body: jsonData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('網路錯誤，請稍後再試');
+        }
+        return response.json(); 
+    })
     .then(data => {
         if (data.success) {
-            document.getElementById('reservationForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const formData = new FormData(this);
-    const formObject = {};
-
-
-    formData.forEach((value, key) => {
-        formObject[key] = value;
-    });
-
-
-    const jsonData = JSON.stringify(formObject);
-
-
-    fetch('/reservations', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: jsonData 
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = `success.html?token=${data.token}`; 
+            window.location.href = `/success?token=${data.token}`; 
         } else {
-            document.getElementById('message').innerText = data.message || '提交失敗，請稍後再試。'; 
+            document.getElementById('message').innerText = data.message || '提交失敗，請稍後再試。';
         }
     })
     .catch(error => {
-        document.getElementById('message').innerText = '提交失敗，請稍後再試。'; 
+        document.getElementById('message').innerText = '提交失敗，請稍後再試。';
         console.error('Error:', error);
-    });
-});
-        } else {
-            document.getElementById('message').innerText = data.message || '提交失敗，請稍後再試。'; 
-        }
     })
-    .catch(error => {
-        document.getElementById('message').innerText = '提交失敗，請稍後再試。'; 
-        console.error('Error:', error);
+    .finally(() => {
+        submitButton.disabled = false;
     });
 });
