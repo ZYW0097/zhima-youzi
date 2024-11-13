@@ -98,7 +98,6 @@ app.post('/reservations', async (req, res) => {
         return res.status(400).json({ message: '日期不能選擇今天以前' });
     }
 
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return res.status(400).json({ message: '電子郵件格式不正確' });
@@ -112,7 +111,7 @@ app.post('/reservations', async (req, res) => {
         const reservation = new Reservation({ name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes });
         await reservation.save();
         req.session.submitted = true;  
-        res.json({ success: true, redirect: '/success' }); 
+        res.json({ success: true }); 
     } catch (error) {
         res.status(500).json({ message: '訂位失敗，請稍後再試。', error: error.message });
     }
