@@ -234,9 +234,10 @@ document.getElementById('reservationForm').addEventListener('submit', function (
             document.getElementById('message').innerText = ''; 
             $('#reservationForm')[0].reset(); 
             $('#time-picker-container').hide(); 
-
+            
             if (response.redirect) {
-                window.location.href = response.redirect;
+                console.log('Redirecting to: ' + response.redirect);  
+                window.location.href = response.redirect; 
             } else {
                 setTimeout(() => {
                     location.reload();
