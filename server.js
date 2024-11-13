@@ -56,9 +56,6 @@ app.get('/questions', (req, res) => {
 app.get('/menu', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'menu.html'));
 });
-app.get('/success', (req, res) => {
-    res.sendFile(path.join(__dirname, 'html', 'success.html'));
-});
 
 app.post('/protected-views', (req, res) => {
     const { password } = req.body;
