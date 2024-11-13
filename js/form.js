@@ -225,26 +225,25 @@ document.getElementById('passwordForm').addEventListener('submit', function(e) {
 });
 
 document.getElementById('reservationForm').addEventListener('submit', function (e) {
-    e.preventDefault();
+    e.preventDefault(); 
 
-    const formData = $(this).serialize();
+    const formData = new FormData(this);  
 
-    $.post('/reservations', formData)
-        .done(function(response) {
-            document.getElementById('message').innerText = ''; 
-            $('#reservationForm')[0].reset(); 
-            $('#time-picker-container').hide(); 
-            
-            if (response.redirect) {
-                console.log('Redirecting to: ' + response.redirect);  
-                window.location.href = response.redirect; 
-            } else {
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-            }
-        })
-        .fail(function(jqXHR) {
-            document.getElementById('message').innerText = jqXHR.responseJSON.message; 
-        });
+    // 發送 POST 請求到後端
+    fetch('/reservations', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '/success'; 
+        } else {
+            document.getElementById('message').innerText = data.message;
+        }
+    })
+    .catch(error => {
+        document.getElementById('message').innerText = '提交失敗，請稍後再試。';
+        console.error('Error:', error);
+    });
 });
