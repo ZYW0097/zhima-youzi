@@ -274,7 +274,7 @@ document.getElementById('reservationForm').addEventListener('submit', function (
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.href = `/html/success.html?token=${data.token}`; 
+            window.location.href = `success.html?token=${data.token}`; 
         } else {
             document.getElementById('message').innerText = data.message || '提交失敗，請稍後再試。'; 
         }
