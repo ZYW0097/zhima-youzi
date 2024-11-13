@@ -229,7 +229,6 @@ document.getElementById('reservationForm').addEventListener('submit', function (
 
     const formData = new FormData(this);  
 
-    // 發送 POST 請求到後端
     fetch('/reservations', {
         method: 'POST',
         body: formData
@@ -237,7 +236,7 @@ document.getElementById('reservationForm').addEventListener('submit', function (
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.href = '/success'; 
+            window.location.href = '/success';
         } else {
             document.getElementById('message').innerText = data.message;
         }
