@@ -231,7 +231,6 @@ document.getElementById('reservationForm').addEventListener('submit', function (
 
     $.post('/reservations', formData)
         .done(function(response) {
-            document.getElementById('successMessage').style.display = 'block'; 
             document.getElementById('message').innerText = ''; 
             $('#reservationForm')[0].reset(); 
             document.getElementById('contactInfoDiv').style.display = 'none'; 
@@ -243,6 +242,5 @@ document.getElementById('reservationForm').addEventListener('submit', function (
         })
         .fail(function(jqXHR) {
             document.getElementById('message').innerText = jqXHR.responseJSON.message; 
-            document.getElementById('successMessage').style.display = 'none'; 
         });
 });
