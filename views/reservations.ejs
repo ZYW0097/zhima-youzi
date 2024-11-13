@@ -14,18 +14,19 @@
         <% } else { %>
             <% reservations.reverse().forEach(reservation => { %>
                 <div class="reservation-card">
-                    <p>名稱: <%= reservation.name %> <%= reservation.gender %></p>
-                    <p>電話: <%= reservation.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1-$2-$3') %></p>
-                    <p>電子郵件: <%= reservation.email %></p>
+                    <p><strong>名稱:</strong> <%= reservation.name %> <%= reservation.gender %></p>
+                    <p><strong>電話:</strong> <%= reservation.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1-$2-$3') %></p>
+                    <p><strong>電子郵件:</strong> <%= reservation.email %></p>
                     <p>
-                        日期: <%= new Date(reservation.date).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' }) %>
+                        <strong>日期:</strong> <%= new Date(reservation.date).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' }) %>
                         (<%= ['日', '一', '二', '三', '四', '五', '六'][new Date(reservation.date).getDay()] %>)
                     </p>
-                    <p>時間: <%= (reservation.time) %></p>
-                    <p>成人: <%= reservation.adults %></p>
-                    <p>小孩: <%= reservation.children || 0 %></p>
-                    <p>兒童椅: <%= reservation.highChair || 0 %></p>
-                    <p>備註: <%= reservation.notes || '無' %></p>
+                    <p><strong>時間:</strong> <%= reservation.time %></p>
+                    <p><strong>成人數量:</strong> <%= reservation.adults %></p>
+                    <p><strong>小孩數量:</strong> <%= reservation.children || 0 %></p>
+                    <p><strong>素食選項:</strong> <%= reservation.vegetarian %></p>
+                    <p><strong>特殊需求:</strong> <%= reservation.specialNeeds || '無' %></p>
+                    <p><strong>備註:</strong> <%= reservation.notes || '無' %></p>
                 </div>
             <% }); %>
         <% } %>
