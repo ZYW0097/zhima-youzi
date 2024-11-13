@@ -37,7 +37,7 @@ const reservationSchema = new mongoose.Schema({
     children: { type: Number, required: true },
     vegetarian: { type: String, default: '否' },
     specialNeeds: { type: String, default: '無' },
-    notes: { type: String, required: false } 
+    notes: { type: String, required: false },
 });
 
 const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
@@ -88,22 +88,20 @@ app.post('/reservations', async (req, res) => {
 
     const phoneRegex = /^09\d{8}$/;
     if (!phoneRegex.test(phone)) {
-        return res.status(400).json({ message: '電話格式不正確，請使用台灣手機格式' });
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (new Date(date) < today) {
-        return res.status(400).json({ message: '日期不能選擇今天以前' });
+        return res.status(400).json({ success: false, message: '電話格式不正確，請使用台灣手機格式' });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        return res.status(400).json({ message: '電子郵件格式不正確' });
+        return res.status(400).json({ success: false, message: '電子郵件格式不正確' });
     }
 
     if (!time || time.trim() === "") {
-        return res.status(400).json({ message: '請選擇用餐時間。' });
+        return res.status(400).json({ success: false, message: '請選擇用餐時間。' });
+    }
+
+    if (!name || !phone || !email) {
+        return res.status(400).json({ success: false, message: '請填寫所有必填欄位。' });
     }
 
     try {
@@ -111,10 +109,12 @@ app.post('/reservations', async (req, res) => {
         await reservation.save();
 
         const token = Math.random().toString(36).slice(2);
-        req.session.token = token; 
+        req.session.token = token;
+
         res.json({ success: true, redirect: `/success?token=${token}` });
     } catch (error) {
-        res.status(500).json({ message: '訂位失敗，請稍後再試。', error: error.message });
+
+        res.status(500).json({ success: false, message: '訂位失敗，請稍後再試。', error: error.message });
     }
 });
 
