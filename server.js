@@ -26,8 +26,6 @@ app.use(session({
 
 connectToDatabase();
 
-reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
-
 const reservationSchema = new mongoose.Schema({
     name: { type: String, required: true },
     phone: { type: String, required: true },
@@ -41,6 +39,8 @@ const reservationSchema = new mongoose.Schema({
     specialNeeds: { type: String, default: '無' },
     notes: { type: String, required: false },
 });
+
+reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
 
 const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
 
