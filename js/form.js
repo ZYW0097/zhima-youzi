@@ -233,12 +233,15 @@ document.getElementById('reservationForm').addEventListener('submit', function (
         .done(function(response) {
             document.getElementById('message').innerText = ''; 
             $('#reservationForm')[0].reset(); 
-            document.getElementById('contactInfoDiv').style.display = 'none'; 
             $('#time-picker-container').hide(); 
-            
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
+
+            if (response.redirect) {
+                window.location.href = response.redirect;
+            } else {
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
         })
         .fail(function(jqXHR) {
             document.getElementById('message').innerText = jqXHR.responseJSON.message; 
