@@ -109,18 +109,21 @@ app.post('/reservations', async (req, res) => {
     try {
         const reservation = new Reservation({ name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes });
         await reservation.save();
-        req.session.submitted = true;  
-        res.json({ success: true }); 
+
+        const token = Math.random().toString(36).slice(2);
+        req.session.token = token; 
+        res.json({ success: true, redirect: `/success?token=${token}` });
     } catch (error) {
         res.status(500).json({ message: '訂位失敗，請稍後再試。', error: error.message });
     }
 });
 
 app.get('/success', (req, res) => {
-    if (!req.session.submitted) {
+    const { token } = req.query;
+    if (!token || token !== req.session.token) {
         return res.redirect('/form'); 
     }
-    req.session.submitted = false; 
+    req.session.token = null;
     res.sendFile(path.join(__dirname, 'html', 'success.html'));
 });
 
