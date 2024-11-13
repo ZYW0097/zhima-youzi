@@ -26,6 +26,8 @@ app.use(session({
 
 connectToDatabase();
 
+reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
+
 const reservationSchema = new mongoose.Schema({
     name: { type: String, required: true },
     phone: { type: String, required: true },
