@@ -236,7 +236,7 @@ document.getElementById('reservationForm').addEventListener('submit', function (
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.href = '/success';
+            window.location.href = `/success?token=${data.token}`;
         } else {
             document.getElementById('message').innerText = data.message;
         }
