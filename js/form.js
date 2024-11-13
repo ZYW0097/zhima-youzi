@@ -225,24 +225,37 @@ document.getElementById('passwordForm').addEventListener('submit', function(e) {
 });
 
 document.getElementById('reservationForm').addEventListener('submit', function (e) {
-    e.preventDefault();  
+    e.preventDefault();
 
-    const formData = new FormData(this); 
+    const formData = new FormData(this);
+    const formObject = {};
+
+
+    formData.forEach((value, key) => {
+        formObject[key] = value;
+    });
+
+
+    const jsonData = JSON.stringify(formObject);
+
 
     fetch('/reservations', {
         method: 'POST',
-        body: formData
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: jsonData 
     })
-    .then(response => response.json()) 
+    .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.href = `/success?token=${data.token}`;
+            window.location.href = `/success?token=${data.token}`; 
         } else {
-            document.getElementById('message').innerText = data.message || '提交失敗，請稍後再試。';
+            document.getElementById('message').innerText = data.message || '提交失敗，請稍後再試。'; 
         }
     })
     .catch(error => {
-        document.getElementById('message').innerText = '提交失敗，請稍後再試。';
+        document.getElementById('message').innerText = '提交失敗，請稍後再試。'; 
         console.error('Error:', error);
     });
 });
