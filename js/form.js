@@ -237,7 +237,6 @@ document.getElementById('reservationForm').addEventListener('submit', function (
     });
     const jsonData = JSON.stringify(formObject);
 
-    // 發送 POST 請求
     fetch('/reservations', {
         method: 'POST',
         headers: {
@@ -253,6 +252,8 @@ document.getElementById('reservationForm').addEventListener('submit', function (
     })
     .then(data => {
         if (data.success) {
+            submitButton.disabled = false;
+            document.getElementById('reservationForm').reset();
             window.location.href = `/success?token=${data.token}`; 
         } else {
             document.getElementById('message').innerText = data.message || '提交失敗，請稍後再試。';
@@ -262,7 +263,4 @@ document.getElementById('reservationForm').addEventListener('submit', function (
         document.getElementById('message').innerText = '提交失敗，請稍後再試。';
         console.error('Error:', error);
     })
-    .finally(() => {
-        submitButton.disabled = false;
-    });
 });
