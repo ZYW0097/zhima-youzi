@@ -5,7 +5,7 @@ const path = require('path');
 const session = require('express-session');
 const crypto = require('crypto');
 const { createClient } = require('redis');
-const RedisStore = require('connect-redis');
+const RedisStore = require('connect-redis').default;
 const cookieParser = require('cookie-parser');
 
 const app = express();
