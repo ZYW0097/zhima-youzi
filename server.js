@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const { createClient } = require('redis');
 const RedisStore = require('connect-redis').default;
 const cookieParser = require('cookie-parser');
+const connectToDatabase = require('./database');
 
 const app = express();
 const redisClient = createClient();
