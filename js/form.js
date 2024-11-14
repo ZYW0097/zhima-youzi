@@ -224,43 +224,43 @@ document.getElementById('passwordForm').addEventListener('submit', function(e) {
     });
 });
 
-document.getElementById('reservationForm').addEventListener('submit', function (e) {
-    e.preventDefault(); 
-
-    const submitButton = document.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-
-    const formData = new FormData(this);
-    const formObject = {};
-    formData.forEach((value, key) => {
-        formObject[key] = value;
-    });
-    const jsonData = JSON.stringify(formObject);
-
-    fetch('/reservations', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: jsonData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('網路錯誤，請稍後再試');
-        }
-        return response.json(); 
-    })
-    .then(data => {
-        if (data.success) {
-            submitButton.disabled = false;
-            document.getElementById('reservationForm').reset();
-            window.location.href = `/success?token=${data.token}`; 
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('reservationForm');
+  
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+  
+      const formData = {
+        name: form.name.value,
+        phone: form.phone.value,
+        email: form.email.value,
+        gender: form.gender.value,
+        date: form.date.value,
+        time: form.time.value,
+        adults: form.adults.value,
+        children: form.children.value,
+        vegetarian: form.vegetarian.value,
+        specialNeeds: form.specialNeeds.value,
+        notes: form.notes.value,
+      };
+  
+      try {
+        const response = await fetch('/reservations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+  
+        const result = await response.json();
+        if (result.success) {
+          window.location.href = result.redirectUrl;
         } else {
-            document.getElementById('message').innerText = data.message || '提交失敗，請稍後再試。';
+          alert(result.message);
         }
-    })
-    .catch(error => {
-        document.getElementById('message').innerText = '提交失敗，請稍後再試。';
-        console.error('Error:', error);
-    })
+      } catch (error) {
+        alert('提交失敗，請稍後再試。');
+      }
+    });
 });
