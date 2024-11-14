@@ -91,7 +91,7 @@ app.post('/reservations', async (req, res) => {
             time,
         }), 'EX', expiration);
         res.cookie('token', token, { httpOnly: true });
-        
+
         res.json({ success: true, redirectUrl: `/${token}/success` });
     } catch (error) {
         res.status(500).json({ success: false, message: '訂位失敗，請稍後再試。', error: error.message });
@@ -105,6 +105,8 @@ app.get('/:token/success', async (req, res) => {
     if (!user) {
         return res.redirect(`/form?error=invalid_token`);
     }
+
+    await redisClient.del(token);
 
     res.sendFile(path.join(__dirname, 'html', 'success.html'));
 });
