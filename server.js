@@ -5,7 +5,7 @@ const path = require('path');
 const session = require('express-session');
 const crypto = require('crypto');
 const { createClient } = require('redis');
-const RedisStore = require('connect-redis')(session);
+const RedisStore = require('connect-redis');
 const cookieParser = require('cookie-parser');
 
 const app = express();
@@ -29,8 +29,8 @@ app.use(session({
 }));
 
 connectToDatabase();
-
 redisClient.connect().catch(console.error);
+
 
 const reservationSchema = new mongoose.Schema({
     name: { type: String, required: true },
