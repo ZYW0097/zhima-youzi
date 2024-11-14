@@ -8,9 +8,12 @@ const { createClient } = require('redis');
 const RedisStore = require('connect-redis').default;
 const cookieParser = require('cookie-parser');
 const connectToDatabase = require('./database');
+const redisUrl = process.env.REDIS_URL;
 
 const app = express();
-const redisClient = createClient();
+const redisClient = createClient({
+    url: redisUrl
+  });
 const PORT = process.env.PORT || 3000;
 
 require('dotenv').config();
