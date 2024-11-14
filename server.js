@@ -108,25 +108,27 @@ app.get('/:token/success', async (req, res) => {
         return res.redirect(`/form?error=invalid_token`);
     }
 
-    await redisClient.del(token);
-    console.log(`Token Deleted: ${token}, Time: ${new Date().toISOString()}`);
+    setTimeout(async () => {
+        await redisClient.del(token);
+        console.log(`Token Deleted: ${token}, Time: ${new Date().toISOString()}`);
+    }, 120000);
 
     res.sendFile(path.join(__dirname, 'html', 'success.html'));
 });
 
-app.delete('/reservations/:token', async (req, res) => {
-    const { token } = req.params;
+// app.delete('/reservations/:token', async (req, res) => {
+//     const { token } = req.params;
 
-    try {
-        await redisClient.del(token);
+//     try {
+//         await redisClient.del(token);
 
-        console.log(`Token Deleted: ${token}, Time: ${new Date().toISOString()}`);
+//         console.log(`Token Deleted: ${token}, Time: ${new Date().toISOString()}`);
 
-        res.json({ success: true, message: `Token ${token} 已刪除` });
-    } catch (error) {
-        res.status(500).json({ success: false, message: '刪除失敗，請稍後再試。', error: error.message });
-    }
-});
+//         res.json({ success: true, message: `Token ${token} 已刪除` });
+//     } catch (error) {
+//         res.status(500).json({ success: false, message: '刪除失敗，請稍後再試。', error: error.message });
+//     }
+// });
 
 // app.get('/success', (req, res) => {
 //     const { token } = req.query;
