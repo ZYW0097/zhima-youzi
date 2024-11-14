@@ -83,8 +83,15 @@ app.post('/reservations', async (req, res) => {
         const reservation = new Reservation({ name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes });
         await reservation.save();
 
-        await redisClient.set(token, JSON.stringify({ user: 'exampleUser' }), 'EX', expiration);
+        await redisClient.set(token, JSON.stringify({
+            name,
+            phone,
+            gender,
+            date,
+            time,
+        }), 'EX', expiration);
         res.cookie('token', token, { httpOnly: true });
+        
         res.json({ success: true, redirectUrl: `/${token}/success` });
     } catch (error) {
         res.status(500).json({ success: false, message: '訂位失敗，請稍後再試。', error: error.message });
