@@ -9,6 +9,8 @@ body {
     padding: 20px;
 }
 
+/* 上方橫條 / menu  */
+
 #menu-toggle{
     display: none;
 }
@@ -48,6 +50,10 @@ nav a {
     font-size: 18px;
 }
 
+/* 上方橫條 / menu  */
+
+/* 右側填寫  */
+
 .container {
     display: flex;
     gap: 20px;
@@ -55,32 +61,6 @@ nav a {
     justify-content: center;
     margin-top: 70px;
     margin-left: 360px;
-}
-
-#reservation-summary,
-#reservationForm {
-    position: relative;
-    flex: 1 1 45%; 
-    min-width: 300px; 
-    transition: width 0.3s ease;
-}
-
-#reservation-summary {
-    flex: 1;
-    position: fixed;
-    left: 25%;
-    width: 300px;
-    height: 400px;
-    background-color: #f8f8f8;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-#left-title {
-    text-align: center;
-    font-size: 32px;
-    margin-top: 0;
 }
 
 #reservationForm {
@@ -96,6 +76,8 @@ nav a {
     margin-top: 0;
     text-align: center;
 }
+
+/* 日曆  */
 
 #calendar-container {
     padding: 10px;
@@ -128,6 +110,8 @@ nav a {
 button[type="datebutton"] {
     color: white;
 }
+
+/* 日曆  */
 
 button {
     background-color: #4CAF50;
@@ -312,12 +296,6 @@ button[type="submit"]:hover {
     background-color: #218838;
 }
 
-#successMessage {
-    color: green;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
 #gender-container {
     margin-top: 15px;
 }
@@ -331,7 +309,7 @@ button[type="submit"]:hover {
 .time-button {
     flex: 1 1 40%;
     min-width: 100px;
-    background-color: #f0f0f0;
+    background-color: transparent;
     border: 1px solid #ccc;
     padding: 10px;
     cursor: pointer;
@@ -416,6 +394,39 @@ label {
     top: 0;
     left: 0;
 }
+
+/* 右側填寫  */
+
+/* 左側預覽  */
+
+#reservation-summary,
+#reservationForm {
+    position: relative;
+    flex: 1 1 45%; 
+    min-width: 300px; 
+    transition: width 0.3s ease;
+}
+
+#reservation-summary {
+    flex: 1;
+    position: fixed;
+    left: 25%;
+    width: 300px;
+    height: 400px;
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#left-title {
+    text-align: center;
+    font-size: 32px;
+    margin-top: 0;
+}
+
+/* 左側預覽  */
+
 
 @media (max-width: 1024px) {
     .container {
