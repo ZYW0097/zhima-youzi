@@ -519,56 +519,61 @@ label {
     }
     
     #calendar-container {
-        max-width: 100%; 
-        padding: 8px;
+        max-width: 100%; /* 確保容器寬度最大為 100% */
+        padding: 4px; /* 減少內邊距 */
         margin: 10px auto;
     }
     
     #calendar {
-        max-width: 100%; 
-        padding: 8px; 
+        max-width: 100%;
+        padding: 4px; /* 減少內邊距 */
         display: flex;
         flex-direction: column;
         align-items: center;
-        box-sizing: border-box; 
+        box-sizing: border-box;
     }
     
     .weekdays {
-        font-size: 12px;
+        font-size: 10px; /* 減小字型大小 */
         display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        padding: 6px 0;
-        gap: 2px;
-        text-align: center; 
+        grid-template-columns: repeat(7, 1fr); /* 每列顯示 7 個星期 */
+        padding: 4px 0; /* 減少上下內邊距 */
+        gap: 2px; /* 減少格子間距 */
+        text-align: center;
         width: 100%; 
         box-sizing: border-box;
     }
     
     .weekdays div {
-        padding: 5px 0; 
+        padding: 4px 0; /* 減少內邊距 */
     }
     
     #days-container {
         display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
+        grid-template-columns: repeat(7, 1fr); /* 每列顯示 7 個日期 */
+        gap: 3px; /* 減少日期間的間距 */
         width: 100%; 
         box-sizing: border-box;
     }
     
     .day {
-        font-size: 12px;
-        padding: 10px;
+        font-size: 10px; /* 減小字型大小 */
+        padding: 6px; /* 減少內邊距 */
         display: flex;
         justify-content: center;
         align-items: center;
         text-align: center;
+        background-color: #fff;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
     }
     
     .day:hover:not(.disabled) {
         background-color: #66BB6A;
         color: white;
-        transform: scale(1.1);
+        transform: scale(1.1); /* 增加 hover 動畫 */
     }
     
     .day.selected {
@@ -582,10 +587,10 @@ label {
         color: #ccc;
         cursor: not-allowed;
     }
-
+    
     #calendar-buttons button {
-        font-size: 14px;
-        padding: 8px 12px; 
+        font-size: 12px; /* 減小字型大小 */
+        padding: 6px 10px; /* 減少按鈕內邊距 */
     }
 }
 
