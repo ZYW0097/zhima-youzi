@@ -107,25 +107,7 @@ app.post('/reservations', async (req, res) => {
 
         res.cookie('token', token, { httpOnly: true });
         console.log(`Token Created: ${token}, Expiration: ${expiration}s, User: ${name}, Time: ${new Date().toISOString()}`);
-
-        const userId = "客戶的LineUserID";  // 您需要使用 Line user ID，這通常來自 Line Login 或預先收集的數據
-        const message = {
-            to: userId,
-            messages: [
-                {
-                    type: 'text',
-                    text: `您好 ${name}，您的訂位已經成功！日期: ${date}, 時間: ${time}，感謝您的預訂！`
-                }
-            ]
-        };
         
-        await axios.post('https://api.line.me/v2/bot/message/push', message, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${channelAccessToken}`
-            }
-        });
-
         res.json({ success: true, redirectUrl: `/${token}/success` });
     } catch (error) {
         res.status(500).json({ success: false, message: '訂位失敗，請稍後再試。', error: error.message });
@@ -146,40 +128,6 @@ app.get('/:token/success', async (req, res) => {
     }, 120000);
 
     res.sendFile(path.join(__dirname, 'html', 'success.html'));
-});
-
-app.get('/success/callback', async (req, res) => {
-    const code = req.query.code;  // 從查詢參數中獲取授權碼
-    const state = req.query.state;  // 用於防止 CSRF 攻擊
-
-    if (!code) {
-        return res.status(400).send('授權碼缺失');
-    }
-
-    try {
-        // 交換授權碼為 access token
-        const response = await axios.post('https://api.line.me/oauth2/v2.1/token', null, {
-            params: {
-                grant_type: 'authorization_code',
-                code: code,  // 使用授權碼
-                redirect_uri: 'https://zhima-youzi.onrender.com/success/callback',  // 必須與您在控制台註冊的回調 URL 一致
-                client_id: process.env.LINE_CLIENT_ID,  // 使用環境變數
-                client_secret: process.env.LINE_CLIENT_SECRET,  // 使用環境變數
-            },
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            }
-        });
-
-        const accessToken = response.data.access_token;
-        console.log('Access Token:', accessToken);
-
-        // 您可以將 access token 儲存或用於後續操作，例如向用戶發送消息等
-        res.send('登入成功！您的 access token 是：' + accessToken);
-    } catch (error) {
-        console.error('錯誤:', error);
-        res.status(500).send('登入失敗，請稍後再試。');
-    }
 });
 
 app.post('/protected-views', (req, res) => {
