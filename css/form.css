@@ -41,7 +41,7 @@ header {
 nav {
     display: flex;
     align-items: center;
-}
+} */
 
 nav a {
     color: #333;
@@ -427,6 +427,167 @@ label {
 
 /* 左側預覽  */
 
+@media (max-width: 767px) {
+
+    * {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        outline: none;
+        border: none;
+        text-decoration: none;
+    }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    .home-icon {
+        display: block; 
+        position: absolute; 
+        left: 5px; 
+        top: 50%; 
+        transform: translateY(-50%); 
+        z-index: 101; 
+        color: white; 
+    }
+
+    header {
+        background: rgba(255, 255, 255);
+        width: 100%;
+        height: 70px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+    }
+
+    nav {
+        display: block;
+    }
+    #menu {
+        position: absolute;
+        float: right;
+        top: 13px;
+        right: 15px;
+    }
+
+    #menu label {
+        font-size: 30px;
+        color: black;
+        cursor: pointer;
+        display: block;
+        position: absolute;
+        top: 0; 
+        right: 0; 
+        z-index: 2; 
+    }
+
+    #menu a {
+        display: none;
+        font-size: 18px;
+        color: white;
+        padding: 1.5rem 0;
+        text-align: center;
+        background-color: #17140c;
+        width: 150px;
+        position: relative;
+        top: 57;
+        margin-right: -15px;
+        z-index: 1;
+    }
+
+    #menu input[type="checkbox"] {
+        display: none;
+    }
+
+    #menu input[type="checkbox"]:checked ~ a {
+        display: block;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-left: 0;
+        gap: 0;
+    }
+    
+    #calendar-container {
+        max-width: 100%; 
+        padding: 8px;
+        margin: 10px auto;
+    }
+    
+    #calendar {
+        max-width: 100%; 
+        padding: 8px; 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-sizing: border-box; 
+    }
+    
+    .weekdays {
+        font-size: 12px;
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        padding: 6px 0;
+        gap: 2px;
+        text-align: center; 
+        width: 100%; 
+        box-sizing: border-box;
+    }
+    
+    .weekdays div {
+        padding: 5px 0; 
+    }
+    
+    #days-container {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        width: 100%; 
+        box-sizing: border-box;
+    }
+    
+    .day {
+        font-size: 12px;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .day:hover:not(.disabled) {
+        background-color: #66BB6A;
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .day.selected {
+        background-color: #66BB6A;
+        color: white;
+        border: 1px solid #66BB6A;
+    }
+    
+    .day.disabled {
+        background-color: #f0f0f0;
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
+    #calendar-buttons button {
+        font-size: 14px;
+        padding: 8px 12px; 
+    }
+}
 
 @media (max-width: 1024px) {
     .container {
