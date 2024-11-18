@@ -9,6 +9,7 @@ const RedisStore = require('connect-redis').default;
 const cookieParser = require('cookie-parser');
 const connectToDatabase = require('./database');
 const redisUrl = process.env.REDIS_URL;
+const fs = require('fs');
 
 const app = express();
 const redisClient = createClient({
@@ -50,11 +51,15 @@ const reservationSchema = new mongoose.Schema({
     children: { type: Number, required: true },
     vegetarian: { type: String, default: '否' },
     specialNeeds: { type: String, default: '無' },
-    notes: { type: String, required: false },
+    notes: { type: String, required: false,  maxlength: 30},
 });
 reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
 
 const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
+
+const { invalidPhoneNumbers } = JSON.parse(fs.readFileSync('pnb.json', 'utf-8'));
+const invalidNumbersPattern = invalidPhoneNumbers.join('|');
+const phoneRegex = new RegExp(`^09(?!${invalidNumbersPattern})\\d{8}$`);
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'html', 'index.html')));
 app.get('/form', (req, res) => res.sendFile(path.join(__dirname, 'html', 'form.html')));
@@ -70,9 +75,12 @@ app.post('/reservations', async (req, res) => {
     const token = generateToken(8);
     const expiration = 120; 
 
-
-    const phoneRegex = /^09\d{8}$/;
-    if (!phoneRegex.test(phone)) return res.status(400).json({ success: false, message: '電話格式不正確，請使用台灣手機格式' });
+    if (!phoneRegex.test(phone)) {
+        return res.status(400).json({
+          success: false,
+          message: '電話格式不正確或為無效號碼，請使用台灣合法手機格式'
+        });
+      }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return res.status(400).json({ success: false, message: '電子郵件格式不正確' });
@@ -80,6 +88,10 @@ app.post('/reservations', async (req, res) => {
     if (!time || time.trim() === "") return res.status(400).json({ success: false, message: '請選擇用餐時間。' });
 
     try {
+        if (notes === "") {
+            notes = null;
+          }
+
         const reservation = new Reservation({ name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes });
         await reservation.save();
 
