@@ -143,6 +143,12 @@ app.get('/media', async (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'media.html'));
 });
 
+app.get('/get-line-state', (req, res) => {
+    const state = generateState();
+    req.session.state = state;
+    res.json({ state });
+});
+
 // 路由：處理 LINE 回調，交換授權碼換取 Access Token
 aapp.get('/media/line_callback', async (req, res) => {
     const { code, state } = req.query;  // 從 query 參數取得 code 和 state
