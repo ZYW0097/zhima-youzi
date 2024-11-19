@@ -149,35 +149,63 @@ app.get('/get-line-state', (req, res) => {
     res.json({ state });
 });
 
-// 路由：處理 LINE 回調，交換授權碼換取 Access Token
 app.get('/media/line_callback', async (req, res) => {
-    const { code, state } = req.query;  // 從 query 參數取得 code 和 state
+    console.log('Received callback with query:', req.query);  // 添加日誌
+    const { code, state, error, error_description } = req.query;
+
+    // 檢查是否有來自 LINE 的錯誤
+    if (error) {
+        console.error('LINE authorization error:', error, error_description);
+        return res.status(400).json({ 
+            error: 'LINE 授權失敗', 
+            details: error_description 
+        });
+    }
 
     if (!code) {
-        return res.status(400).json({ error: '授權碼未找到' });  // 檢查授權碼
+        console.error('No authorization code received');
+        return res.status(400).json({ error: '授權碼未找到' });
+    }
+
+    if (!req.session.state) {
+        console.error('No state found in session');
+        return res.status(400).json({ error: 'Session state 未找到' });
     }
 
     if (state !== req.session.state) {
-        return res.status(400).json({ error: '無效的 state 參數' });  // 檢查 state 是否匹配
+        console.error('State mismatch. Expected:', req.session.state, 'Received:', state);
+        return res.status(400).json({ error: '無效的 state 參數' });
     }
 
     try {
-        // 使用授權碼交換 Access Token
-        const response = await axios.post('https://api.line.me/oauth2/v2.1/token', {
+        // 使用 URLSearchParams 來正確格式化請求體
+        const params = new URLSearchParams({
             grant_type: 'authorization_code',
-            code,
+            code: code,
             redirect_uri: REDIRECT_URI,
             client_id: LINE_CLIENT_ID,
-            client_secret: LINE_CLIENT_SECRET,
+            client_secret: LINE_CLIENT_SECRET
         });
+
+        const response = await axios.post('https://api.line.me/oauth2/v2.1/token', 
+            params.toString(),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        );
 
         const tokenData = response.data;
         console.log('LINE Access Token:', tokenData);
 
         res.send('LINE 登入成功！');
     } catch (error) {
-        console.error('Error exchanging token:', error.message);
-        res.status(500).json({ error: '交換 LINE Access Token 失敗' });
+        console.error('Token exchange error:', error.response?.data || error.message);
+        res.status(500).json({ 
+            error: '交換 LINE Access Token 失敗',
+            details: error.response?.data || error.message
+        });
     }
 });
 
