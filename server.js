@@ -144,17 +144,15 @@ app.get('/media', async (req, res) => {
 });
 
 // 路由：處理 LINE 回調，交換授權碼換取 Access Token
-app.get('/media/line_callback', async (req, res) => {
+aapp.get('/media/line_callback', async (req, res) => {
     const { code, state } = req.query;  // 從 query 參數取得 code 和 state
 
-    // 檢查授權碼是否存在
     if (!code) {
-        return res.status(400).json({ error: '授權碼未找到' });
+        return res.status(400).json({ error: '授權碼未找到' });  // 檢查授權碼
     }
 
-    // 檢查 state 是否匹配
     if (state !== req.session.state) {
-        return res.status(400).json({ error: '無效的 state 參數' });
+        return res.status(400).json({ error: '無效的 state 參數' });  // 檢查 state 是否匹配
     }
 
     try {
@@ -162,15 +160,14 @@ app.get('/media/line_callback', async (req, res) => {
         const response = await axios.post('https://api.line.me/oauth2/v2.1/token', {
             grant_type: 'authorization_code',
             code,
-            redirect_uri: REDIRECT_URI,  // 設置與 LINE 登入時一致的回調 URI
+            redirect_uri: REDIRECT_URI,
             client_id: LINE_CLIENT_ID,
             client_secret: LINE_CLIENT_SECRET,
         });
 
-        const tokenData = response.data;  // 獲取回應的 token 資料
+        const tokenData = response.data;
         console.log('LINE Access Token:', tokenData);
 
-        // 在此處可以儲存 token 或進行其他處理
         res.send('LINE 登入成功！');
     } catch (error) {
         console.error('Error exchanging token:', error.message);
