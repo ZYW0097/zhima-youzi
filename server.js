@@ -62,7 +62,9 @@ const invalidNumbersPattern = invalidPhoneNumbers.join('|');
 const phoneRegex = new RegExp(`^09(?!${invalidNumbersPattern})\\d{8}$`);
 const LINE_CLIENT_ID = process.env.LINE_CLIENT_ID;  // LINE 客戶端 ID
 const LINE_CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;  // LINE 客戶端密鑰
+const CHANNEL_ACCESS_TOKEN = process.env.CHANNEL_ACCESS_TOKEN;
 const REDIRECT_URI = 'https://zhima-youzi.onrender.com/media/line_callback';  // 您的回調 URL
+
 
 const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
 
@@ -106,7 +108,10 @@ app.post('/reservations', async (req, res) => {
 
         if (req.session.lineUserId) {
             const message = `
+${req.session.lineName}，您好！
 訂位成功通知！
+
+訂位資訊：
 姓名：${name}
 日期：${new Date(date).toLocaleDateString()}
 時間：${time}
@@ -119,11 +124,12 @@ app.post('/reservations', async (req, res) => {
             `.trim();
 
             try {
+                console.log('Attempting to send LINE message with token:', CHANNEL_ACCESS_TOKEN ? 'Token exists' : 'Token missing');
                 await sendLineMessage(req.session.lineUserId, message);
-                console.log('Sent LINE message to:', req.session.lineUserId);
+                console.log('LINE message sent successfully to:', req.session.lineUserId);
             } catch (error) {
                 console.error('Error sending LINE notification:', error);
-                // 繼續處理，不中斷訂位流程
+                // 不中斷訂位流程，但記錄錯誤
             }
         }
 
@@ -145,6 +151,10 @@ app.post('/reservations', async (req, res) => {
 });
 
 async function sendLineMessage(userId, message) {
+    if (!CHANNEL_ACCESS_TOKEN) {
+        throw new Error('CHANNEL_ACCESS_TOKEN is not configured');
+    }
+
     try {
         await axios.post('https://api.line.me/v2/bot/message/push', {
             to: userId,
@@ -160,7 +170,7 @@ async function sendLineMessage(userId, message) {
         });
         console.log('LINE message sent successfully');
     } catch (error) {
-        console.error('Error sending LINE message:', error);
+        console.error('Error sending LINE message:', error.response?.data || error.message);
         throw error;
     }
 }
