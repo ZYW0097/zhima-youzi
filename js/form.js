@@ -79,6 +79,7 @@ function generateCalendar(month = currentMonth, year = currentYear) {
             dayElement.classList.add('disabled');
             dayElement.style.pointerEvents = 'none';
         } else {
+            dayElement.classList.remove('disabled');
             dayElement.style.pointerEvents = 'auto';
             dayElement.addEventListener('click', () => selectDate(day, month, year));
         }
