@@ -134,18 +134,16 @@ app.get('/:token/success', async (req, res) => {
 });
 
 app.get('/media', (req, res) => {
-    // 隨機生成 state 並儲存在 session 中
-    const state = generateState();
-    req.session.state = state;
+    const state = generateState();  // 隨機生成 state
+    req.session.state = state;  // 把 state 存入 session 中
 
-    // 重定向到 LINE 登入頁面
-    const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}`;
-    res.redirect(lineLoginUrl);
+    // 發送 media.html 文件給用戶
+    res.sendFile(path.join(__dirname, 'html', 'media.html'));
 });
 
-// 設定回調路由 /media/line_callback
+// 路由：處理 LINE 回調，交換授權碼換取 Access Token
 app.get('/media/line_callback', async (req, res) => {
-    const { code, state } = req.query;
+    const { code, state } = req.query;  // 從 query 參數取得 code 和 state
 
     // 檢查授權碼是否存在
     if (!code) {
@@ -157,17 +155,17 @@ app.get('/media/line_callback', async (req, res) => {
         return res.status(400).json({ error: '無效的 state 參數' });
     }
 
-    // 使用授權碼交換 Access Token
     try {
+        // 使用授權碼交換 Access Token
         const response = await axios.post('https://api.line.me/oauth2/v2.1/token', {
             grant_type: 'authorization_code',
             code,
-            redirect_uri: REDIRECT_URI,
+            redirect_uri: REDIRECT_URI,  // 設置與 LINE 登入時一致的回調 URI
             client_id: LINE_CLIENT_ID,
             client_secret: LINE_CLIENT_SECRET,
         });
 
-        const tokenData = response.data;
+        const tokenData = response.data;  // 獲取回應的 token 資料
         console.log('LINE Access Token:', tokenData);
 
         // 在此處可以儲存 token 或進行其他處理
