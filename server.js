@@ -133,11 +133,9 @@ app.get('/:token/success', async (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'success.html'));
 });
 
-app.get('/media', (req, res) => {
+app.get('/media', async (req, res) => {
     const state = generateState();  // 隨機生成 state
     req.session.state = state;  // 把 state 存入 session 中
-
-    // 發送 media.html 文件給用戶
     res.sendFile(path.join(__dirname, 'html', 'media.html'));
 });
 
