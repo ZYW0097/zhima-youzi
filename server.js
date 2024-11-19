@@ -60,6 +60,9 @@ reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
 const { invalidPhoneNumbers } = JSON.parse(fs.readFileSync('pnb.json', 'utf-8'));
 const invalidNumbersPattern = invalidPhoneNumbers.join('|');
 const phoneRegex = new RegExp(`^09(?!${invalidNumbersPattern})\\d{8}$`);
+const LINE_CLIENT_ID = process.env.LINE_CLIENT_ID;  // LINE 客戶端 ID
+const LINE_CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;  // LINE 客戶端密鑰
+const REDIRECT_URI = 'https://zhima-youzi.onrender.com/media/line_callback';  // 您的回調 URL
 
 const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
 
@@ -128,6 +131,51 @@ app.get('/:token/success', async (req, res) => {
     }, 120000);
 
     res.sendFile(path.join(__dirname, 'html', 'success.html'));
+});
+
+app.get('/media', (req, res) => {
+    // 隨機生成 state 並儲存在 session 中
+    const state = generateState();
+    req.session.state = state;
+
+    // 重定向到 LINE 登入頁面
+    const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}`;
+    res.redirect(lineLoginUrl);
+});
+
+// 設定回調路由 /media/line_callback
+app.get('/media/line_callback', async (req, res) => {
+    const { code, state } = req.query;
+
+    // 檢查授權碼是否存在
+    if (!code) {
+        return res.status(400).json({ error: '授權碼未找到' });
+    }
+
+    // 檢查 state 是否匹配
+    if (state !== req.session.state) {
+        return res.status(400).json({ error: '無效的 state 參數' });
+    }
+
+    // 使用授權碼交換 Access Token
+    try {
+        const response = await axios.post('https://api.line.me/oauth2/v2.1/token', {
+            grant_type: 'authorization_code',
+            code,
+            redirect_uri: REDIRECT_URI,
+            client_id: LINE_CLIENT_ID,
+            client_secret: LINE_CLIENT_SECRET,
+        });
+
+        const tokenData = response.data;
+        console.log('LINE Access Token:', tokenData);
+
+        // 在此處可以儲存 token 或進行其他處理
+        res.send('LINE 登入成功！');
+    } catch (error) {
+        console.error('Error exchanging token:', error.message);
+        res.status(500).json({ error: '交換 LINE Access Token 失敗' });
+    }
 });
 
 app.post('/protected-views', (req, res) => {
