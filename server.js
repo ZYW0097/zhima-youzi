@@ -75,6 +75,10 @@ function generateToken(length = 8) {
     return crypto.randomBytes(length).toString('hex').slice(0, length);
 }
 
+function generateState() {
+    return crypto.randomBytes(16).toString('hex');
+}
+
 app.post('/reservations', async (req, res) => {
     const { name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes } = req.body;
     const token = generateToken(8);
