@@ -198,9 +198,30 @@ app.get('/media/line_callback', async (req, res) => {
     console.log('Received callback with query:', req.query);
     const { code, state, error, error_description } = req.query;
 
-    // ... 前面的驗證代碼保持不變 ...
+    // 檢查是否有來自 LINE 的錯誤
+    if (error) {
+        console.error('LINE authorization error:', error, error_description);
+        return res.status(400).json({ 
+            error: 'LINE 授權失敗', 
+            details: error_description 
+        });
+    }
+
+    if (!code) {
+        console.error('No authorization code received');
+        return res.status(400).json({ error: '授權碼未找到' });
+    }
 
     try {
+        // 創建用於交換訪問令牌的參數
+        const params = new URLSearchParams({
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: REDIRECT_URI,
+            client_id: LINE_CLIENT_ID,
+            client_secret: LINE_CLIENT_SECRET
+        });
+
         // 獲取訪問令牌
         const tokenResponse = await axios.post('https://api.line.me/oauth2/v2.1/token', 
             params.toString(),
@@ -212,19 +233,21 @@ app.get('/media/line_callback', async (req, res) => {
         );
 
         const tokenData = tokenResponse.data;
-        
-        // 獲取用戶資料
-        const profileResponse = await axios.get('https://api.line.me/v2/profile', {
-            headers: {
-                'Authorization': `Bearer ${tokenData.access_token}`
-            }
-        });
+        console.log('LINE Access Token:', tokenData);
 
-        const userProfile = profileResponse.data;
+        // 解析 id_token 來獲取用戶資訊
+        const idToken = tokenData.id_token;
+        const [, payload] = idToken.split('.');
+        const decodedPayload = JSON.parse(Buffer.from(payload, 'base64').toString());
         
-        // 將用戶 ID 存入 session
-        req.session.lineUserId = userProfile.userId;
-        console.log('Stored LINE userId:', userProfile.userId);
+        // 儲存用戶 ID 到 session
+        req.session.lineUserId = decodedPayload.sub;  // sub 是用戶的 LINE ID
+        req.session.lineName = decodedPayload.name;   // 也可以儲存用戶名稱
+        
+        console.log('Stored LINE user info:', {
+            userId: req.session.lineUserId,
+            name: req.session.lineName
+        });
 
         // 重定向到訂位表單
         res.redirect('/form');
