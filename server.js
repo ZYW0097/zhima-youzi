@@ -53,7 +53,12 @@ const reservationSchema = new mongoose.Schema({
     children: { type: Number, required: true },
     vegetarian: { type: String, default: '否' },
     specialNeeds: { type: String, default: '無' },
-    notes: { type: String, required: false,  maxlength: 30},
+    notes: { 
+        type: String, 
+        required: false,  
+        default: '無',    // 添加預設值
+        maxlength: 30
+    },
 });
 reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
 
@@ -82,31 +87,30 @@ function generateState() {
 }
 
 app.post('/reservations', async (req, res) => {
+    console.log('Received reservation request:', req.body);  // 添加請求日誌
+    console.log('Session LINE info:', {     // 添加 LINE 資訊日誌
+        userId: req.session.lineUserId,
+        name: req.session.lineName
+    });
+
     const { name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes } = req.body;
     const token = generateToken(8);
-    const expiration = 120; 
-
-    if (!phoneRegex.test(phone)) {
-        return res.status(400).json({
-          success: false,
-          message: '電話格式不正確或為無效號碼，請使用台灣合法手機格式'
-        });
-      }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) return res.status(400).json({ success: false, message: '電子郵件格式不正確' });
-
-    if (!time || time.trim() === "") return res.status(400).json({ success: false, message: '請選擇用餐時間。' });
+    const expiration = 120;
 
     try {
-        if (notes === "") {
-            notes = null;
-          }
-
-        const reservation = new Reservation({ name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes });
+        // 保存訂位資料
+        const reservation = new Reservation({ 
+            name, phone, email, gender, date, time, 
+            adults, children, vegetarian, specialNeeds, notes 
+        });
+        
+        console.log('Attempting to save reservation:', reservation);  // 添加保存日誌
         await reservation.save();
+        console.log('Reservation saved successfully');  // 添加成功日誌
 
+        // 如果有 LINE 用戶 ID，發送通知
         if (req.session.lineUserId) {
+            console.log('Preparing to send LINE notification');  // 添加 LINE 通知日誌
             const message = `
 ${req.session.lineName}，您好！
 訂位成功通知！
@@ -124,39 +128,48 @@ ${req.session.lineName}，您好！
             `.trim();
 
             try {
-                console.log('Attempting to send LINE message with token:', CHANNEL_ACCESS_TOKEN ? 'Token exists' : 'Token missing');
                 await sendLineMessage(req.session.lineUserId, message);
-                console.log('LINE message sent successfully to:', req.session.lineUserId);
+                console.log('LINE notification sent successfully');
             } catch (error) {
-                console.error('Error sending LINE notification:', error);
-                // 不中斷訂位流程，但記錄錯誤
+                console.error('LINE notification error:', error);
+                // 繼續處理，不中斷訂位流程
             }
         }
 
         await redisClient.set(token, JSON.stringify({
-            name,
-            phone,
-            gender,
-            date,
-            time,
+            name, phone, gender, date, time,
         }), 'EX', expiration);
 
         res.cookie('token', token, { httpOnly: true });
-        console.log(`Token Created: ${token}, Expiration: ${expiration}s, User: ${name}, Time: ${new Date().toISOString()}`);
-        
         res.json({ success: true, redirectUrl: `/${token}/success` });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: '訂位失敗，請稍後再試。', error: error.message });
+        console.error('Reservation error details:', {  // 添加詳細錯誤日誌
+            error: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+        
+        // 返回更具體的錯誤訊息
+        res.status(500).json({ 
+            success: false, 
+            message: '訂位失敗，請稍後再試。', 
+            error: error.message,
+            details: error.name === 'ValidationError' ? '資料驗證失敗' : '系統錯誤'
+        });
     }
 });
 
+// LINE 訊息發送函數的錯誤處理改進
 async function sendLineMessage(userId, message) {
     if (!CHANNEL_ACCESS_TOKEN) {
-        throw new Error('CHANNEL_ACCESS_TOKEN is not configured');
+        console.error('CHANNEL_ACCESS_TOKEN is missing');  // 添加配置錯誤日誌
+        throw new Error('LINE messaging configuration is incomplete');
     }
 
     try {
-        await axios.post('https://api.line.me/v2/bot/message/push', {
+        console.log('Sending LINE message to:', userId);  // 添加發送日誌
+        const response = await axios.post('https://api.line.me/v2/bot/message/push', {
             to: userId,
             messages: [{
                 type: "text",
@@ -168,9 +181,14 @@ async function sendLineMessage(userId, message) {
                 'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
             }
         });
-        console.log('LINE message sent successfully');
+        console.log('LINE API response:', response.data);  // 添加響應日誌
+        return response.data;
     } catch (error) {
-        console.error('Error sending LINE message:', error.response?.data || error.message);
+        console.error('LINE message error details:', {  // 添加詳細錯誤日誌
+            error: error.message,
+            response: error.response?.data,
+            status: error.response?.status
+        });
         throw error;
     }
 }
