@@ -47,8 +47,17 @@
         
         const redirectUri = 'https://zhima-youzi.onrender.com/media/line_callback';
         
-        // 使用新的 Channel ID
-        window.location.href = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2006585055&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+        // 使用 URLSearchParams 來正確編碼所有參數
+        const params = new URLSearchParams({
+            response_type: 'code',
+            client_id: '2006585055',
+            redirect_uri: redirectUri,
+            state: state,
+            scope: 'profile openid email',  // 添加授權範圍
+            bot_prompt: 'normal'            // 添加機器人提示
+        });
+        
+        window.location.href = `https://access.line.me/oauth2/v2.1/authorize?${params.toString()}`;
     });
 
     // Facebook 跳轉至個人檔案
