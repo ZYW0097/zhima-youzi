@@ -32,6 +32,14 @@ require('dotenv').config();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+app.use(cookieParser());
+app.use(session({
+    store: new RedisStore({ client: redisClient }),
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+}));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -47,6 +55,11 @@ app.use((req, res, next) => {
     next();
 });
 
+// 添加在靜態文件中間件之後
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, 'images', 'logo.ico'));
+});
+
 // 靜態文件中間件 - 注意順序
 app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use('/css', express.static(path.join(__dirname, 'css')));
@@ -59,14 +72,6 @@ app.get('/form', (req, res) => res.sendFile(path.join(__dirname, 'html', 'form.h
 app.get('/questions', (req, res) => res.sendFile(path.join(__dirname, 'html', 'questions.html')));
 app.get('/menu', (req, res) => res.sendFile(path.join(__dirname, 'html', 'menu.html')));
 app.get('/line', (req, res) => res.sendFile(path.join(__dirname, 'html', 'line.html')));
-
-app.use(cookieParser());
-app.use(session({
-    store: new RedisStore({ client: redisClient }),
-    secret: 'your-secret-key',
-    resave: false,
-    saveUninitialized: true,
-}));
 
 connectToDatabase();
 redisClient.connect().catch(console.error);
@@ -316,7 +321,7 @@ ${lineName}，您好！
                 
 訂位資訊：
 姓名：${recentReservation.name}
-日期：${new Date(date).getFullYear()}/${String(new Date(date).getMonth() + 1).padStart(2, '0')}/${String(new Date(date).getDate()).padStart(2, '0')} (${['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()]})</p>
+日期：${new Date(recentReservation.date).getFullYear()}/${String(new Date(recentReservation.date).getMonth() + 1).padStart(2, '0')}/${String(new Date(recentReservation.date).getDate()).padStart(2, '0')} (${['日', '一', '二', '三', '四', '五', '六'][new Date(recentReservation.date).getDay()]})
 時間：${recentReservation.time}
 人數：${recentReservation.adults}大${recentReservation.children}小
 素食：${recentReservation.vegetarian}
