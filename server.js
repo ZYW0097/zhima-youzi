@@ -298,7 +298,7 @@ app.get('/line/line_callback', async (req, res) => {
         req.session.lineName = lineName;
 
         // 查找最近的訂位記錄
-        const recentReservation = await Reservation.findOne().sort({ createdAt: 1 });
+        const recentReservation = await Reservation.findOne().sort({ _id: -1 });
         
         if (recentReservation) {
             // 檢查是否已存在該用戶
