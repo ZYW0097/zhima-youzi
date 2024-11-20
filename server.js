@@ -199,7 +199,7 @@ app.post('/reservations', async (req, res) => {
         // 發送 Email
         await sendEmail(email, {
             name,
-            date,
+            date: taiwanDate,
             time,
             adults,
             children,
