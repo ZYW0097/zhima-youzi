@@ -141,8 +141,8 @@ async function sendEmail(toEmail, reservationData) {
                 
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
                     <p style="color: #999; font-size: 14px;">芝麻柚子 とんかつ</p>
-                    <p style="color: #999; font-size: 14px;">電話：[您的餐廳電話]</p>
-                    <p style="color: #999; font-size: 14px;">地址：[您的餐廳地址]</p>
+                    <p style="color: #999; font-size: 14px;">電話：03 558 7360</p>
+                    <p style="color: #999; font-size: 14px;">地址：新竹縣竹北市光明一路490號</p>
                 </div>
             </div>
         `
