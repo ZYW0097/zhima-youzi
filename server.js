@@ -83,7 +83,7 @@ const reservationSchema = new mongoose.Schema({
     phone: { type: String, required: true },
     email: { type: String, required: true },
     gender: { type: String, required: true },
-    date: { type: Date, required: true },
+    date: { type: String, required: true },
     time: { type: String, required: true },
     adults: { type: Number, required: true },
     children: { type: Number, required: true },
@@ -184,9 +184,10 @@ app.post('/reservations', async (req, res) => {
     const expiration = 120;
 
     try {
+        const taiwanDate = moment.tz(date, 'Asia/Taipei').format('YYYY-MM-DD');
         // 保存訂位資料
         const reservation = new Reservation({ 
-            name, phone, email, gender, date, time, 
+            name, phone, email, gender, date: taiwanDate, time, 
             adults, children, vegetarian, specialNeeds, notes 
         });
         
@@ -235,7 +236,17 @@ ${userID.lineName}，您好！
         }
 
         await redisClient.set(token, JSON.stringify({
-            name, phone, email, gender, date, time,
+            name,
+            phone,
+            email,
+            gender,
+            date: taiwanDate,
+            time,
+            adults,
+            children,
+            vegetarian,
+            specialNeeds,
+            notes
         }), 'EX', expiration);
 
         res.cookie('token', token, { httpOnly: true });
