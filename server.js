@@ -34,10 +34,31 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use('/images', express.static('images'));
-app.use('/css', express.static('css'));
-app.use('/js', express.static('js'));
-app.use(express.static(path.join(__dirname, 'html')));
+
+// 2. MIME 類型中間件
+app.use((req, res, next) => {
+    if (req.path.endsWith('.css')) {
+        res.type('text/css');
+    } else if (req.path.endsWith('.js')) {
+        res.type('application/javascript');
+    } else if (req.path.endsWith('.ico')) {
+        res.type('image/x-icon');
+    }
+    next();
+});
+
+// 3. 靜態文件中間件
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+
+// 4. 路由設置
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'html', 'index.html')));
+app.get('/form', (req, res) => res.sendFile(path.join(__dirname, 'html', 'form.html')));
+app.get('/questions', (req, res) => res.sendFile(path.join(__dirname, 'html', 'questions.html')));
+app.get('/menu', (req, res) => res.sendFile(path.join(__dirname, 'html', 'menu.html')));
+app.get('/line', (req, res) => res.sendFile(path.join(__dirname, 'html', 'line.html')));
+
 app.use(cookieParser());
 app.use(session({
     store: new RedisStore({ client: redisClient }),
@@ -88,12 +109,6 @@ const REDIRECT_URI = 'https://zhima-youzi.onrender.com/line/line_callback';  // 
 
 
 const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
-
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'html', 'index.html')));
-app.get('/form', (req, res) => res.sendFile(path.join(__dirname, 'html', 'form.html')));
-app.get('/questions', (req, res) => res.sendFile(path.join(__dirname, 'html', 'questions.html')));
-app.get('/menu', (req, res) => res.sendFile(path.join(__dirname, 'html', 'menu.html')));
-app.get('/line', (req, res) => res.sendFile(path.join(__dirname, 'html', 'line.html')));
 
 function generateToken(length = 8) {
     return crypto.randomBytes(length).toString('hex').slice(0, length);
