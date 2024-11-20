@@ -48,6 +48,7 @@ app.use((req, res, next) => {
 });
 
 // 3. 靜態文件中間件
+app.use(express.static(path.join(__dirname, 'html')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
@@ -66,14 +67,6 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
 }));
-app.use((req, res, next) => {
-    if (req.path.endsWith('.css')) {
-        res.type('text/css');
-    } else if (req.path.endsWith('.js')) {
-        res.type('application/javascript');
-    }
-    next();
-});
 
 connectToDatabase();
 redisClient.connect().catch(console.error);
