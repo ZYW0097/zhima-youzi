@@ -12,7 +12,6 @@ const redisUrl = process.env.REDIS_URL;
 const fs = require('fs');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
-const moment = require('moment-timezone');
 
 const app = express();
 const redisClient = createClient({
@@ -129,7 +128,8 @@ async function sendEmail(toEmail, reservationData) {
         notes
     } = reservationData;
 
-    const formattedDate = moment(date).tz('Asia/Taipei');
+    const displayDate = date.replace(/-/g, '/');
+    const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()];
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: toEmail,
@@ -143,7 +143,7 @@ async function sendEmail(toEmail, reservationData) {
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
                     <p style="margin: 5px 0;">姓名：${name}</p>
-                    <p style="margin: 5px 0;">日期：${formattedDate.format('YYYY/MM/DD')} (${['日', '一', '二', '三', '四', '五', '六'][formattedDate.day()]})</p>
+                    <p style="margin: 5px 0;">日期：${displayDate} (${dayOfWeek})</p>
                     <p style="margin: 5px 0;">時間：${time}</p>
                     <p style="margin: 5px 0;">人數：${adults}大${children}小</p>
                     <p style="margin: 5px 0;">素食：${vegetarian}</p>
@@ -184,10 +184,9 @@ app.post('/reservations', async (req, res) => {
     const expiration = 120;
 
     try {
-        const taiwanDate = moment.tz(date, 'Asia/Taipei').format('YYYY-MM-DD');
         // 保存訂位資料
         const reservation = new Reservation({ 
-            name, phone, email, gender, date: taiwanDate, time, 
+            name, phone, email, gender, date, time, 
             adults, children, vegetarian, specialNeeds, notes 
         });
         
@@ -199,7 +198,7 @@ app.post('/reservations', async (req, res) => {
         // 發送 Email
         await sendEmail(email, {
             name,
-            date: taiwanDate,
+            date,
             time,
             adults,
             children,
@@ -210,14 +209,15 @@ app.post('/reservations', async (req, res) => {
 
         // 如果找到對應的 LINE 用戶，發送 LINE 通知
         if (userID) {
-            const formattedDate = moment(date).tz('Asia/Taipei');
+            const displayDate = date.replace(/-/g, '/');
+            const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()];
             const message = `
 ${userID.lineName}，您好！
 訂位成功通知！
 
 訂位資訊：
 姓名：${name}
-日期：${formattedDate.format('YYYY/MM/DD')} (${['日', '一', '二', '三', '四', '五', '六'][formattedDate.day()]})
+日期：${displayDate} (${dayOfWeek})
 時間：${time}
 人數：${adults}大${children}小
 素食：${vegetarian}
@@ -240,7 +240,7 @@ ${userID.lineName}，您好！
             phone,
             email,
             gender,
-            date: taiwanDate,
+            date,
             time,
             adults,
             children,
@@ -332,7 +332,8 @@ app.get('/line/line_callback', async (req, res) => {
                     await userID.save();
 
                     // 發送綁定成功通知
-                    const formattedDate = moment(reservation.date).tz('Asia/Taipei');
+                    const displayDate = reservation.date.replace(/-/g, '/');
+                    const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(reservation.date).getDay()];
                     const message = `
 ${lineName}，您好！
 感謝您綁定 LINE 通知！
@@ -340,7 +341,7 @@ ${lineName}，您好！
                     
 訂位資訊：
 姓名：${reservation.name}
-日期：${formattedDate.format('YYYY/MM/DD')} (${['日', '一', '二', '三', '四', '五', '六'][formattedDate.day()]})
+日期：${displayDate} (${dayOfWeek})
 時間：${reservation.time}
 人數：${reservation.adults}大${reservation.children}小
 素食：${reservation.vegetarian}
