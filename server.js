@@ -213,7 +213,7 @@ ${userID.lineName}，您好！
 
 訂位資訊：
 姓名：${name}
-日期：${new Date(date).getFullYear()}/${String(new Date(date).getMonth() + 1).padStart(2, '0')}/${String(new Date(date).getDate()).padStart(2, '0')} (${['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()]})</p>
+日期：${new Date(date).getFullYear()}/${String(new Date(date).getMonth() + 1).padStart(2, '0')}/${String(new Date(date).getDate()).padStart(2, '0')} (${['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()]})
 時間：${time}
 人數：${adults}大${children}小
 素食：${vegetarian}
