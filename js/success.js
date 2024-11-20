@@ -1,7 +1,9 @@
-// 從後端 API 獲取訂位資料
 async function getReservationData() {
     try {
         const response = await fetch('/api/reservation-data');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         
         // 格式化日期
@@ -16,8 +18,14 @@ async function getReservationData() {
         document.getElementById('customerEmail').textContent = data.email;
     } catch (error) {
         console.error('Error fetching reservation data:', error);
+        // 顯示錯誤訊息給用戶
+        document.getElementById('error-message').textContent = '無法載入訂位資料，請稍後再試';
     }
 }
 
-// 頁面載入時獲取數據
-document.addEventListener('DOMContentLoaded', getReservationData);
+// 只在文檔完全載入後執行
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', getReservationData);
+} else {
+    getReservationData();
+}
