@@ -35,7 +35,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// 2. MIME 類型中間件
+// MIME 類型中間件
 app.use((req, res, next) => {
     if (req.path.endsWith('.css')) {
         res.type('text/css');
@@ -47,13 +47,13 @@ app.use((req, res, next) => {
     next();
 });
 
-// 3. 靜態文件中間件
-app.use(express.static(path.join(__dirname, 'html')));
-app.use('/images', express.static(path.join(__dirname, 'images')));
-app.use('/css', express.static(path.join(__dirname, 'css')));
+// 靜態文件中間件 - 注意順序
 app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use(express.static(path.join(__dirname, 'html')));
 
-// 4. 路由設置
+// 路由設置
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'html', 'index.html')));
 app.get('/form', (req, res) => res.sendFile(path.join(__dirname, 'html', 'form.html')));
 app.get('/questions', (req, res) => res.sendFile(path.join(__dirname, 'html', 'questions.html')));
@@ -208,7 +208,7 @@ ${userID.lineName}，您好！
 
 訂位資訊：
 姓名：${name}
-日期：${new Date(date).toLocaleDateString()}
+日期：${new Date(date).getFullYear()}/${String(new Date(date).getMonth() + 1).padStart(2, '0')}/${String(new Date(date).getDate()).padStart(2, '0')} (${['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()]})</p>
 時間：${time}
 人數：${adults}大${children}小
 素食：${vegetarian}
@@ -316,7 +316,7 @@ ${lineName}，您好！
                 
 訂位資訊：
 姓名：${recentReservation.name}
-日期：${new Date(recentReservation.date).toLocaleDateString()}
+日期：${new Date(date).getFullYear()}/${String(new Date(date).getMonth() + 1).padStart(2, '0')}/${String(new Date(date).getDate()).padStart(2, '0')} (${['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()]})</p>
 時間：${recentReservation.time}
 人數：${recentReservation.adults}大${recentReservation.children}小
 素食：${recentReservation.vegetarian}
@@ -330,7 +330,7 @@ ${lineName}，您好！
             }
         }
 
-        res.redirect('/web2/html/index.html');
+        res.redirect('/');
 
     } catch (error) {
         console.error('Error:', error.response?.data || error.message);
