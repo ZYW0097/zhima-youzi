@@ -12,6 +12,7 @@ const redisUrl = process.env.REDIS_URL;
 const fs = require('fs');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
+const moment = require('moment-timezone');
 
 const app = express();
 const redisClient = createClient({
@@ -128,6 +129,7 @@ async function sendEmail(toEmail, reservationData) {
         notes
     } = reservationData;
 
+    const formattedDate = moment(date).tz('Asia/Taipei');
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: toEmail,
@@ -141,7 +143,7 @@ async function sendEmail(toEmail, reservationData) {
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
                     <p style="margin: 5px 0;">姓名：${name}</p>
-                    <p style="margin: 5px 0;">日期：${new Date(date).getFullYear()}/${String(new Date(date).getMonth() + 1).padStart(2, '0')}/${String(new Date(date).getDate()).padStart(2, '0')} (${['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()]})</p>
+                    <p style="margin: 5px 0;">日期：${formattedDate.format('YYYY/MM/DD')} (${['日', '一', '二', '三', '四', '五', '六'][formattedDate.day()]})</p>
                     <p style="margin: 5px 0;">時間：${time}</p>
                     <p style="margin: 5px 0;">人數：${adults}大${children}小</p>
                     <p style="margin: 5px 0;">素食：${vegetarian}</p>
@@ -207,13 +209,14 @@ app.post('/reservations', async (req, res) => {
 
         // 如果找到對應的 LINE 用戶，發送 LINE 通知
         if (userID) {
+            const formattedDate = moment(date).tz('Asia/Taipei');
             const message = `
 ${userID.lineName}，您好！
 訂位成功通知！
 
 訂位資訊：
 姓名：${name}
-日期：${new Date(date).getFullYear()}/${String(new Date(date).getMonth() + 1).padStart(2, '0')}/${String(new Date(date).getDate()).padStart(2, '0')} (${['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()]})
+日期：${formattedDate.format('YYYY/MM/DD')} (${['日', '一', '二', '三', '四', '五', '六'][formattedDate.day()]})
 時間：${time}
 人數：${adults}大${children}小
 素食：${vegetarian}
@@ -298,40 +301,46 @@ app.get('/line/line_callback', async (req, res) => {
         req.session.lineName = lineName;
 
         // 查找最近的訂位記錄
-        const recentReservation = await Reservation.findOne().sort({ _id: -1 });
-        
-        if (recentReservation) {
-            // 檢查是否已存在該用戶
-            let userID = await UserID.findOne({ lineUserId });
-            
-            if (!userID) {
-                // 創建新的用戶記錄
-                userID = new UserID({
-                    lineUserId,
-                    lineName,
-                    phone: recentReservation.phone
-                });
-                await userID.save();
+        const token = req.cookies.token;
+        if (token) {
+            // 從 redis 獲取預約資料
+            const reservationData = await redisClient.get(token);
+            if (reservationData) {
+                const reservation = JSON.parse(reservationData);
+                
+                // 檢查是否已存在該用戶
+                let userID = await UserID.findOne({ lineUserId });
+                
+                if (!userID) {
+                    // 創建新的用戶記錄
+                    userID = new UserID({
+                        lineUserId,
+                        lineName,
+                        phone: reservation.phone  // 使用 redis 中的電話號碼
+                    });
+                    await userID.save();
 
-                // 發送綁定成功通知
-                const message = `
+                    // 發送綁定成功通知
+                    const formattedDate = moment(reservation.date).tz('Asia/Taipei');
+                    const message = `
 ${lineName}，您好！
 感謝您綁定 LINE 通知！
 未來將透過 LINE 發送訂位相關通知。
-                
+                    
 訂位資訊：
-姓名：${recentReservation.name}
-日期：${new Date(recentReservation.date).getFullYear()}/${String(new Date(recentReservation.date).getMonth() + 1).padStart(2, '0')}/${String(new Date(recentReservation.date).getDate()).padStart(2, '0')} (${['日', '一', '二', '三', '四', '五', '六'][new Date(recentReservation.date).getDay()]})
-時間：${recentReservation.time}
-人數：${recentReservation.adults}大${recentReservation.children}小
-素食：${recentReservation.vegetarian}
-特殊需求：${recentReservation.specialNeeds}
-備註：${recentReservation.notes || '無'}
-                
+姓名：${reservation.name}
+日期：${formattedDate.format('YYYY/MM/DD')} (${['日', '一', '二', '三', '四', '五', '六'][formattedDate.day()]})
+時間：${reservation.time}
+人數：${reservation.adults}大${reservation.children}小
+素食：${reservation.vegetarian}
+特殊需求：${reservation.specialNeeds}
+備註：${reservation.notes || '無'}
+                    
 感謝您的訂位！
-                `.trim();
+                    `.trim();
 
-                await sendLineMessage(lineUserId, message);
+                    await sendLineMessage(lineUserId, message);
+                }
             }
         }
 
