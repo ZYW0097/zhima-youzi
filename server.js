@@ -7,16 +7,24 @@ const crypto = require('crypto');
 const { createClient } = require('redis');
 const RedisStore = require('connect-redis').default;
 const cookieParser = require('cookie-parser');
-const connectToDatabase = require('./database');
+const { connectToDatabase, UserID } = require('./database');
 const redisUrl = process.env.REDIS_URL;
 const fs = require('fs');
 const axios = require('axios');
-const channelAccessToken = process.env.LINEAPI;
+const nodemailer = require('nodemailer');
 
 const app = express();
 const redisClient = createClient({
     url: redisUrl
   });
+const transporter = nodemailer.createTransport({
+    service: 'Gmail',  // 使用 Gmail
+    auth: {
+        user: process.env.EMAIL_USER,     // 你的 Gmail
+        pass: process.env.EMAIL_PASSWORD  // 你的應用程式密碼
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 require('dotenv').config();
@@ -68,7 +76,7 @@ const phoneRegex = new RegExp(`^09(?!${invalidNumbersPattern})\\d{8}$`);
 const LINE_CLIENT_ID = process.env.LINE_CLIENT_ID;  // LINE 客戶端 ID
 const LINE_CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;  // LINE 客戶端密鑰
 const CHANNEL_ACCESS_TOKEN = process.env.CHANNEL_ACCESS_TOKEN;
-const REDIRECT_URI = 'https://zhima-youzi.onrender.com/media/line_callback';  // 您的回調 URL
+const REDIRECT_URI = 'https://zhima-youzi.onrender.com/line/line_callback';  // 您的回調 URL
 
 
 const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
@@ -77,6 +85,7 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'html', 'index.html
 app.get('/form', (req, res) => res.sendFile(path.join(__dirname, 'html', 'form.html')));
 app.get('/questions', (req, res) => res.sendFile(path.join(__dirname, 'html', 'questions.html')));
 app.get('/menu', (req, res) => res.sendFile(path.join(__dirname, 'html', 'menu.html')));
+app.get('/line', (req, res) => res.sendFile(path.join(__dirname, 'html', 'line.html')));
 
 function generateToken(length = 8) {
     return crypto.randomBytes(length).toString('hex').slice(0, length);
@@ -84,6 +93,60 @@ function generateToken(length = 8) {
 
 function generateState() {
     return crypto.randomBytes(16).toString('hex');
+}
+
+async function sendEmail(toEmail, reservationData) {
+    const {
+        name,
+        date,
+        time,
+        adults,
+        children,
+        vegetarian,
+        specialNeeds,
+        notes
+    } = reservationData;
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: toEmail,
+        subject: '芝麻柚子 とんかつ | 訂位確認通知',
+        html: `
+            <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #333;">訂位確認通知</h2>
+                <p style="color: #666;">${name} 您好，</p>
+                <p style="color: #666;">感謝您在芝麻柚子 とんかつ 訂位，以下是您的訂位資訊：</p>
+                
+                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
+                    <p style="margin: 5px 0;">姓名：${name}</p>
+                    <p style="margin: 5px 0;">日期：${new Date(date).toLocaleDateString()}</p>
+                    <p style="margin: 5px 0;">時間：${time}</p>
+                    <p style="margin: 5px 0;">人數：${adults}大${children}小</p>
+                    <p style="margin: 5px 0;">素食：${vegetarian}</p>
+                    <p style="margin: 5px 0;">特殊需求：${specialNeeds}</p>
+                    <p style="margin: 5px 0;">備註：${notes || '無'}</p>
+                </div>
+
+                <p style="color: #666;">如需修改訂位，請提前來電告知。</p>
+                <p style="color: #666;">期待您的光臨！</p>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <p style="color: #999; font-size: 14px;">芝麻柚子 とんかつ</p>
+                    <p style="color: #999; font-size: 14px;">電話：[您的餐廳電話]</p>
+                    <p style="color: #999; font-size: 14px;">地址：[您的餐廳地址]</p>
+                </div>
+            </div>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully to:', toEmail);
+    } catch (error) {
+        console.error('Email sending error:', error);
+        throw error;
+    }
 }
 
 app.post('/reservations', async (req, res) => {
@@ -104,15 +167,27 @@ app.post('/reservations', async (req, res) => {
             adults, children, vegetarian, specialNeeds, notes 
         });
         
-        console.log('Attempting to save reservation:', reservation);  // 添加保存日誌
         await reservation.save();
-        console.log('Reservation saved successfully');  // 添加成功日誌
 
-        // 如果有 LINE 用戶 ID，發送通知
-        if (req.session.lineUserId) {
-            console.log('Preparing to send LINE notification');  // 添加 LINE 通知日誌
+        // 檢查電話號碼是否在 UserID 資料庫中
+        const userID = await UserID.findOne({ phone });
+
+        // 發送 Email
+        await sendEmail(email, {
+            name,
+            date,
+            time,
+            adults,
+            children,
+            vegetarian,
+            specialNeeds,
+            notes
+        });
+
+        // 如果找到對應的 LINE 用戶，發送 LINE 通知
+        if (userID) {
             const message = `
-${req.session.lineName}，您好！
+${userID.lineName}，您好！
 訂位成功通知！
 
 訂位資訊：
@@ -128,34 +203,124 @@ ${req.session.lineName}，您好！
             `.trim();
 
             try {
-                await sendLineMessage(req.session.lineUserId, message);
+                await sendLineMessage(userID.lineUserId, message);
                 console.log('LINE notification sent successfully');
             } catch (error) {
                 console.error('LINE notification error:', error);
-                // 繼續處理，不中斷訂位流程
             }
         }
 
         await redisClient.set(token, JSON.stringify({
-            name, phone, gender, date, time,
+            name, phone, email, gender, date, time,
         }), 'EX', expiration);
 
         res.cookie('token', token, { httpOnly: true });
         res.json({ success: true, redirectUrl: `/${token}/success` });
 
     } catch (error) {
-        console.error('Reservation error details:', {  // 添加詳細錯誤日誌
-            error: error.message,
-            stack: error.stack,
-            name: error.name
-        });
-        
-        // 返回更具體的錯誤訊息
+        console.error('Reservation error details:', error);
         res.status(500).json({ 
             success: false, 
             message: '訂位失敗，請稍後再試。', 
             error: error.message,
             details: error.name === 'ValidationError' ? '資料驗證失敗' : '系統錯誤'
+        });
+    }
+});
+
+app.get('/line/line_callback', async (req, res) => {
+    console.log('Received callback with query:', req.query);
+    const { code, state, error, error_description } = req.query;
+
+    if (error) {
+        console.error('LINE authorization error:', error, error_description);
+        return res.status(400).json({ 
+            error: 'LINE 授權失敗', 
+            details: error_description 
+        });
+    }
+
+    if (!code) {
+        console.error('No authorization code received');
+        return res.status(400).json({ error: '授權碼未找到' });
+    }
+
+    try {
+        // 獲取訪問令牌
+        const params = new URLSearchParams({
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: REDIRECT_URI,
+            client_id: LINE_CLIENT_ID,
+            client_secret: LINE_CLIENT_SECRET
+        });
+
+        const tokenResponse = await axios.post('https://api.line.me/oauth2/v2.1/token', 
+            params.toString(),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        );
+
+        const tokenData = tokenResponse.data;
+        const idToken = tokenData.id_token;
+        const [, payload] = idToken.split('.');
+        const decodedPayload = JSON.parse(Buffer.from(payload, 'base64').toString());
+        
+        const lineUserId = decodedPayload.sub;
+        const lineName = decodedPayload.name;
+
+        // 儲存到 session
+        req.session.lineUserId = lineUserId;
+        req.session.lineName = lineName;
+
+        // 查找最近的訂位記錄
+        const recentReservation = await Reservation.findOne().sort({ createdAt: -1 });
+        
+        if (recentReservation) {
+            // 檢查是否已存在該用戶
+            let userID = await UserID.findOne({ lineUserId });
+            
+            if (!userID) {
+                // 創建新的用戶記錄
+                userID = new UserID({
+                    lineUserId,
+                    lineName,
+                    phone: recentReservation.phone
+                });
+                await userID.save();
+
+                // 發送綁定成功通知
+                const message = `
+${lineName}，您好！
+感謝您綁定 LINE 通知！
+未來將透過 LINE 發送訂位相關通知。
+                
+訂位資訊：
+姓名：${recentReservation.name}
+日期：${new Date(recentReservation.date).toLocaleDateString()}
+時間：${recentReservation.time}
+人數：${recentReservation.adults}大${recentReservation.children}小
+素食：${recentReservation.vegetarian}
+特殊需求：${recentReservation.specialNeeds}
+備註：${recentReservation.notes || '無'}
+                
+感謝您的訂位！
+                `.trim();
+
+                await sendLineMessage(lineUserId, message);
+            }
+        }
+
+        res.redirect('/web2/html/index.html');
+
+    } catch (error) {
+        console.error('Error:', error.response?.data || error.message);
+        res.status(500).json({ 
+            error: '處理失敗',
+            details: error.response?.data || error.message
         });
     }
 });
@@ -209,83 +374,10 @@ app.get('/:token/success', async (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'success.html'));
 });
 
-app.get('/media', async (req, res) => {
-    const state = generateState();  // 隨機生成 state
-    req.session.state = state;  // 把 state 存入 session 中
-    res.sendFile(path.join(__dirname, 'html', 'media.html'));
-});
-
 app.get('/get-line-state', (req, res) => {
     const state = generateState();
     req.session.state = state;
     res.json({ state });
-});
-
-// 路由：處理 LINE 回調，交換授權碼換取 Access Token
-app.get('/media/line_callback', async (req, res) => {
-    console.log('Received callback with query:', req.query);
-    const { code, state, error, error_description } = req.query;
-
-    // 檢查是否有來自 LINE 的錯誤
-    if (error) {
-        console.error('LINE authorization error:', error, error_description);
-        return res.status(400).json({ 
-            error: 'LINE 授權失敗', 
-            details: error_description 
-        });
-    }
-
-    if (!code) {
-        console.error('No authorization code received');
-        return res.status(400).json({ error: '授權碼未找到' });
-    }
-
-    try {
-        // 創建用於交換訪問令牌的參數
-        const params = new URLSearchParams({
-            grant_type: 'authorization_code',
-            code: code,
-            redirect_uri: REDIRECT_URI,
-            client_id: LINE_CLIENT_ID,
-            client_secret: LINE_CLIENT_SECRET
-        });
-
-        // 獲取訪問令牌
-        const tokenResponse = await axios.post('https://api.line.me/oauth2/v2.1/token', 
-            params.toString(),
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
-        );
-
-        const tokenData = tokenResponse.data;
-        console.log('LINE Access Token:', tokenData);
-
-        // 解析 id_token 來獲取用戶資訊
-        const idToken = tokenData.id_token;
-        const [, payload] = idToken.split('.');
-        const decodedPayload = JSON.parse(Buffer.from(payload, 'base64').toString());
-        
-        // 儲存用戶 ID 到 session
-        req.session.lineUserId = decodedPayload.sub;  // sub 是用戶的 LINE ID
-        req.session.lineName = decodedPayload.name;   // 也可以儲存用戶名稱
-        
-        console.log('Stored LINE user info:', {
-            userId: req.session.lineUserId,
-            name: req.session.lineName
-        });
-
-        // 重定向到訂位表單
-        res.redirect('/form');
-    } catch (error) {
-        console.error('Error:', error.response?.data || error.message);
-        res.status(500).json({ 
-            error: '處理失敗',
-            details: error.response?.data || error.message
-        });
-    }
 });
 
 app.post('/protected-views', (req, res) => {
