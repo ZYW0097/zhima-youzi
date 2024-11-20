@@ -128,7 +128,7 @@ async function sendEmail(toEmail, reservationData) {
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
                     <p style="margin: 5px 0;">姓名：${name}</p>
-                    <p style="margin: 5px 0;">日期：${new Date(date).toLocaleDateString()}</p>
+                    <p style="margin: 5px 0;">日期：${new Date(date).getFullYear()}/${String(new Date(date).getMonth() + 1).padStart(2, '0')}/${String(new Date(date).getDate()).padStart(2, '0')} (${['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()]})</p>
                     <p style="margin: 5px 0;">時間：${time}</p>
                     <p style="margin: 5px 0;">人數：${adults}大${children}小</p>
                     <p style="margin: 5px 0;">素食：${vegetarian}</p>
