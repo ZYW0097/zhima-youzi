@@ -2,10 +2,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
+    <link href="/images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
     <title>訂位成功</title>
-    <link rel="stylesheet" type="text/css" href="css/success.css">
 </head>
+<style>
+    .success-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    text-align: center;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.main-title {
+    color: #2c3e50;
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.booking-time {
+    font-size: 20px;
+    color: #34495e;
+    margin-bottom: 30px;
+}
+
+.notification-info {
+    margin-top: 40px;
+}
+
+.email-notice,
+.line-notice {
+    color: #7f8c8d;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.customer-email {
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.line-btn {
+    display: inline-block;
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+.line-btn:hover {
+    opacity: 0.8;
+}
+
+.line-btn img {
+    vertical-align: middle;
+}
+</style>
 <body>
     <div class="success-container">
         <h1 class="main-title">訂位成功</h1>
@@ -14,11 +66,12 @@
         <div class="notification-info">
             <p class="email-notice">已將訂位資訊透過Email寄送到 <span id="customerEmail" class="customer-email"></span></p>
             <p class="line-notice">若想透過LINE收取通知請點選下方按鈕</p>
-            <a href="/line.html" class="line-btn">
+            <!-- 修正 LINE 頁面的路徑 -->
+            <a href="/line" class="line-btn">
                 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0">
             </a>
         </div>
     </div>
-    <script src="js/success.js"></script>
+    <script src="/js/success.js"></script>
 </body>
 </html>
