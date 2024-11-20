@@ -128,8 +128,10 @@ async function sendEmail(toEmail, reservationData) {
         notes
     } = reservationData;
 
+    // 格式化日期
     const displayDate = date.replace(/-/g, '/');
     const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()];
+
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: toEmail,
@@ -183,10 +185,31 @@ app.post('/reservations', async (req, res) => {
     const token = generateToken(8);
     const expiration = 120;
 
+    const [year, month, day] = date.split('-').map(Number);  // 轉換為數字
+    let adjustedYear = year;
+    let adjustedMonth = month;
+    let adjustedDay = day + 1;
+
+    // 處理月底
+    const lastDayOfMonth = new Date(year, month, 0).getDate();
+    if (adjustedDay > lastDayOfMonth) {
+        adjustedDay = 1;
+        adjustedMonth++;
+        
+        // 處理年底
+        if (adjustedMonth > 12) {
+            adjustedMonth = 1;
+            adjustedYear++;
+        }
+    }
+
+    // 格式化日期（確保月份和日期是兩位數）
+    const adjustedDate = `${adjustedYear}-${String(adjustedMonth).padStart(2, '0')}-${String(adjustedDay).padStart(2, '0')}`;
+
     try {
         // 保存訂位資料
         const reservation = new Reservation({ 
-            name, phone, email, gender, date, time, 
+            name, phone, email, gender, date: adjustedDate, time, 
             adults, children, vegetarian, specialNeeds, notes 
         });
         
@@ -198,7 +221,7 @@ app.post('/reservations', async (req, res) => {
         // 發送 Email
         await sendEmail(email, {
             name,
-            date,
+            date: adjustedDate,
             time,
             adults,
             children,
@@ -209,8 +232,8 @@ app.post('/reservations', async (req, res) => {
 
         // 如果找到對應的 LINE 用戶，發送 LINE 通知
         if (userID) {
-            const displayDate = date.replace(/-/g, '/');
-            const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(date).getDay()];
+            const displayDate = adjustedDate.replace(/-/g, '/');
+            const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(adjustedDate).getDay()];
             const message = `
 ${userID.lineName}，您好！
 訂位成功通知！
@@ -240,7 +263,7 @@ ${userID.lineName}，您好！
             phone,
             email,
             gender,
-            date,
+            date: adjustedDate,
             time,
             adults,
             children,
