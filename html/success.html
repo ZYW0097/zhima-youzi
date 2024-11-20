@@ -2,15 +2,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/web2/images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
+    <link href="images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
     <title>訂位成功</title>
-    <!-- <link rel="stylesheet" href="/web2/css/form.css"> -->
+    <link rel="stylesheet" href="css/success.css">
 </head>
 <body>
-    <h1>test</h1>
-    <!-- <a href="https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2006585007&redirect_uri=
-    https://zhima-youzi.onrender.com/success/callback&scope=profile%20openid%20email">
-        <img src="https://scdn.line-apps.com/n/line_regulation/line-login-btn/line-login-btn-1.png" alt="LINE Login" />
-      </a> -->
+    <div class="success-container">
+        <h1 class="main-title">訂位成功</h1>
+        <p class="booking-time" id="bookingDateTime"></p>
+        
+        <div class="notification-info">
+            <p class="email-notice">已將訂位資訊透過Email寄送到 <span id="customerEmail" class="customer-email"></span></p>
+            <p class="line-notice">若想透過LINE收取通知請點選下方按鈕</p>
+            <a href="/web2/html/line.html" class="line-btn">
+                <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0">
+            </a>
+        </div>
+    </div>
+    <script src="js/success.js"></script>
 </body>
 </html>
