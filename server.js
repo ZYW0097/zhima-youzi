@@ -32,11 +32,11 @@ require('dotenv').config();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use('/images', express.static('images'));
 app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'html')));
 app.use(cookieParser());
 app.use(session({
@@ -45,6 +45,14 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
 }));
+app.use((req, res, next) => {
+    if (req.path.endsWith('.css')) {
+        res.type('text/css');
+    } else if (req.path.endsWith('.js')) {
+        res.type('application/javascript');
+    }
+    next();
+});
 
 connectToDatabase();
 redisClient.connect().catch(console.error);
