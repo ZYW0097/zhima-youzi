@@ -196,6 +196,7 @@ app.post('/reservations', async (req, res) => {
     const { name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes } = req.body;
     const token = generateToken(8);
     const expiration = 120;
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(req.headers['user-agent']);
 
     const [year, month, day] = date.split('-').map(Number); 
     let adjustedYear = year;
@@ -263,23 +264,49 @@ ${userID.lineName}，您好！
             }
         }
 
-        await redisClient.set(token, JSON.stringify({
-            name,
-            phone,
-            email,
-            gender,
-            date: adjustedDate,
-            time,
-            adults,
-            children,
-            vegetarian,
-            specialNeeds,
-            notes
-        }), 'EX', expiration);
+        if (isMobile && !userID) {
+            const mobileToken = generateToken(8);
+            await redisClient.set(`mobile_${mobileToken}`, JSON.stringify({
+                name,
+                phone,
+                email,
+                gender,
+                date: adjustedDate,
+                time,
+                adults,
+                children,
+                vegetarian,
+                specialNeeds,
+                notes
+            }), 'EX', 300);
 
-        req.session.reservationSubmitted = true;
-        res.cookie('token', token, { httpOnly: true });
-        res.json({ success: true, redirectUrl: `/${token}/success` });
+            res.json({
+                success: true,
+                token: mobileToken,
+                isMobile: true,
+                redirectUrl: `/line.html?token=${mobileToken}`
+            });
+        } else if (!isMobile) {
+            await redisClient.set(token, JSON.stringify({
+                name,
+                phone,
+                email,
+                gender,
+                date: adjustedDate,
+                time,
+                adults,
+                children,
+                vegetarian,
+                specialNeeds,
+                notes
+            }), 'EX', expiration);
+
+            req.session.reservationSubmitted = true;
+            res.cookie('token', token, { httpOnly: true });
+            res.json({ success: true, redirectUrl: `/${token}/success` });
+        } else {
+            res.json({ success: true, redirectUrl: `/${token}/success` });
+        }
 
     } catch (error) {
         console.error('Reservation error details:', error);
@@ -530,9 +557,16 @@ app.get('/get-line-state', (req, res) => {
 app.get('/line/mobile-redirect', async (req, res) => {
     const token = req.query.token;
     if (token) {
-        await redisClient.set(`mobile_${token}`, 'pending', 'EX', 300);
+        const reservationData = await redisClient.get(`mobile_${token}`);
+        if (reservationData) {
+            await redisClient.set(`mobile_${token}`, reservationData, 'EX', 300);
+            res.redirect('https://lin.ee/qzdxu8d');
+        } else {
+            res.redirect('/');
+        }
+    } else {
+        res.redirect('/');
     }
-    res.redirect('https://lin.ee/qzdxu8d');
 });
 
 app.post('/protected-views', (req, res) => {
