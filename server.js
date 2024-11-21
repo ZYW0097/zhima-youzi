@@ -476,7 +476,23 @@ ${lineName}，您好！
                     }
                     
                     if (!isMobileRedirect) {
-                        const latestReservation = await Reservation.findOne().sort({ _id: -1 });
+                        const today = new Date().toLocaleString('en-US', { 
+                            timeZone: 'Asia/Taipei',
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                        }).split('/').reverse();  
+                        
+                        today[1] = today[1].padStart(2, '0');  
+                        today[2] = today[2].padStart(2, '0');  
+                        
+                        const todayString = today.join('-');  
+                    
+                        const latestReservation = await Reservation.findOne({
+                            date: { 
+                                $gte: todayString
+                            }
+                        }).sort({ date: 1, time: 1 });
 
                         if (latestReservation) {
                             const userID = new UserID({
