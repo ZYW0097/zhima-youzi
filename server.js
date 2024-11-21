@@ -38,6 +38,9 @@ app.use(session({
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: true,
+    cookie: { 
+        maxAge: 120000
+    }
 }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -269,7 +272,7 @@ ${userID.lineName}，您好！
             await redisClient.set(`mobile_${mobileToken}`, JSON.stringify({
                 name, phone, email, gender, date: adjustedDate, time,
                 adults, children, vegetarian, specialNeeds, notes
-            }), 'EX', 300);
+            }), 'EX', 120);
 
             res.json({
                 success: true,
@@ -427,21 +430,21 @@ ${lineName}，您好！
                     }
                 } else {
                     const keys = await redisClient.keys('mobile_*');
+                    let isMobileRedirect = false;
                     
                     for (const key of keys) {
                         const reservationData = await redisClient.get(key.replace('mobile_', ''));
                         if (reservationData) {
+                            isMobileRedirect = true;
                             const reservation = JSON.parse(reservationData);
                             
                             try {
-
                                 const userID = new UserID({
                                     lineUserId,
                                     lineName,
                                     phone: reservation.phone
                                 });
                                 await userID.save();
-                                console.log('Successfully saved user to UserID database:', userID);
                                 
                                 const displayDate = reservation.date.replace(/-/g, '/');
                                 const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(reservation.date).getDay()];
@@ -472,6 +475,39 @@ ${lineName}，您好！
                         }
                     }
                     
+                    if (!isMobileRedirect) {
+                        const latestReservation = await Reservation.findOne().sort({ _id: -1 });
+
+                        if (latestReservation) {
+                            const userID = new UserID({
+                                lineUserId,
+                                lineName,
+                                phone: latestReservation.phone
+                            });
+                            await userID.save();
+
+                            const displayDate = latestReservation.date.replace(/-/g, '/');
+                            const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(latestReservation.date).getDay()];
+                            const message = `
+${lineName}，您好！
+感謝您加入芝麻柚子 とんかつ！
+已為您開啟 LINE 通知服務。
+
+訂位資訊：
+姓名：${latestReservation.name}
+日期：${displayDate} (${dayOfWeek})
+時間：${latestReservation.time}
+人數：${latestReservation.adults}大${latestReservation.children}小
+素食：${latestReservation.vegetarian}
+特殊需求：${latestReservation.specialNeeds}
+備註：${latestReservation.notes || '無'}
+
+未來將透過 LINE 發送訂位相關通知，感謝您的支持！
+                            `.trim();
+
+                            await sendLineMessage(lineUserId, message);
+                        }
+                    }
                 }
             }
         }
@@ -572,7 +608,6 @@ app.get('/line/mobile-redirect', async (req, res) => {
 
     try {
         let reservationData = await redisClient.get(token);
-        
         if (!reservationData) {
             reservationData = await redisClient.get(`mobile_${token}`);
         }
@@ -582,10 +617,20 @@ app.get('/line/mobile-redirect', async (req, res) => {
             return res.redirect('/');
         }
 
-        const tokenKey = reservationData ? token : `mobile_${token}`;
-        await redisClient.set(tokenKey, reservationData, 'EX', 300);
+        const parsedData = JSON.parse(reservationData);
         
-        console.log('Redirecting to LINE with token:', token);
+        const latestReservation = await Reservation.findOne({ 
+            phone: parsedData.phone 
+        }).sort({ _id: -1 }); 
+
+        if (latestReservation) {
+            parsedData._id = latestReservation._id;
+        }
+
+        const tokenKey = reservationData ? token : `mobile_${token}`;
+        await redisClient.set(tokenKey, JSON.stringify(parsedData), 'EX', 120);
+        
+        console.log('Redirecting to LINE with updated data:', parsedData);
         res.redirect('https://lin.ee/qzdxu8d');
     } catch (error) {
         console.error('Error in mobile redirect:', error);
