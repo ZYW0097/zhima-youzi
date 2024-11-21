@@ -256,8 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.success) {
-                // 修改這裡：無論是否為行動裝置，都先導向到 success 頁面
-                window.location.href = `/${result.token}/success`;
+                window.location.href = result.redirectUrl;  // 修正：直接使用後端返回的 URL
             } else {
                 alert(result.message || '訂位失敗，請稍後再試。');
             }
@@ -267,44 +266,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
-// document.getElementById('reservationForm').addEventListener('submit', function (e) {
-//     e.preventDefault(); 
-
-//     const submitButton = document.querySelector('button[type="submit"]');
-//     submitButton.disabled = true;
-
-//     const formData = new FormData(this);
-//     const formObject = {};
-//     formData.forEach((value, key) => {
-//         formObject[key] = value;
-//     });
-//     const jsonData = JSON.stringify(formObject);
-
-//     fetch('/reservations', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//         body: jsonData
-//     })
-//     .then(response => {
-//         if (!response.ok) {
-//             throw new Error('網路錯誤，請稍後再試');
-//         }
-//         return response.json(); 
-//     })
-//     .then(data => {
-//         if (data.success) {
-//             submitButton.disabled = false;
-//             document.getElementById('reservationForm').reset();
-//             window.location.href = `/success?token=${data.token}`; 
-//         } else {
-//             document.getElementById('message').innerText = data.message || '提交失敗，請稍後再試。';
-//         }
-//     })
-//     .catch(error => {
-//         document.getElementById('message').innerText = '提交失敗，請稍後再試。';
-//         console.error('Error:', error);
-//     })
-// });
