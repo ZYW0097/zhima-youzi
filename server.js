@@ -93,29 +93,29 @@ connectToDatabase();
 redisClient.connect().catch(console.error);
 
 
-const reservationSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    phone: { type: String, required: true },
-    email: { type: String, required: true },
-    gender: { type: String, required: true },
-    date: { type: String, required: true },
-    time: { type: String, required: true },
-    adults: { type: Number, required: true },
-    children: { type: Number, required: true },
-    vegetarian: { type: String, default: '否' },
-    specialNeeds: { type: String, default: '無' },
-    notes: { 
-        type: String, 
-        required: false,  
-        default: '無',    
-        maxlength: 30
-    },
-    reservationToken: { type: String }, 
-    sessionId: { type: String },        
-    createdAt: { type: Date, default: Date.now }  
-});
+// const reservationSchema = new mongoose.Schema({
+//     name: { type: String, required: true },
+//     phone: { type: String, required: true },
+//     email: { type: String, required: true },
+//     gender: { type: String, required: true },
+//     date: { type: String, required: true },
+//     time: { type: String, required: true },
+//     adults: { type: Number, required: true },
+//     children: { type: Number, required: true },
+//     vegetarian: { type: String, default: '否' },
+//     specialNeeds: { type: String, default: '無' },
+//     notes: { 
+//         type: String, 
+//         required: false,  
+//         default: '無',    
+//         maxlength: 30
+//     },
+//     reservationToken: { type: String }, 
+//     sessionId: { type: String },        
+//     createdAt: { type: Date, default: Date.now }  
+// });
 
-reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
+// reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
 
 const { invalidPhoneNumbers } = JSON.parse(fs.readFileSync('pnb.json', 'utf-8'));
 const invalidNumbersPattern = invalidPhoneNumbers.join('|');
