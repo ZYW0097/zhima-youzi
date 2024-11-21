@@ -265,6 +265,7 @@ ${userID.lineName}，您好！
         }
 
         if (isMobile && !userID) {
+            // 行動裝置且非 LINE 用戶：導向加入 LINE 流程
             const mobileToken = generateToken(8);
             await redisClient.set(`mobile_${mobileToken}`, JSON.stringify({
                 name,
@@ -286,25 +287,8 @@ ${userID.lineName}，您好！
                 isMobile: true,
                 redirectUrl: `/${mobileToken}/success`
             });
-        } else if (!isMobile) {
-            await redisClient.set(token, JSON.stringify({
-                name,
-                phone,
-                email,
-                gender,
-                date: adjustedDate,
-                time,
-                adults,
-                children,
-                vegetarian,
-                specialNeeds,
-                notes
-            }), 'EX', expiration);
-
-            req.session.reservationSubmitted = true;
-            res.cookie('token', token, { httpOnly: true });
-            res.json({ success: true, redirectUrl: `/${token}/success` });
         } else {
+            // 其他所有情況（非行動裝置或已是 LINE 用戶）
             await redisClient.set(token, JSON.stringify({
                 name,
                 phone,
@@ -325,6 +309,7 @@ ${userID.lineName}，您好！
         }
 
     } catch (error) {
+        // 錯誤處理
         console.error('Reservation error details:', error);
         res.status(500).json({ 
             success: false, 
