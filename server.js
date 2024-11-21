@@ -394,7 +394,6 @@ app.post('/line/webhook', async (req, res) => {
         for (const event of events) {
             if (event.type === 'follow') {
                 const lineUserId = event.source.userId;
-                
                 const userProfile = await axios.get(`https://api.line.me/v2/bot/profile/${lineUserId}`, {
                     headers: {
                         'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
@@ -402,40 +401,15 @@ app.post('/line/webhook', async (req, res) => {
                 });
                 
                 const lineName = userProfile.data.displayName;
-                
                 const existingUser = await UserID.findOne({ lineUserId });
                 
-                if (existingUser) {
-                    const reservation = await Reservation.findOne({ 
-                        phone: existingUser.phone 
-                    }).sort({ date: -1, time: -1 });
-                    
-                    if (reservation) {
-                        const displayDate = reservation.date.replace(/-/g, '/');
-                        const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(reservation.date).getDay()];
-                        const message = `
-${lineName}，您好！
-以下是您的訂位資訊：
-
-姓名：${reservation.name}
-日期：${displayDate} (${dayOfWeek})
-時間：${reservation.time}
-人數：${reservation.adults}大${reservation.children}小
-素食：${reservation.vegetarian}
-特殊需求：${reservation.specialNeeds}
-備註：${reservation.notes || '無'}
-                        `.trim();
-                        
-                        await sendLineMessage(lineUserId, message);
-                    }
-                } else {
+                if (!existingUser) {
                     const keys = await redisClient.keys('mobile_*');
-                    let isMobileRedirect = false;
+                    let foundReservation = false;
                     
                     for (const key of keys) {
                         const reservationData = await redisClient.get(key.replace('mobile_', ''));
                         if (reservationData) {
-                            isMobileRedirect = true;
                             const reservation = JSON.parse(reservationData);
                             
                             try {
@@ -445,6 +419,7 @@ ${lineName}，您好！
                                     phone: reservation.phone
                                 });
                                 await userID.save();
+                                console.log('Successfully saved mobile user to UserID database:', userID);
                                 
                                 const displayDate = reservation.date.replace(/-/g, '/');
                                 const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(reservation.date).getDay()];
@@ -467,31 +442,31 @@ ${lineName}，您好！
                                 
                                 await sendLineMessage(lineUserId, message);
                                 await redisClient.del(key);
+                                foundReservation = true;
                                 break;
                             } catch (error) {
-                                console.error('Error saving to UserID database:', error);
+                                console.error('Error saving mobile user to UserID database:', error);
                                 throw error;
                             }
                         }
                     }
                     
-                    if (!isMobileRedirect) {
+                    if (!foundReservation) {
                         const today = new Date().toLocaleString('en-US', { 
                             timeZone: 'Asia/Taipei',
                             year: 'numeric',
                             month: '2-digit',
                             day: '2-digit'
-                        }).split('/').reverse();  
+                        }).split('/').reverse();
                         
-                        today[1] = today[1].padStart(2, '0');  
-                        today[2] = today[2].padStart(2, '0');  
+                        today[1] = today[1].padStart(2, '0');
+                        today[2] = today[2].padStart(2, '0');
+                        const todayString = today.join('-');
                         
-                        const todayString = today.join('-');  
-                    
+                        console.log('Searching for reservations from date:', todayString);
+                        
                         const latestReservation = await Reservation.findOne({
-                            date: { 
-                                $gte: todayString
-                            }
+                            date: { $gte: todayString }
                         }).sort({ date: 1, time: 1 });
 
                         if (latestReservation) {
@@ -501,6 +476,7 @@ ${lineName}，您好！
                                 phone: latestReservation.phone
                             });
                             await userID.save();
+                            console.log('Successfully saved user to UserID database:', userID);
 
                             const displayDate = latestReservation.date.replace(/-/g, '/');
                             const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(latestReservation.date).getDay()];
@@ -522,6 +498,8 @@ ${lineName}，您好！
                             `.trim();
 
                             await sendLineMessage(lineUserId, message);
+                        } else {
+                            console.log('No future reservations found for date:', todayString);
                         }
                     }
                 }
