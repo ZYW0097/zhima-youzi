@@ -515,6 +515,17 @@ async function sendLineMessage(userId, message) {
     }
 }
 
+app.get('/get-line-state', (req, res) => {
+    try {
+        const state = generateState();
+        req.session.lineState = state;
+        res.json({ state });
+    } catch (error) {
+        console.error('Error generating LINE state:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 app.get('/api/reservation-data/:token', async (req, res) => {
     try {
         const token = req.params.token;
