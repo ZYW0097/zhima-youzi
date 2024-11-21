@@ -390,22 +390,52 @@ app.post('/line/webhook', async (req, res) => {
                 
                 const lineName = userProfile.data.displayName;
                 
-                const keys = await redisClient.keys('mobile_*');
-                for (const key of keys) {
-                    const reservationData = await redisClient.get(key.replace('mobile_', ''));
-                    if (reservationData) {
-                        const reservation = JSON.parse(reservationData);
-                        
-                        const userID = new UserID({
-                            lineUserId,
-                            lineName,
-                            phone: reservation.phone
-                        });
-                        await userID.save();
-                        
+                const existingUser = await UserID.findOne({ lineUserId });
+                
+                if (existingUser) {
+                    const reservation = await Reservation.findOne({ 
+                        phone: existingUser.phone 
+                    }).sort({ date: -1, time: -1 });
+                    
+                    if (reservation) {
                         const displayDate = reservation.date.replace(/-/g, '/');
                         const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(reservation.date).getDay()];
                         const message = `
+${lineName}，您好！
+以下是您的訂位資訊：
+
+姓名：${reservation.name}
+日期：${displayDate} (${dayOfWeek})
+時間：${reservation.time}
+人數：${reservation.adults}大${reservation.children}小
+素食：${reservation.vegetarian}
+特殊需求：${reservation.specialNeeds}
+備註：${reservation.notes || '無'}
+                        `.trim();
+                        
+                        await sendLineMessage(lineUserId, message);
+                    }
+                } else {
+                    const keys = await redisClient.keys('mobile_*');
+                    
+                    for (const key of keys) {
+                        const reservationData = await redisClient.get(key.replace('mobile_', ''));
+                        if (reservationData) {
+                            const reservation = JSON.parse(reservationData);
+                            
+                            try {
+
+                                const userID = new UserID({
+                                    lineUserId,
+                                    lineName,
+                                    phone: reservation.phone
+                                });
+                                await userID.save();
+                                console.log('Successfully saved user to UserID database:', userID);
+                                
+                                const displayDate = reservation.date.replace(/-/g, '/');
+                                const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(reservation.date).getDay()];
+                                const message = `
 ${lineName}，您好！
 感謝您加入芝麻柚子 とんかつ！
 已為您開啟 LINE 通知服務。
@@ -420,13 +450,18 @@ ${lineName}，您好！
 備註：${reservation.notes || '無'}
 
 未來將透過 LINE 發送訂位相關通知，感謝您的支持！
-                        `.trim();
-                        
-                        await sendLineMessage(lineUserId, message);
-                        
-                        await redisClient.del(key);
-                        break;
+                                `.trim();
+                                
+                                await sendLineMessage(lineUserId, message);
+                                await redisClient.del(key);
+                                break;
+                            } catch (error) {
+                                console.error('Error saving to UserID database:', error);
+                                throw error;
+                            }
+                        }
                     }
+                    
                 }
             }
         }
