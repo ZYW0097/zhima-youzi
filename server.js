@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const { createClient } = require('redis');
 const RedisStore = require('connect-redis').default;
 const cookieParser = require('cookie-parser');
-const { connectToDatabase, UserID } = require('./database');
+const { connectToDatabase, UserID, Reservation } = require('./database');
 const redisUrl = process.env.REDIS_URL;
 const fs = require('fs');
 const axios = require('axios');
@@ -126,7 +126,7 @@ const CHANNEL_ACCESS_TOKEN = process.env.CHANNEL_ACCESS_TOKEN;
 const REDIRECT_URI = 'https://zhima-youzi.onrender.com/line/line_callback'; 
 
 
-const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
+// const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
 
 function generateToken(length = 8) {
     return crypto.randomBytes(length).toString('hex').slice(0, length);
