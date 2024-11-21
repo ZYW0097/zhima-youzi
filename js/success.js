@@ -1,5 +1,6 @@
 const pathParts = window.location.pathname.split('/');
 const token = pathParts[1];
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 async function getReservationData() {
     try {
@@ -13,11 +14,18 @@ async function getReservationData() {
         const formattedDate = `${date.getFullYear()}年 ${date.getMonth() + 1}月 ${date.getDate()}日`;
 
         document.getElementById('bookingDateTime').textContent = `訂位日期：${formattedDate} ${data.time}`;
-        document.getElementById('customerEmail').textContent = `電子郵件：${data.email}`;
+        document.getElementById('customerEmail').textContent = data.email;
 
         const lineBtn = document.getElementById('lineBtn');
         if (lineBtn) {
-            lineBtn.href = `/line/mobile-redirect?token=${token}`;
+            lineBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (isMobile) {
+                    window.location.href = `/line/mobile-redirect?token=${token}`;
+                } else {
+                    window.location.href = '/line';
+                }
+            });
         }
     } catch (error) {
         console.error('Error fetching reservation data:', error);
@@ -25,7 +33,6 @@ async function getReservationData() {
     }
 }
 
-// 當 DOM 載入完成時執行
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', getReservationData);
 } else {
