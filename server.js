@@ -353,7 +353,7 @@ app.get('/line/line_callback', async (req, res) => {
                         phone: reservation.phone  // 使用 redis 中的電話號碼
                     });
                     await userID.save();
-                    window.location.href = 'https://lin.ee/VOKi8ta';
+                    res.redirect('https://lin.ee/VOKi8ta';)
 
                     // 發送綁定成功通知
                     const displayDate = reservation.date.replace(/-/g, '/');
