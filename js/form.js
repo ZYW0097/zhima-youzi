@@ -228,39 +228,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('reservationForm');
   
     form.addEventListener('submit', async (event) => {
-      event.preventDefault();
+        event.preventDefault();
   
-      const formData = {
-        name: form.name.value,
-        phone: form.phone.value,
-        email: form.email.value,
-        gender: form.gender.value,
-        date: form.date.value,
-        time: form.time.value,
-        adults: form.adults.value,
-        children: form.children.value,
-        vegetarian: form.vegetarian.value,
-        specialNeeds: form.specialNeeds.value,
-        notes: form.notes.value,
-      };
+        const formData = {
+            name: form.name.value,
+            phone: form.phone.value,
+            email: form.email.value,
+            gender: form.gender.value,
+            date: form.date.value,
+            time: form.time.value,
+            adults: form.adults.value,
+            children: form.children.value,
+            vegetarian: form.vegetarian.value,
+            specialNeeds: form.specialNeeds.value,
+            notes: form.notes.value,
+        };
   
-      try {
-        const response = await fetch('/reservations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formData)
-        });
+        try {
+            const response = await fetch('/reservations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
   
-        const result = await response.json();
+            const result = await response.json();
 
-        if (result.success) {
-                if (result.isMobile) {
-                    window.location.href = `/line.html?token=${result.token}`;
-                } else {
-                    window.location.href = `/${result.token}/success`;
-                }
+            if (result.success) {
+                // 修改這裡：無論是否為行動裝置，都先導向到 success 頁面
+                window.location.href = `/${result.token}/success`;
             } else {
                 alert(result.message || '訂位失敗，請稍後再試。');
             }
@@ -270,3 +267,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// document.getElementById('reservationForm').addEventListener('submit', function (e) {
+//     e.preventDefault(); 
+
+//     const submitButton = document.querySelector('button[type="submit"]');
+//     submitButton.disabled = true;
+
+//     const formData = new FormData(this);
+//     const formObject = {};
+//     formData.forEach((value, key) => {
+//         formObject[key] = value;
+//     });
+//     const jsonData = JSON.stringify(formObject);
+
+//     fetch('/reservations', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         body: jsonData
+//     })
+//     .then(response => {
+//         if (!response.ok) {
+//             throw new Error('網路錯誤，請稍後再試');
+//         }
+//         return response.json(); 
+//     })
+//     .then(data => {
+//         if (data.success) {
+//             submitButton.disabled = false;
+//             document.getElementById('reservationForm').reset();
+//             window.location.href = `/success?token=${data.token}`; 
+//         } else {
+//             document.getElementById('message').innerText = data.message || '提交失敗，請稍後再試。';
+//         }
+//     })
+//     .catch(error => {
+//         document.getElementById('message').innerText = '提交失敗，請稍後再試。';
+//         console.error('Error:', error);
+//     })
+// });
