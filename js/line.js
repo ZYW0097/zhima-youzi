@@ -2,11 +2,18 @@
     try {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         
+        const urlParams = new URLSearchParams(window.location.search);
+        const reservationToken = urlParams.get('token');
+        
         if (isMobile) {
             const response = await fetch('https://zhima-youzi.onrender.com/get-line-state');
             const { state: token } = await response.json();
             
-            window.location.href = `https://zhima-youzi.onrender.com/line/mobile-redirect?token=${token}`;
+            const redirectUrl = reservationToken 
+                ? `https://zhima-youzi.onrender.com/line/mobile-redirect?token=${token}&reservation=${reservationToken}`
+                : `https://zhima-youzi.onrender.com/line/mobile-redirect?token=${token}`;
+                
+            window.location.href = redirectUrl;
         } else {
             const response = await fetch('https://zhima-youzi.onrender.com/get-line-state');
             const { state } = await response.json();
