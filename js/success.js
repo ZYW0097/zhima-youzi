@@ -23,7 +23,7 @@ async function getReservationData() {
                 if (isMobile) {
                     window.location.href = `/line/mobile-redirect?token=${token}`;
                 } else {
-                    window.location.href = '/line';
+                    window.location.href = `/line?token=${token}`;
                 }
             });
         }
