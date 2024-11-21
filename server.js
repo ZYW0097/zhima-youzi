@@ -533,6 +533,27 @@ async function sendLineMessage(userId, message) {
     }
 }
 
+app.get('/api/reservation-data/:token', async (req, res) => {
+    try {
+        const token = req.params.token;
+
+        let data = await redisClient.get(token);
+        if (!data) {
+            data = await redisClient.get(`mobile_${token}`);
+        }
+
+        if (!data) {
+            return res.status(404).json({ error: 'Reservation not found' });
+        }
+
+        const reservationData = JSON.parse(data);
+        res.json(reservationData);
+    } catch (error) {
+        console.error('Error fetching reservation data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 app.get('/:token/success', async (req, res) => {
     const token = req.params.token;
     const user = await redisClient.get(token) || await redisClient.get(`mobile_${token}`);
@@ -551,15 +572,30 @@ app.get('/:token/success', async (req, res) => {
 
 app.get('/line/mobile-redirect', async (req, res) => {
     const token = req.query.token;
-    if (token) {
-        const reservationData = await redisClient.get(`mobile_${token}`);
-        if (reservationData) {
-            await redisClient.set(`mobile_${token}`, reservationData, 'EX', 300);
-            res.redirect('https://lin.ee/qzdxu8d');
-        } else {
-            res.redirect('/');
+    if (!token) {
+        console.error('No token provided for mobile redirect');
+        return res.redirect('/');
+    }
+
+    try {
+        let reservationData = await redisClient.get(token);
+        
+        if (!reservationData) {
+            reservationData = await redisClient.get(`mobile_${token}`);
         }
-    } else {
+
+        if (!reservationData) {
+            console.error('No reservation data found for token:', token);
+            return res.redirect('/');
+        }
+
+        const tokenKey = reservationData ? token : `mobile_${token}`;
+        await redisClient.set(tokenKey, reservationData, 'EX', 300);
+        
+        console.log('Redirecting to LINE with token:', token);
+        res.redirect('https://lin.ee/qzdxu8d');
+    } catch (error) {
+        console.error('Error in mobile redirect:', error);
         res.redirect('/');
     }
 });
