@@ -14,7 +14,11 @@
             bot_prompt: 'aggressive'
         });
         
+        // 這裡先導向到 LINE 授權頁面
         window.location.href = `https://access.line.me/oauth2/v2.1/authorize?${params.toString()}`;
+        
+        window.location.href = 'https://lin.ee/VOKi8ta';
+        
     } catch (error) {
         console.error('Error during LINE login:', error);
         const errorElement = document.getElementById('error-message');
