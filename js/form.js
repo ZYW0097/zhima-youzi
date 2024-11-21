@@ -79,8 +79,6 @@ function generateCalendar(month = currentMonth, year = currentYear) {
             dayElement.classList.add('disabled');
             dayElement.style.pointerEvents = 'none';
         } else {
-            dayElement.classList.remove('disabled');
-            dayElement.style.pointerEvents = 'auto';
             dayElement.addEventListener('click', () => selectDate(day, month, year));
         }
 
@@ -256,13 +254,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
   
         const result = await response.json();
+
         if (result.success) {
-          window.location.href = result.redirectUrl;
-        } else {
-          alert(result.message);
+                if (result.isMobile) {
+                    window.location.href = `/line.html?token=${result.token}`;
+                } else {
+                    window.location.href = `/${result.token}/success`;
+                }
+            } else {
+                alert(result.message || '訂位失敗，請稍後再試。');
+            }
+        } catch (error) {
+            console.error('Reservation error:', error);
+            alert('提交失敗，請稍後再試。');
         }
-      } catch (error) {
-        alert('提交失敗，請稍後再試。');
-      }
     });
 });
