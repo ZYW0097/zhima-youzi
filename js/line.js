@@ -11,7 +11,7 @@
             redirect_uri: redirectUri,
             state: state,
             scope: 'profile openid email',
-            bot_prompt: 'normal'
+            bot_prompt: 'aggressive'
         });
         
         window.location.href = `https://access.line.me/oauth2/v2.1/authorize?${params.toString()}`;
