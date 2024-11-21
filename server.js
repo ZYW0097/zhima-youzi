@@ -284,7 +284,7 @@ ${userID.lineName}，您好！
                 success: true,
                 token: mobileToken,
                 isMobile: true,
-                redirectUrl: `/line.html?token=${mobileToken}`
+                redirectUrl: `/${mobileToken}/success`
             });
         } else if (!isMobile) {
             await redisClient.set(token, JSON.stringify({
@@ -305,6 +305,22 @@ ${userID.lineName}，您好！
             res.cookie('token', token, { httpOnly: true });
             res.json({ success: true, redirectUrl: `/${token}/success` });
         } else {
+            await redisClient.set(token, JSON.stringify({
+                name,
+                phone,
+                email,
+                gender,
+                date: adjustedDate,
+                time,
+                adults,
+                children,
+                vegetarian,
+                specialNeeds,
+                notes
+            }), 'EX', expiration);
+
+            req.session.reservationSubmitted = true;
+            res.cookie('token', token, { httpOnly: true });
             res.json({ success: true, redirectUrl: `/${token}/success` });
         }
 
@@ -534,7 +550,7 @@ async function sendLineMessage(userId, message) {
 
 app.get('/:token/success', async (req, res) => {
     const token = req.params.token;
-    const user = await redisClient.get(token);
+    const user = await redisClient.get(token) || await redisClient.get(`mobile_${token}`);
 
     if (!user) {
         return res.redirect(`/form?error=invalid_token`);
@@ -546,12 +562,6 @@ app.get('/:token/success', async (req, res) => {
     }, 120000);
 
     res.sendFile(path.join(__dirname, 'html', 'success.html'));
-});
-
-app.get('/get-line-state', (req, res) => {
-    const state = generateState();
-    req.session.state = state;
-    res.json({ state });
 });
 
 app.get('/line/mobile-redirect', async (req, res) => {
