@@ -1,40 +1,41 @@
-const pathParts = window.location.pathname.split('/');
-const token = pathParts[1];
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-async function getReservationData() {
+document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const response = await fetch(`/api/reservation-data/${token}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+        // 從 URL 獲取 token
+        const token = window.location.pathname.split('/')[1];
         
-        const date = new Date(data.date);
-        const formattedDate = `${date.getFullYear()}年 ${date.getMonth() + 1}月 ${date.getDate()}日`;
+        // 獲取訂位資訊
+        const response = await fetch(`/api/reservation-data/${token}`);
+        const data = await response.json();
 
-        document.getElementById('bookingDateTime').textContent = `訂位日期：${formattedDate} ${data.time}`;
+        if (!response.ok) {
+            throw new Error(data.error || '無法獲取訂位資訊');
+        }
+
+        // 格式化日期
+        const date = new Date(data.date);
+        const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][date.getDay()];
+        const formattedDate = `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+
+        // 更新訂位時間顯示
+        document.getElementById('bookingDateTime').textContent = 
+            `${formattedDate} (${dayOfWeek}) ${data.time}`;
+
+        // 更新 email 顯示
         document.getElementById('customerEmail').textContent = data.email;
 
+        // 檢查是否為行動裝置
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        // 設定 LINE 按鈕連結
         const lineBtn = document.getElementById('lineBtn');
-        if (lineBtn) {
-            lineBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (isMobile) {
-                    window.location.href = `/line/mobile-redirect?token=${token}`;
-                } else {
-                    window.location.href = `/line?token=${token}`;
-                }
-            });
+        if (isMobile) {
+            lineBtn.href = `https://lin.ee/qzdxu8d`;
+        } else {
+            lineBtn.href = '/line/login';
         }
-    } catch (error) {
-        console.error('Error fetching reservation data:', error);
-        document.getElementById('error-message').textContent = '無法載入訂位資料，請稍後再試';
-    }
-}
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', getReservationData);
-} else {
-    getReservationData();
-}
+    } catch (error) {
+        console.error('Error:', error);
+        alert('發生錯誤，請重新整理頁面或聯繫客服');
+    }
+});
