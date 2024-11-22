@@ -12,11 +12,17 @@ const reservationSchema = new mongoose.Schema({
     children: { type: Number, required: true },
     vegetarian: { type: String, default: '否' },
     specialNeeds: { type: String, default: '無' },
-    notes: String,
-    reservationToken: { type: String }, 
-    sessionId: { type: String },       
-    createdAt: { type: Date, default: Date.now } 
+    notes: { 
+                type: String, 
+                required: false,  
+                default: '無',    
+                maxlength: 30
+            },
+    createdAt: { type: Date, default: Date.now }
 });
+
+reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
+reservationSchema.index({ createdAt: 1 });
 
 const userIDSchema = new mongoose.Schema({
     lineUserId: { type: String, required: true, unique: true },
@@ -24,8 +30,8 @@ const userIDSchema = new mongoose.Schema({
     phone: { type: String, required: true, unique: true }
 });
 
-const Reservation = mongoose.model('Reservation', reservationSchema);
-const UserID = mongoose.model('UserID', userIDSchema);
+const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');  // 將會建立名為 'bookings' 的集合
+const UserID = mongoose.model('UserID', userIDSchema, 'userids');
 
 async function connectToDatabase() {
     try {
