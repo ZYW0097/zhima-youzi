@@ -1,37 +1,29 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // 從 URL 獲取 token
-        const token = window.location.pathname.split('/')[1];
-        
-        // 獲取訂位資訊
-        const response = await fetch(`/api/reservation-data/${token}`);
-        const data = await response.json();
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookingDate = urlParams.get('date');
+        const bookingTime = urlParams.get('time');
+        const email = urlParams.get('email');
 
-        if (!response.ok) {
-            throw new Error(data.error || '無法獲取訂位資訊');
+        const bookingDateTime = document.getElementById('bookingDateTime');
+        if (bookingDate && bookingTime) {
+            const formattedDate = bookingDate.replace(/-/g, '/');
+            bookingDateTime.textContent = `訂位時間：${formattedDate} ${bookingTime}`;
         }
 
-        // 格式化日期
-        const date = new Date(data.date);
-        const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][date.getDay()];
-        const formattedDate = `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+        const customerEmail = document.getElementById('customerEmail');
+        if (email) {
+            customerEmail.textContent = email;
+        }
 
-        // 更新訂位時間顯示
-        document.getElementById('bookingDateTime').textContent = 
-            `${formattedDate} (${dayOfWeek}) ${data.time}`;
-
-        // 更新 email 顯示
-        document.getElementById('customerEmail').textContent = data.email;
-
-        // 檢查是否為行動裝置
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         
-        // 設定 LINE 按鈕連結
         const lineBtn = document.getElementById('lineBtn');
+
         if (isMobile) {
-            lineBtn.href = `https://lin.ee/qzdxu8d`;
+            lineBtn.href = 'https://lin.ee/DqIRAm0';
         } else {
-            lineBtn.href = '/line/login';
+            lineBtn.href = '/line';
         }
 
     } catch (error) {
