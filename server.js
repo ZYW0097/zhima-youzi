@@ -574,6 +574,26 @@ app.get('/:token/success', async (req, res) => {
     }
 });
 
+app.get('/api/reservation/:token', async (req, res) => {
+    const token = req.params.token;
+    try {
+        let reservationData = await redisClient.get(token);
+        
+        if (!reservationData) {
+            const reservation = await Reservation.findOne({ reservationToken: token });
+            if (!reservation) {
+                return res.status(404).json({ error: 'Reservation not found' });
+            }
+            reservationData = JSON.stringify(reservation);
+        }
+
+        res.json(JSON.parse(reservationData));
+    } catch (error) {
+        console.error('Error fetching reservation:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 app.post('/protected-views', (req, res) => {
     const { password } = req.body;
     if (password === '83094123') {
