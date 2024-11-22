@@ -57,6 +57,13 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use((req, res, next) => {
+    if (req.path.endsWith('.js')) {
+        res.type('application/javascript');
+    }
+    next();
+});
+
 app.get('/favicon.ico', (req, res) => {
     res.sendFile(path.join(__dirname, 'images', 'logo.ico'));
 });
@@ -534,11 +541,9 @@ async function sendLineMessage(to, message) {
 app.get('/:token/success', async (req, res) => {
     const token = req.params.token;
     try {
-        // 先檢查 Redis
         let reservationData = await redisClient.get(token);
         
         if (!reservationData) {
-            // 如果 Redis 沒有，檢查資料庫
             const reservation = await Reservation.findOne({ reservationToken: token });
             if (!reservation) {
                 console.error('No reservation found for token:', token);
@@ -547,22 +552,17 @@ app.get('/:token/success', async (req, res) => {
             reservationData = JSON.stringify(reservation);
         }
 
-        // 解析預訂資料
         const parsedData = JSON.parse(reservationData);
         
-        // 檢查是否已經有 LINE 綁定
         const existingLineUser = await UserID.findOne({ phone: parsedData.phone });
         
-        // 設定 cookie 用於 LINE 綁定 (2分鐘)
         res.cookie('reservationToken', token, { 
             maxAge: 120000,
             httpOnly: true 
         });
 
-        // 渲染成功頁面
         res.sendFile(path.join(__dirname, 'html', 'success.html'));
 
-        // 設定定時器清理 Redis 資料 (2分鐘)
         setTimeout(async () => {
             await redisClient.del(token);
             console.log(`Token Deleted: ${token}, Time: ${new Date().toISOString()}`);
