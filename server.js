@@ -71,23 +71,6 @@ app.get('/form', (req, res) => res.sendFile(path.join(__dirname, 'html', 'form.h
 app.get('/questions', (req, res) => res.sendFile(path.join(__dirname, 'html', 'questions.html')));
 app.get('/menu', (req, res) => res.sendFile(path.join(__dirname, 'html', 'menu.html')));
 app.get('/line', (req, res) => res.sendFile(path.join(__dirname, 'html', 'line.html')));
-app.use('/line-c', (req, res, next) => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(req.headers['user-agent']);
-    
-    const authTime = req.session.lineAuthTime || 0;
-    const tenMinutes = 10 * 60 * 1000;
-    const isAuthValid = (Date.now() - authTime) < tenMinutes;
-    
-    const hasLineAuth = req.session.lineUserId && req.session.lineName;
-    const hasReservation = req.session.reservationSubmitted;
-
-    if (isMobile || !hasLineAuth || !hasReservation || !isAuthValid) {
-        return res.redirect('/');
-    }
-
-    next();
-});
-app.get('/line-c', (req, res) => res.sendFile(path.join(__dirname, 'html', 'line-c.html')));
 
 connectToDatabase();
 redisClient.connect().catch(console.error);
@@ -120,20 +103,16 @@ redisClient.connect().catch(console.error);
 const { invalidPhoneNumbers } = JSON.parse(fs.readFileSync('pnb.json', 'utf-8'));
 const invalidNumbersPattern = invalidPhoneNumbers.join('|');
 const phoneRegex = new RegExp(`^09(?!${invalidNumbersPattern})\\d{8}$`);
-const LINE_CLIENT_ID = process.env.LINE_CLIENT_ID;  
-const LINE_CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;  
+// const LINE_CLIENT_ID = process.env.LINE_CLIENT_ID;  
+// const LINE_CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;  
 const CHANNEL_ACCESS_TOKEN = process.env.CHANNEL_ACCESS_TOKEN;
-const REDIRECT_URI = 'https://zhima-youzi.onrender.com/line/line_callback'; 
+// const REDIRECT_URI = 'https://zhima-youzi.onrender.com/line/line_callback'; 
 
 
 // const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
 
 function generateToken(length = 8) {
     return crypto.randomBytes(length).toString('hex').slice(0, length);
-}
-
-function generateState() {
-    return crypto.randomBytes(16).toString('hex');
 }
 
 async function sendEmail(toEmail, reservationData) {
@@ -195,17 +174,10 @@ async function sendEmail(toEmail, reservationData) {
 
 app.post('/reservations', async (req, res) => {
     console.log('Received reservation request:', req.body);
-    console.log('Session LINE info:', {
-        userId: req.session.lineUserId,
-        name: req.session.lineName
-    });
-
+    
     const { name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes } = req.body;
-    const sessionId = req.session.id;
-    const reservationToken = generateToken(8);
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(req.headers['user-agent']);
+    const token = generateToken();
 
-    // 日期調整
     const [year, month, day] = date.split('-').map(Number);
     let adjustedYear = year;
     let adjustedMonth = month;
@@ -225,21 +197,15 @@ app.post('/reservations', async (req, res) => {
     const adjustedDate = `${adjustedYear}-${String(adjustedMonth).padStart(2, '0')}-${String(adjustedDay).padStart(2, '0')}`;
 
     try {
-        // 檢查電話是否已經被綁定到 LINE
         const existingLineUser = await UserID.findOne({ phone });
         
-        // 建立基本訂位資料
         const reservationData = {
             name, phone, email, gender, 
             date: adjustedDate, time,
             adults, children, 
             vegetarian, specialNeeds, notes,
-            reservationToken,
-            sessionId,
-            createdAt: new Date()
         };
 
-        // 檢查是否有重複訂位
         const existingReservation = await Reservation.findOne({
             phone,
             date: adjustedDate,
@@ -253,23 +219,14 @@ app.post('/reservations', async (req, res) => {
             });
         }
 
-        // 儲存到資料庫
         const reservation = new Reservation(reservationData);
         await reservation.save();
 
-        // 儲存到 Redis (2分鐘過期)
-        await redisClient.set(reservationToken, JSON.stringify({
+        await redisClient.set(token, JSON.stringify({
             ...reservationData,
             createdAt: new Date().toISOString()
         }), 'EX', 120);
 
-        // 如果已有 LINE ID，建立關聯 (2分鐘過期)
-        if (req.session.lineUserId) {
-            await redisClient.set(`line_reservation_${req.session.lineUserId}`, 
-                reservationToken, 'EX', 120);
-        }
-
-        // 發送 Email
         await sendEmail(email, {
             name,
             date: adjustedDate,
@@ -281,17 +238,14 @@ app.post('/reservations', async (req, res) => {
             notes
         });
 
-        // 如果已綁定 LINE，發送 LINE 通知
         if (existingLineUser) {
-            const displayDate = adjustedDate.replace(/-/g, '/');
-            const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(adjustedDate).getDay()];
             const message = `
 ${existingLineUser.lineName}，您好！
 訂位成功通知！
 
 訂位資訊：
 姓名：${name}
-日期：${displayDate} (${dayOfWeek})
+日期：${adjustedDate.replace(/-/g, '/')}
 時間：${time}
 人數：${adults}大${children}小
 素食：${vegetarian}
@@ -306,14 +260,12 @@ ${existingLineUser.lineName}，您好！
                 console.log('LINE notification sent successfully');
             } catch (error) {
                 console.error('LINE notification error:', error);
-                // LINE 通知失敗不影響訂位流程
             }
         }
 
-        // 統一回應格式
         res.json({
             success: true,
-            redirectUrl: `/${reservationToken}/success`
+            redirectUrl: `/${token}/success`
         });
 
     } catch (error) {
@@ -326,85 +278,6 @@ ${existingLineUser.lineName}，您好！
     }
 });
 
-app.get('/line/callback', async (req, res) => {
-    console.log('LINE Login callback received:', req.query);
-    
-    try {
-        // 獲取 code
-        const code = req.query.code;
-        if (!code) {
-            console.error('No code received');
-            return res.redirect('/form?error=no_code');
-        }
-
-        // 交換 access token
-        const tokenResponse = await axios.post('https://api.line.me/oauth2/v2.1/token', 
-            new URLSearchParams({
-                grant_type: 'authorization_code',
-                code: code,
-                redirect_uri: LINE_CALLBACK_URL,
-                client_id: LINE_LOGIN_CHANNEL_ID,
-                client_secret: LINE_LOGIN_CHANNEL_SECRET
-            }), {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
-        );
-
-        const accessToken = tokenResponse.data.access_token;
-
-        // 獲取用戶資料
-        const profileResponse = await axios.get('https://api.line.me/v2/profile', {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        });
-
-        const lineUserId = profileResponse.data.userId;
-        const lineName = profileResponse.data.displayName;
-
-        // 從 cookie 中獲取 reservationToken
-        const reservationToken = req.cookies.reservationToken;
-        if (!reservationToken) {
-            console.error('No reservation token in cookie');
-            return res.redirect('/form?error=no_token');
-        }
-
-        // 從 Redis 獲取訂位資料
-        const reservationData = await redisClient.get(reservationToken);
-        if (!reservationData) {
-            console.error('No reservation data found for token:', reservationToken);
-            return res.redirect('/form?error=invalid_token');
-        }
-
-        const reservation = JSON.parse(reservationData);
-
-        // 檢查是否已經綁定
-        const existingUser = await UserID.findOne({ 
-            $or: [
-                { lineUserId },
-                { phone: reservation.phone }
-            ]
-        });
-
-        if (existingUser) {
-            console.log('User already exists:', existingUser);
-            return res.redirect('/line-c.html?status=already_bound');
-        }
-
-        // 儲存 LINE 用戶 ID 到 Redis（2分鐘過期）
-        await redisClient.set(`line_reservation_${lineUserId}`, reservationToken, 'EX', 120);
-
-        // 重定向到完成頁面
-        res.redirect('/line-c.html?status=success');
-
-    } catch (error) {
-        console.error('LINE Login callback error:', error);
-        res.redirect('/form?error=login_failed');
-    }
-});
-
 app.post('/line/webhook', async (req, res) => {
     console.log('Received webhook:', JSON.stringify(req.body, null, 2));
     
@@ -413,47 +286,90 @@ app.post('/line/webhook', async (req, res) => {
         for (const event of events) {
             const lineUserId = event.source.userId;
             
-            // 檢查用戶是否在資料庫中
-            const existingUser = await UserID.findOne({ lineUserId });
-            
-            // 如果用戶不在資料庫中，檢查是否有訂位
-            if (!existingUser) {
-                // 檢查是否有待綁定的訂位
-                const reservationToken = await redisClient.get(`line_reservation_${lineUserId}`);
-                if (reservationToken) {
-                    // 情況一：不在 userid 資料庫但有訂位
-                    const reservationData = await redisClient.get(reservationToken);
-                    if (reservationData) {
-                        const reservation = JSON.parse(reservationData);
-                        
-                        // 獲取 LINE 用戶資料
-                        const userProfile = await axios.get(`https://api.line.me/v2/bot/profile/${lineUserId}`, {
-                            headers: {
-                                'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
-                            }
-                        });
-                        const lineName = userProfile.data.displayName;
-                        
-                        // 檢查電話是否已被綁定
-                        const existingBinding = await UserID.findOne({ phone: reservation.phone });
-                        if (!existingBinding) {
+            // 1. 處理加入好友事件
+            if (event.type === 'follow') {
+                const userProfile = await axios.get(`https://api.line.me/v2/bot/profile/${lineUserId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
+                    }
+                });
+                const lineName = userProfile.data.displayName;
+                
+                // 檢查用戶是否已綁定
+                const existingUser = await UserID.findOne({ lineUserId });
+                
+                if (!existingUser) {
+                    const welcomeMessage = `${lineName}您好！
+我是芝麻柚子。
+感謝您加入好友\uDBC0\uDC78
+
+此官方帳號將定期發放最新資訊給您\uDBC0\uDC6D
+
+綁定電話號碼來獲取訂位資訊吧\uDBC0\uDC4A
+
+\uDBC0\uDC4A\uDBC0\uDC4A\uDBC0\uDC4A請注意\uDBC0\uDC4A\uDBC0\uDC4A\uDBC0\uDC4A
+如果已提交訂位，請輸入訂位時所使用的電話號碼，否則無法收到訂位資訊。`;
+
+                    await sendLineMessage(lineUserId, {
+                        type: 'template',
+                        altText: '綁定電話號碼',
+                        template: {
+                            type: 'buttons',
+                            text: welcomeMessage,
+                            actions: [{
+                                type: 'postback',
+                                label: '綁定電話',
+                                data: 'action=bind_phone'
+                            }]
+                        }
+                    });
+                }
+            }
+
+            // 2. 處理按鈕回應
+            if (event.type === 'postback') {
+                const data = new URLSearchParams(event.postback.data);
+                const action = data.get('action');
+                const phone = data.get('phone');
+
+                switch (action) {
+                    case 'bind_phone':
+                        await sendLineMessage(lineUserId, '請輸入要綁定的電話號碼：');
+                        break;
+
+                    case 'confirm_recent_reservation':
+                        try {
+                            // 獲取用戶資料
+                            const userProfile = await axios.get(`https://api.line.me/v2/bot/profile/${lineUserId}`, {
+                                headers: {
+                                    'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
+                                }
+                            });
+
                             // 建立新的綁定
                             const newUserID = new UserID({
                                 lineUserId,
-                                lineName,
-                                phone: reservation.phone
+                                lineName: userProfile.data.displayName,
+                                phone
                             });
                             await newUserID.save();
 
-                            // 發送訂位資訊
-                            const displayDate = reservation.date.replace(/-/g, '/');
-                            const dayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][new Date(reservation.date).getDay()];
-                            const reservationMessage = `
-${lineName}，您好！
-已完成 LINE 綁定，您的訂位資訊如下：
+                            // 獲取完整訂位資訊
+                            const reservation = await Reservation.findOne({
+                                phone,
+                                createdAt: { 
+                                    $gte: new Date(Date.now() - 120000)
+                                }
+                            });
+
+                            if (reservation) {
+                                const confirmMessage = `
+電話號碼綁定成功！
+以下是您的訂位資訊：
 
 姓名：${reservation.name}
-日期：${displayDate} (${dayOfWeek})
+電話：${reservation.phone}
+日期：${reservation.date.replace(/-/g, '/')}
 時間：${reservation.time}
 人數：${reservation.adults}大${reservation.children}小
 素食：${reservation.vegetarian}
@@ -461,41 +377,115 @@ ${lineName}，您好！
 備註：${reservation.notes || '無'}
 
 感謝您的訂位！
-                            `.trim();
-
-                            await sendLineMessage(lineUserId, reservationMessage);
+                                `.trim();
+                                await sendLineMessage(lineUserId, confirmMessage);
+                            }
+                        } catch (error) {
+                            console.error('Error in confirm_recent_reservation:', error);
+                            await sendLineMessage(lineUserId, '綁定過程發生錯誤，請稍後再試。');
                         }
-                    }
+                        break;
+
+                    case 'confirm_general_binding':
+                        try {
+                            const userProfile = await axios.get(`https://api.line.me/v2/bot/profile/${lineUserId}`, {
+                                headers: {
+                                    'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
+                                }
+                            });
+
+                            const newUserID = new UserID({
+                                lineUserId,
+                                lineName: userProfile.data.displayName,
+                                phone
+                            });
+                            await newUserID.save();
+
+                            await sendLineMessage(lineUserId, '電話號碼綁定成功！未來訂位時將會收到通知。');
+                        } catch (error) {
+                            console.error('Error in confirm_general_binding:', error);
+                            await sendLineMessage(lineUserId, '綁定過程發生錯誤，請稍後再試。');
+                        }
+                        break;
+
+                    case 'cancel_binding':
+                        await sendLineMessage(lineUserId, '已取消綁定。');
+                        break;
                 }
             }
 
-            // 處理加入好友事件
-            if (event.type === 'follow') {
-                const userProfile = await axios.get(`https://api.line.me/v2/bot/profile/${lineUserId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
-                    }
-                });
+            // 3. 處理電話號碼輸入
+            if (event.type === 'message' && event.message.type === 'text') {
+                const phone = event.message.text;
                 
-                const lineName = userProfile.data.displayName;
-                
-                if (!existingUser) {
-                    // 檢查是否有相應的訂位（2分鐘內）
-                    const recentReservation = await Reservation.findOne({ 
-                        createdAt: { 
-                            $gte: new Date(Date.now() - 120000)
-                        }
-                    }).sort({ createdAt: -1 });
+                // 驗證電話號碼格式
+                if (!phoneRegex.test(phone)) {
+                    await sendLineMessage(lineUserId, '請輸入有效的手機號碼（例：0912345678）');
+                    return;
+                }
 
-                    if (recentReservation) {
-                        // 如果有最近的訂位，發送提示輸入電話的訊息
-                        const welcomeMessage = `${lineName}，您好！\n歡迎加入芝麻柚子！\n如果您剛剛完成訂位，請輸入訂位時使用的手機號碼。`;
-                        await sendLineMessage(lineUserId, welcomeMessage);
-                    } else {
-                        // 如果沒有最近的訂位，只發送一般歡迎訊息
-                        const welcomeMessage = `${lineName}，您好！\n歡迎加入芝麻柚子！`;
-                        await sendLineMessage(lineUserId, welcomeMessage);
+                // 檢查是否已經綁定
+                const existingBinding = await UserID.findOne({ phone });
+                if (existingBinding) {
+                    await sendLineMessage(lineUserId, '此電話號碼已經被綁定。');
+                    return;
+                }
+
+                // 查詢2分鐘內的新訂位
+                const recentReservation = await Reservation.findOne({
+                    phone,
+                    createdAt: { 
+                        $gte: new Date(Date.now() - 120000)
                     }
+                }).sort({ createdAt: -1 });
+
+                if (recentReservation) {
+                    // 發送遮罩後的訂位資訊確認
+                    const maskedName = recentReservation.name.charAt(0) + '*'.repeat(recentReservation.name.length - 1);
+                    const maskedPhone = `${phone.slice(0, 4)}**${phone.slice(-2)}`;
+                    
+                    await sendLineMessage(lineUserId, {
+                        type: 'template',
+                        altText: '確認訂位資訊',
+                        template: {
+                            type: 'confirm',
+                            text: `請確認以下訂位資訊：\n姓名：${maskedName}\n電話：${maskedPhone}\n日期：${recentReservation.date}\n時間：${recentReservation.time}`,
+                            actions: [
+                                {
+                                    type: 'postback',
+                                    label: '確認',
+                                    data: `action=confirm_recent_reservation&phone=${phone}`
+                                },
+                                {
+                                    type: 'postback',
+                                    label: '取消',
+                                    data: 'action=cancel_binding'
+                                }
+                            ]
+                        }
+                    });
+                } else {
+                    // 發送一般綁定確認
+                    await sendLineMessage(lineUserId, {
+                        type: 'template',
+                        altText: '確認綁定電話',
+                        template: {
+                            type: 'confirm',
+                            text: `確認要綁定電話號碼 ${phone} 嗎？`,
+                            actions: [
+                                {
+                                    type: 'postback',
+                                    label: '確認',
+                                    data: `action=confirm_general_binding&phone=${phone}`
+                                },
+                                {
+                                    type: 'postback',
+                                    label: '取消',
+                                    data: 'action=cancel_binding'
+                                }
+                            ]
+                        }
+                    });
                 }
             }
         }
@@ -506,88 +496,24 @@ ${lineName}，您好！
     }
 });
 
-async function sendLineMessage(userId, message) {
-    if (!CHANNEL_ACCESS_TOKEN) {
-        console.error('CHANNEL_ACCESS_TOKEN is missing');  
-        throw new Error('LINE messaging configuration is incomplete');
-    }
-
+async function sendLineMessage(to, message) {
     try {
-        console.log('Sending LINE message to:', userId);  
-        const response = await axios.post('https://api.line.me/v2/bot/message/push', {
-            to: userId,
-            messages: [{
-                type: "text",
-                text: message
-            }]
+        await axios.post('https://api.line.me/v2/bot/message/push', {
+            to: to,
+            messages: Array.isArray(message) ? message : [
+                typeof message === 'string' ? { type: 'text', text: message } : message
+            ]
         }, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
             }
         });
-        console.log('LINE API response:', response.data); 
-        return response.data;
     } catch (error) {
-        console.error('LINE message error details:', {  
-            error: error.message,
-            response: error.response?.data,
-            status: error.response?.status
-        });
+        console.error('Error sending LINE message:', error.response?.data || error);
         throw error;
     }
 }
-
-app.get('/get-line-state', (req, res) => {
-    try {
-        const state = generateState();
-        req.session.lineState = state;
-        res.json({ state });
-    } catch (error) {
-        console.error('Error generating LINE state:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-app.get('/api/reservation-data/:token', async (req, res) => {
-    try {
-        const token = req.params.token;
-        
-        // 從 Redis 獲取訂位資料
-        const reservationData = await redisClient.get(token);
-        if (!reservationData) {
-            console.error('No reservation data found for token:', token);
-            return res.status(404).json({ error: 'Reservation not found' });
-        }
-
-        // 解析並返回訂位資料
-        const reservation = JSON.parse(reservationData);
-        res.json(reservation);
-
-    } catch (error) {
-        console.error('Error getting reservation data:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// API 路由 - 檢查 LINE 綁定狀態
-app.get('/api/line-status/:phone', async (req, res) => {
-    try {
-        const phone = req.params.phone;
-        
-        // 檢查是否已經綁定
-        const existingUser = await UserID.findOne({ phone });
-        
-        res.json({
-            bound: !!existingUser,
-            timestamp: Date.now()
-        });
-
-    } catch (error) {
-        console.error('Error checking LINE status:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
 
 // app.post('/api/cleanup', async (req, res) => {
 //     try {
@@ -646,71 +572,6 @@ app.get('/:token/success', async (req, res) => {
         console.error('Error in success page:', error);
         res.redirect('/form?error=server_error');
     }
-});
-
-app.get('/line/mobile-redirect', async (req, res) => {
-    const token = req.query.token;
-    if (!token) {
-        console.error('No token provided for mobile redirect');
-        return res.redirect('/');
-    }
-
-    try {
-        let reservationData = await redisClient.get(token);
-        if (!reservationData) {
-            reservationData = await redisClient.get(`mobile_${token}`);
-        }
-
-        if (!reservationData) {
-            console.error('No reservation data found for token:', token);
-            return res.redirect('/');
-        }
-
-        const parsedData = JSON.parse(reservationData);
-        
-        const latestReservation = await Reservation.findOne({ 
-            phone: parsedData.phone 
-        }).sort({ _id: -1 }); 
-
-        if (latestReservation) {
-            parsedData._id = latestReservation._id;
-        }
-
-        const tokenKey = reservationData ? token : `mobile_${token}`;
-        await redisClient.set(tokenKey, JSON.stringify(parsedData), 'EX', 120);
-        
-        console.log('Redirecting to LINE with updated data:', parsedData);
-        res.redirect('https://lin.ee/qzdxu8d');
-    } catch (error) {
-        console.error('Error in mobile redirect:', error);
-        res.redirect('/');
-    }
-});
-
-app.get('/line/login', (req, res) => {
-    // 從 cookie 中獲取 reservationToken
-    const reservationToken = req.cookies.reservationToken;
-    if (!reservationToken) {
-        console.error('No reservation token in cookie');
-        return res.redirect('/form?error=no_token');
-    }
-
-    // 生成 LINE Login URL
-    const state = crypto.randomBytes(16).toString('hex');
-    const nonce = crypto.randomBytes(16).toString('hex');
-    
-    // 儲存 state 和 nonce 到 Redis（2分鐘過期）
-    redisClient.set(`line_state_${state}`, nonce, 'EX', 120);
-
-    const loginUrl = new URL('https://access.line.me/oauth2/v2.1/authorize');
-    loginUrl.searchParams.append('response_type', 'code');
-    loginUrl.searchParams.append('client_id', LINE_CLIENT_ID);
-    loginUrl.searchParams.append('redirect_uri', LINE_CALLBACK_URL);
-    loginUrl.searchParams.append('state', state);
-    loginUrl.searchParams.append('scope', 'profile');
-    loginUrl.searchParams.append('nonce', nonce);
-
-    res.redirect(loginUrl.toString());
 });
 
 app.post('/protected-views', (req, res) => {
