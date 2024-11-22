@@ -2,17 +2,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
-    <title>芝麻柚子 とんかつ | LINE 綁定</title>
-    <link rel="stylesheet" href="css/line.css">
+    <link href="/images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
+    <title>芝麻柚子 とんかつ | LINE 官方帳號</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f2f2f2;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 90%;
+            background-color: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-text {
+            text-align: center;
+            color: #1e1e1e;
+            font-size: 24px;
+            margin-bottom: 40px;
+            line-height: 1.8;  
+            font-weight: 500;
+        }
+
+        .header-line1 {
+            display: block;
+            margin-bottom: 12px; 
+        }
+
+        .header-line2 {
+            display: block;
+            color: #666666;  
+            font-size: 22px;  
+        }
+
+        .line-profile {
+            background-color: #ffffff;
+            border: 1px solid #e6e6e6;
+            border-radius: 20px;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            transition: transform 0.3s ease;
+        }
+
+        .line-profile:hover {
+            transform: translateY(-2px);
+        }
+
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-info {
+            text-align: center;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e1e1e;
+            margin: 0 0 8px 0;
+        }
+
+        .profile-id {
+            font-size: 18px;
+            color: #666666;
+            margin: 0;
+            padding: 4px 12px;
+            background-color: #f8f8f8;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            display: block; 
+            transition: transform 0.3s ease;
+        }
+
+        .qr-code:hover {
+            transform: scale(1.02);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+                padding: 30px 20px;
+            }
+
+            .header-text {
+                font-size: 20px;
+                margin-bottom: 30px;
+            }
+
+            .header-line2 {
+                font-size: 18px;
+            }
+
+            .profile-image {
+                width: 80px;
+                height: 80px;
+            }
+
+            .profile-name {
+                font-size: 20px;
+            }
+
+            .profile-id {
+                font-size: 16px;
+            }
+
+            .qr-code {
+                width: 180px;
+                height: 180px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="loading-container">
-        <div class="loading-spinner"></div>
-        <p class="loading-text">正在連接至 LINE 綁定...</p>
-        <div id="error-message" class="error-message"></div>
-    </div>
+    <div class="container">
+        <div class="header-text">
+            <span class="header-line1">掃描下方QR code添加官方帳號</span>
+            <span class="header-line2">來綁定電話號碼獲取訂位資訊</span>
+        </div>
 
-    <script src="js/line.js"></script>
+        <div class="line-profile">
+            <img src="images/logo-circle.png" alt="芝麻柚子 とんかつ" class="profile-image">
+            <div class="profile-info">
+                <p class="profile-name">芝麻柚子 とんかつ</p>
+                <p class="profile-id">@206amniw</p>
+            </div>
+        </div>
+
+        <img src="images/LINEQRcode.png" alt="LINE QR Code" class="qr-code">
+    </div>
 </body>
 </html>
