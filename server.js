@@ -246,24 +246,230 @@ app.post('/reservations', async (req, res) => {
         });
 
         if (existingLineUser) {
-            const message = `
-${existingLineUser.lineName}，您好！
-訂位成功通知！
-
-訂位資訊：
-姓名：${name}
-日期：${adjustedDate.replace(/-/g, '/')}
-時間：${time}
-人數：${adults}大${children}小
-素食：${vegetarian}
-特殊需求：${specialNeeds}
-備註：${notes || '無'}
-
-感謝您的訂位！
-            `.trim();
-
             try {
-                await sendLineMessage(existingLineUser.lineUserId, message);
+                await sendLineMessage(existingLineUser.lineUserId, {
+                    type: 'flex',
+                    altText: '訂位成功通知',
+                    contents: {
+                        "type": "bubble",
+                        "header": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "訂位成功通知！",
+                                            "color": "#ffffff",
+                                            "align": "center",
+                                            "gravity": "center",
+                                            "size": "lg",
+                                            "flex": 4,
+                                            "weight": "bold"
+                                        }
+                                    ],
+                                    "alignItems": "center"
+                                }
+                            ],
+                            "backgroundColor": "#66BB6A",
+                            "paddingAll": "20px"
+                        },
+                        "body": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": `${existingLineUser.lineName}，您好！`,
+                                    "weight": "bold",
+                                    "size": "md",
+                                    "wrap": true,
+                                    "color": "#2E4A62",
+                                    "margin": "md"
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "margin": "lg",
+                                    "spacing": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "姓名",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 3
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": name,
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "flex": 7,
+                                                    "wrap": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "日期",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 3
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": adjustedDate.replace(/-/g, '/'),
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "flex": 7,
+                                                    "wrap": true
+                                                }
+                                            ],
+                                            "margin": "md"
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "時間",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 3
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": time,
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "flex": 7,
+                                                    "wrap": true
+                                                }
+                                            ],
+                                            "margin": "md"
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "人數",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 3
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": `${adults}大${children}小`,
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "flex": 7,
+                                                    "wrap": true
+                                                }
+                                            ],
+                                            "margin": "md"
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "素食",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 3
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": vegetarian,
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "flex": 7,
+                                                    "wrap": true
+                                                }
+                                            ],
+                                            "margin": "md"
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "特殊需求",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 3
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": specialNeeds,
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "flex": 7,
+                                                    "wrap": true
+                                                }
+                                            ],
+                                            "margin": "md"
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "備註",
+                                                    "size": "sm",
+                                                    "color": "#555555",
+                                                    "flex": 3
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": notes || '無',
+                                                    "size": "sm",
+                                                    "color": "#111111",
+                                                    "flex": 7,
+                                                    "wrap": true
+                                                }
+                                            ],
+                                            "margin": "md"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "paddingAll": "20px"
+                        },
+                        "footer": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "感謝您的訂位！",
+                                    "align": "center",
+                                    "color": "#66BB6A",
+                                    "weight": "bold"
+                                }
+                            ],
+                            "paddingAll": "20px"
+                        }
+                    }
+                });
                 console.log('LINE notification sent successfully');
             } catch (error) {
                 console.error('LINE notification error:', error);
@@ -306,27 +512,154 @@ app.post('/line/webhook', async (req, res) => {
                 const existingUser = await UserID.findOne({ lineUserId });
                 
                 if (!existingUser) {
-                    const welcomeMessage = `${lineName}您好！
-歡迎加入芝麻柚子 とんかつ官方帳號
-
-將定期發放最新資訊給您✨
-
-綁定電話號碼來獲取訂位資訊☎
-
-❗請注意❗
-如果已提交訂位，請輸入訂位時所使用的電話號碼，否則無法收到訂位資訊。`;
-
                     await sendLineMessage(lineUserId, {
-                        type: 'template',
-                        altText: '綁定電話號碼',
-                        template: {
-                            type: 'buttons',
-                            text: welcomeMessage,
-                            actions: [{
-                                type: 'postback',
-                                label: '綁定電話',
-                                data: 'action=bind_phone'
-                            }]
+                        type: 'flex',
+                        altText: '歡迎加入芝麻柚子 とんかつ官方帳號',
+                        contents: {
+                            "type": "bubble",
+                            "header": {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "box",
+                                        "layout": "horizontal",
+                                        "contents": [
+                                            {
+                                                "type": "image",
+                                                "url": "https://raw.githubusercontent.com/ZYW0097/zhima-youzi/refs/heads/main/images/logo-circle.png",
+                                                "size": "sm",
+                                                "aspectRatio": "1:1",
+                                                "flex": 1
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": "芝麻柚子 とんかつ",
+                                                "color": "#ffffff",
+                                                "align": "center",
+                                                "gravity": "center",
+                                                "size": "lg",
+                                                "flex": 4,
+                                                "weight": "bold"
+                                            }
+                                        ],
+                                        "alignItems": "center"
+                                    }
+                                ],
+                                "backgroundColor": "#66BB6A",
+                                "paddingAll": "20px"
+                            },
+                            "body": {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "歡迎加入好友！",
+                                        "weight": "bold",
+                                        "size": "xl",
+                                        "align": "center",
+                                        "color": "#2E4A62"
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "margin": "lg",
+                                        "spacing": "sm",
+                                        "contents": [
+                                            {
+                                                "type": "box",
+                                                "layout": "baseline",
+                                                "spacing": "md",
+                                                "contents": [
+                                                    {
+                                                        "type": "text",
+                                                        "text": "將定期發放最新資訊給您✨",
+                                                        "wrap": true,
+                                                        "color": "#666666",
+                                                        "size": "md",
+                                                        "flex": 5,
+                                                        "align": "center"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "box",
+                                                "layout": "baseline",
+                                                "spacing": "md",
+                                                "contents": [
+                                                    {
+                                                        "type": "text",
+                                                        "text": "綁定電話號碼來獲取訂位資訊📧",
+                                                        "wrap": true,
+                                                        "color": "#666666",
+                                                        "size": "md",
+                                                        "flex": 5,
+                                                        "align": "center"
+                                                    }
+                                                ],
+                                                "margin": "md"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "margin": "xxl",
+                                        "contents": [
+                                            {
+                                                "type": "text",
+                                                "text": "‼請注意‼",
+                                                "size": "lg",
+                                                "color": "#ff5551",
+                                                "weight": "bold",
+                                                "align": "center"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": "請輸入訂位時使用的電話號碼",
+                                                "margin": "sm",
+                                                "size": "xs",
+                                                "color": "#ff5551",
+                                                "wrap": true,
+                                                "align": "center"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": "以確保能收到訂位資訊。",
+                                                "margin": "sm",
+                                                "size": "xs",
+                                                "color": "#ff5551",
+                                                "align": "center"
+                                            }
+                                        ],
+                                        "paddingAll": "13px",
+                                        "backgroundColor": "#FFF0F0",
+                                        "cornerRadius": "2px"
+                                    }
+                                ],
+                                "paddingAll": "20px"
+                            },
+                            "footer": {
+                                "type": "box",
+                                "layout": "vertical",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "button",
+                                        "style": "primary",
+                                        "height": "sm",
+                                        "action": {
+                                            "type": "postback",
+                                            "label": "綁定電話號碼",
+                                            "data": "action=bind_phone"
+                                        },
+                                        "color": "#66BB6A"
+                                    }
+                                ],
+                                "flex": 0,
+                                "paddingAll": "20px"
+                            }
                         }
                     });
                 }
@@ -369,22 +702,252 @@ app.post('/line/webhook', async (req, res) => {
                             });
 
                             if (reservation) {
-                                const confirmMessage = `
-電話號碼綁定成功！
-以下是您的訂位資訊：
-
-姓名：${reservation.name}
-電話：${reservation.phone}
-日期：${reservation.date.replace(/-/g, '/')}
-時間：${reservation.time}
-人數：${reservation.adults}大${reservation.children}小
-素食：${reservation.vegetarian}
-特殊需求：${reservation.specialNeeds}
-備註：${reservation.notes || '無'}
-
-感謝您的訂位！
-                                `.trim();
-                                await sendLineMessage(lineUserId, confirmMessage);
+                                await sendLineMessage(lineUserId, {
+                                    type: 'flex',
+                                    altText: '電話號碼綁定成功',
+                                    contents: {
+                                        "type": "bubble",
+                                        "header": {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "contents": [
+                                                {
+                                                    "type": "box",
+                                                    "layout": "horizontal",
+                                                    "contents": [
+                                                        {
+                                                            "type": "text",
+                                                            "text": "電話號碼綁定成功！",
+                                                            "color": "#ffffff",
+                                                            "align": "center",
+                                                            "gravity": "center",
+                                                            "size": "lg",
+                                                            "flex": 4,
+                                                            "weight": "bold"
+                                                        }
+                                                    ],
+                                                    "alignItems": "center"
+                                                }
+                                            ],
+                                            "backgroundColor": "#66BB6A",
+                                            "paddingAll": "20px"
+                                        },
+                                        "body": {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "以下是您的訂位資訊：",
+                                                    "weight": "bold",
+                                                    "size": "md",
+                                                    "wrap": true,
+                                                    "align": "center",
+                                                    "color": "#2E4A62",
+                                                    "margin": "md"
+                                                },
+                                                {
+                                                    "type": "box",
+                                                    "layout": "vertical",
+                                                    "margin": "lg",
+                                                    "spacing": "sm",
+                                                    "contents": [
+                                                        {
+                                                            "type": "box",
+                                                            "layout": "horizontal",
+                                                            "contents": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "姓名",
+                                                                    "size": "sm",
+                                                                    "color": "#555555",
+                                                                    "flex": 3
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": reservation.name,
+                                                                    "size": "sm",
+                                                                    "color": "#111111",
+                                                                    "flex": 7,
+                                                                    "wrap": true
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "box",
+                                                            "layout": "horizontal",
+                                                            "contents": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "電話",
+                                                                    "size": "sm",
+                                                                    "color": "#555555",
+                                                                    "flex": 3
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": reservation.phone,
+                                                                    "size": "sm",
+                                                                    "color": "#111111",
+                                                                    "flex": 7,
+                                                                    "wrap": true
+                                                                }
+                                                            ],
+                                                            "margin": "md"
+                                                        },
+                                                        {
+                                                            "type": "box",
+                                                            "layout": "horizontal",
+                                                            "contents": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "日期",
+                                                                    "size": "sm",
+                                                                    "color": "#555555",
+                                                                    "flex": 3
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": reservation.date.replace(/-/g, '/'),
+                                                                    "size": "sm",
+                                                                    "color": "#111111",
+                                                                    "flex": 7,
+                                                                    "wrap": true
+                                                                }
+                                                            ],
+                                                            "margin": "md"
+                                                        },
+                                                        {
+                                                            "type": "box",
+                                                            "layout": "horizontal",
+                                                            "contents": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "時間",
+                                                                    "size": "sm",
+                                                                    "color": "#555555",
+                                                                    "flex": 3
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": reservation.time,
+                                                                    "size": "sm",
+                                                                    "color": "#111111",
+                                                                    "flex": 7,
+                                                                    "wrap": true
+                                                                }
+                                                            ],
+                                                            "margin": "md"
+                                                        },
+                                                        {
+                                                            "type": "box",
+                                                            "layout": "horizontal",
+                                                            "contents": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "人數",
+                                                                    "size": "sm",
+                                                                    "color": "#555555",
+                                                                    "flex": 3
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": `${reservation.adults}大${reservation.children}小`,
+                                                                    "size": "sm",
+                                                                    "color": "#111111",
+                                                                    "flex": 7,
+                                                                    "wrap": true
+                                                                }
+                                                            ],
+                                                            "margin": "md"
+                                                        },
+                                                        {
+                                                            "type": "box",
+                                                            "layout": "horizontal",
+                                                            "contents": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "素食",
+                                                                    "size": "sm",
+                                                                    "color": "#555555",
+                                                                    "flex": 3
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": reservation.vegetarian,
+                                                                    "size": "sm",
+                                                                    "color": "#111111",
+                                                                    "flex": 7,
+                                                                    "wrap": true
+                                                                }
+                                                            ],
+                                                            "margin": "md"
+                                                        },
+                                                        {
+                                                            "type": "box",
+                                                            "layout": "horizontal",
+                                                            "contents": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "特殊需求",
+                                                                    "size": "sm",
+                                                                    "color": "#555555",
+                                                                    "flex": 3
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": reservation.specialNeeds,
+                                                                    "size": "sm",
+                                                                    "color": "#111111",
+                                                                    "flex": 7,
+                                                                    "wrap": true
+                                                                }
+                                                            ],
+                                                            "margin": "md"
+                                                        },
+                                                        {
+                                                            "type": "box",
+                                                            "layout": "horizontal",
+                                                            "contents": [
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": "備註",
+                                                                    "size": "sm",
+                                                                    "color": "#555555",
+                                                                    "flex": 3
+                                                                },
+                                                                {
+                                                                    "type": "text",
+                                                                    "text": reservation.notes || '無',
+                                                                    "size": "sm",
+                                                                    "color": "#111111",
+                                                                    "flex": 7,
+                                                                    "wrap": true
+                                                                }
+                                                            ],
+                                                            "margin": "md"
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "paddingAll": "20px"
+                                        },
+                                        "footer": {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "感謝您的訂位！",
+                                                    "align": "center",
+                                                    "color": "#66BB6A",
+                                                    "weight": "bold"
+                                                }
+                                            ],
+                                            "paddingAll": "20px"
+                                        }
+                                    }
+                                });
                             }
                         } catch (error) {
                             console.error('Error in confirm_recent_reservation:', error);
@@ -407,7 +970,7 @@ app.post('/line/webhook', async (req, res) => {
                             });
                             await newUserID.save();
 
-                            await sendLineMessage(lineUserId, '電話號碼綁定成功！未來訂位時將會收到通知。');
+                            await sendLineMessage(lineUserId, '電話號碼綁定成功！未來訂位時輸入此電話號碼將會收到通知。');
                         } catch (error) {
                             console.error('Error in confirm_general_binding:', error);
                             await sendLineMessage(lineUserId, '綁定過程發生錯誤，請稍後再試。');
@@ -451,45 +1014,262 @@ app.post('/line/webhook', async (req, res) => {
                     const maskedPhone = `${phone.slice(0, 4)}**${phone.slice(-2)}`;
                     
                     await sendLineMessage(lineUserId, {
-                        type: 'template',
+                        type: 'flex',
                         altText: '確認訂位資訊',
-                        template: {
-                            type: 'confirm',
-                            text: `請確認以下訂位資訊：\n姓名：${maskedName}\n電話：${maskedPhone}\n日期：${recentReservation.date}\n時間：${recentReservation.time}`,
-                            actions: [
-                                {
-                                    type: 'postback',
-                                    label: '確認',
-                                    data: `action=confirm_recent_reservation&phone=${phone}`
-                                },
-                                {
-                                    type: 'postback',
-                                    label: '取消',
-                                    data: 'action=cancel_binding'
-                                }
-                            ]
+                        contents: {
+                            "type": "bubble",
+                            "header": {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "box",
+                                        "layout": "horizontal",
+                                        "contents": [
+                                            {
+                                                "type": "text",
+                                                "text": "確認訂位資訊",
+                                                "color": "#ffffff",
+                                                "align": "center",
+                                                "gravity": "center",
+                                                "size": "lg",
+                                                "flex": 4,
+                                                "weight": "bold"
+                                            }
+                                        ],
+                                        "alignItems": "center"
+                                    }
+                                ],
+                                "backgroundColor": "#66BB6A",
+                                "paddingAll": "20px"
+                            },
+                            "body": {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "請確認以下訂位資訊：",
+                                        "weight": "bold",
+                                        "size": "md",
+                                        "wrap": true,
+                                        "align": "center",
+                                        "color": "#2E4A62"
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "margin": "lg",
+                                        "spacing": "sm",
+                                        "contents": [
+                                            {
+                                                "type": "box",
+                                                "layout": "horizontal",
+                                                "contents": [
+                                                    {
+                                                        "type": "text",
+                                                        "text": "姓名",
+                                                        "size": "sm",
+                                                        "color": "#555555",
+                                                        "flex": 2
+                                                    },
+                                                    {
+                                                        "type": "text",
+                                                        "text": maskedName,  // 已經遮罩的姓名
+                                                        "size": "sm",
+                                                        "color": "#111111",
+                                                        "flex": 5
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "box",
+                                                "layout": "horizontal",
+                                                "contents": [
+                                                    {
+                                                        "type": "text",
+                                                        "text": "電話",
+                                                        "size": "sm",
+                                                        "color": "#555555",
+                                                        "flex": 2
+                                                    },
+                                                    {
+                                                        "type": "text",
+                                                        "text": maskedPhone,  // 已經遮罩的電話
+                                                        "size": "sm",
+                                                        "color": "#111111",
+                                                        "flex": 5
+                                                    }
+                                                ],
+                                                "margin": "md"
+                                            },
+                                            {
+                                                "type": "box",
+                                                "layout": "horizontal",
+                                                "contents": [
+                                                    {
+                                                        "type": "text",
+                                                        "text": "日期",
+                                                        "size": "sm",
+                                                        "color": "#555555",
+                                                        "flex": 2
+                                                    },
+                                                    {
+                                                        "type": "text",
+                                                        "text": recentReservation.date,
+                                                        "size": "sm",
+                                                        "color": "#111111",
+                                                        "flex": 5
+                                                    }
+                                                ],
+                                                "margin": "md"
+                                            },
+                                            {
+                                                "type": "box",
+                                                "layout": "horizontal",
+                                                "contents": [
+                                                    {
+                                                        "type": "text",
+                                                        "text": "時間",
+                                                        "size": "sm",
+                                                        "color": "#555555",
+                                                        "flex": 2
+                                                    },
+                                                    {
+                                                        "type": "text",
+                                                        "text": recentReservation.time,
+                                                        "size": "sm",
+                                                        "color": "#111111",
+                                                        "flex": 5
+                                                    }
+                                                ],
+                                                "margin": "md"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "paddingAll": "20px"
+                            },
+                            "footer": {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "button",
+                                        "style": "secondary",
+                                        "height": "sm",
+                                        "action": {
+                                            "type": "postback",
+                                            "label": "取消",
+                                            "data": "action=cancel_binding"
+                                        }
+                                    },
+                                    {
+                                        "type": "button",
+                                        "style": "primary",
+                                        "height": "sm",
+                                        "action": {
+                                            "type": "postback",
+                                            "label": "確認",
+                                            "data": `action=confirm_recent_reservation&phone=${phone}`
+                                        },
+                                        "color": "#66BB6A"
+                                    }
+                                ],
+                                "flex": 0,
+                                "paddingAll": "20px"
+                            }
                         }
                     });
                 } else {
                     // 發送一般綁定確認
                     await sendLineMessage(lineUserId, {
-                        type: 'template',
+                        type: 'flex',
                         altText: '確認綁定電話',
-                        template: {
-                            type: 'confirm',
-                            text: `確認要綁定電話號碼 ${phone} 嗎？`,
-                            actions: [
-                                {
-                                    type: 'postback',
-                                    label: '確認',
-                                    data: `action=confirm_general_binding&phone=${phone}`
-                                },
-                                {
-                                    type: 'postback',
-                                    label: '取消',
-                                    data: 'action=cancel_binding'
-                                }
-                            ]
+                        contents: {
+                            "type": "bubble",
+                            "header": {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "box",
+                                        "layout": "horizontal",
+                                        "contents": [
+                                            {
+                                                "type": "text",
+                                                "text": "確認綁定電話",
+                                                "color": "#ffffff",
+                                                "align": "center",
+                                                "gravity": "center",
+                                                "size": "lg",
+                                                "flex": 4,
+                                                "weight": "bold"
+                                            }
+                                        ],
+                                        "alignItems": "center"
+                                    }
+                                ],
+                                "backgroundColor": "#66BB6A",
+                                "paddingAll": "20px"
+                            },
+                            "body": {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "確認要綁定此電話號碼嗎？",
+                                        "weight": "bold",
+                                        "size": "md",
+                                        "wrap": true,
+                                        "align": "center",
+                                        "color": "#2E4A62"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": phone,  
+                                        "weight": "bold",
+                                        "size": "xl",
+                                        "wrap": true,
+                                        "align": "center",
+                                        "color": "#2E4A62",
+                                        "margin": "md"
+                                    }
+                                ],
+                                "paddingAll": "20px"
+                            },
+                            "footer": {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "button",
+                                        "style": "secondary",
+                                        "height": "sm",
+                                        "action": {
+                                            "type": "postback",
+                                            "label": "取消",
+                                            "data": "action=cancel_binding"
+                                        }
+                                    },
+                                    {
+                                        "type": "button",
+                                        "style": "primary",
+                                        "height": "sm",
+                                        "action": {
+                                            "type": "postback",
+                                            "label": "確認",
+                                            "data": `action=confirm_general_binding&phone=${phone}` 
+                                        },
+                                        "color": "#66BB6A"
+                                    }
+                                ],
+                                "flex": 0,
+                                "paddingAll": "20px"
+                            }
                         }
                     });
                 }
