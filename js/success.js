@@ -1,29 +1,38 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const bookingDate = urlParams.get('date');
-        const bookingTime = urlParams.get('time');
-        const email = urlParams.get('email');
+        const pathParts = window.location.pathname.split('/');
+        const token = pathParts[1]; 
+
+        const response = await fetch(`/api/reservation/${token}`);
+        if (!response.ok) {
+            throw new Error('無法獲取預訂資訊');
+        }
+        const reservationData = await response.json();
 
         const bookingDateTime = document.getElementById('bookingDateTime');
-        if (bookingDate && bookingTime) {
-            const formattedDate = bookingDate.replace(/-/g, '/');
-            bookingDateTime.textContent = `訂位時間：${formattedDate} ${bookingTime}`;
+        if (reservationData.date && reservationData.time) {
+            const formattedDate = reservationData.date.replace(/-/g, '/');
+            bookingDateTime.textContent = `訂位時間：${formattedDate} ${reservationData.time}`;
         }
 
         const customerEmail = document.getElementById('customerEmail');
-        if (email) {
-            customerEmail.textContent = email;
+        if (reservationData.email) {
+            customerEmail.textContent = reservationData.email;
         }
 
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
         const lineBtn = document.getElementById('lineBtn');
+        if (lineBtn) {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+                lineBtn.href = 'https://lin.ee/DqIRAm0';
+            } else {
+                lineBtn.href = '/line';
+            }
 
-        if (isMobile) {
-            lineBtn.href = 'https://lin.ee/DqIRAm0';
-        } else {
-            lineBtn.href = '/line';
+            lineBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = lineBtn.href;
+            });
         }
 
     } catch (error) {
