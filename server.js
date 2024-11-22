@@ -307,14 +307,13 @@ app.post('/line/webhook', async (req, res) => {
                 
                 if (!existingUser) {
                     const welcomeMessage = `${lineName}您好！
-我是芝麻柚子。
-感謝您加入好友\uDBC0\uDC78
+歡迎加入芝麻柚子 とんかつ官方帳號
 
-此官方帳號將定期發放最新資訊給您\uDBC0\uDC6D
+將定期發放最新資訊給您✨
 
-綁定電話號碼來獲取訂位資訊吧\uDBC0\uDC4A
+綁定電話號碼來獲取訂位資訊☎
 
-\uDBC0\uDC4A\uDBC0\uDC4A\uDBC0\uDC4A請注意\uDBC0\uDC4A\uDBC0\uDC4A\uDBC0\uDC4A
+❗請注意❗
 如果已提交訂位，請輸入訂位時所使用的電話號碼，否則無法收到訂位資訊。`;
 
                     await sendLineMessage(lineUserId, {
