@@ -4,9 +4,12 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: white;
     margin: 0;
-    padding: 20px;
+    padding: 0px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* 上方橫條 / menu  */
@@ -57,10 +60,11 @@ nav a {
 .container {
     display: flex;
     gap: 20px;
-    padding: 20px;
+    padding: 40px;
     justify-content: center;
     margin-top: 70px;
     margin-left: 360px;
+    flex: 1;
 }
 
 #reservationForm {
@@ -80,158 +84,115 @@ nav a {
 /* 日曆  */
 
 #calendar-container {
-    padding: 10px;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: fit-content;
-    margin: 20px auto;
-
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #calendar-header {
-    text-align: center;
-    margin-bottom: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
 }
 
 #calendar-title {
-    font-size: 1.5rem;
+    font-size: 32px;
+    margin-top: 30px;
     font-weight: bold;
-    margin-bottom: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#calendar-title span {
+    display: inline-block;
+    margin-right: 10px;
 }
 
 #calendar-buttons {
     display: flex;
+    flex-direction: row;
     justify-content: center;
-    gap: 5px;
+    gap: 10px;
+    margin: 15px 0;
 }
 
-button[type="datebutton"] {
-    color: white;
-}
-
-/* 日曆  */
-
-button {
-    background-color: #4CAF50;
-    padding: 5px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-#calendar-container {
+#calendar-buttons .month-buttons {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    margin-top: 20px;
-    font-family: Arial, sans-serif;
-    box-sizing: border-box;
-    background-color: transparent;
-    border: 0 !important; 
-    box-shadow: none !important; 
-    outline: none; 
-}
-
-#calendar-header {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-bottom: 15px;
-    padding: 10px;
-}
-
-#calendar-title {
-    font-size: 22px;
-    font-weight: bold;
-    color: #333;
-    margin: 0;
-    margin-top: 20px;
+    justify-content: center;
+    gap: 10px;
 }
 
 #calendar-buttons button {
-    padding: 8px 15px;
-    margin: 0 5px;
+    padding: 8px 16px;
     font-size: 14px;
+    line-height: 1.2;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: #66BB6A;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
 #calendar-buttons button:hover {
-    background-color: #43A047; 
+    background-color: #4CAF50;
 }
 
 #calendar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     width: 100%;
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: none !important; 
-    border: none !important; 
-    margin-top: 10px;
+    padding: 15px;
 }
 
 .weekdays {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); 
+    grid-template-columns: repeat(7, 1fr);
     gap: 5px;
     background-color: #66BB6A;
-    padding: 10px 0;
-    font-weight: bold;
-    text-align: center;
-    color: white;
-    border-radius: 5px;
-    width: 100%;
-    margin-bottom: 15px;
+    border-radius: 8px;
+    padding: 20px 0;
+    margin-bottom: 10px;
 }
 
 .weekdays div {
-    padding: 5px 0;
+    text-align: center;
+    color: white;
 }
 
 #days-container {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); 
+    grid-template-columns: repeat(7, 1fr);
     gap: 5px;
-    justify-content: center;
-    width: 100%;
 }
 
 .day {
-    text-align: center;
-    padding: 15px;
-    background-color: #fff;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    font-size: 16px;
-    color: #333;
-    border: 1px solid #ddd;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    min-height: 40px;
+    padding: 0;
 }
 
-.day.selected {
-    background-color: #66BB6A; 
-    color: white;
-    border: 1px solid #66BB6A;
+.day span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 .day:hover:not(.disabled) {
@@ -240,9 +201,15 @@ button:disabled {
     transform: scale(1.1);
 }
 
+.day.selected {
+    background-color: #66BB6A;
+    color: white;
+    border-color: #66BB6A;
+}
+
 .day.disabled {
-    background-color: #f0f0f0;
-    color: #ccc;
+    background-color: #f5f5f5;
+    color: #bdbdbd;
     cursor: not-allowed;
 }
 
@@ -262,22 +229,40 @@ button:disabled {
 
 .field {
     flex: 1;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .field label {
-    display: block; 
-    margin-bottom: 0.5rem; 
+    width: 100px;
+    display: block;
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+    color: #555;
+    font-weight: 500;
 }
 
-.field select {
+input[type="text"],
+input[type="phone"],
+input[type="email"],
+select,
+textarea {
     width: 100%;
-    padding: 0.5rem; 
-    box-sizing: border-box; 
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: white;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
 }
-input:focus,
-select:focus {
-    border-color: #007bff;
+
+input[type="text"]:focus,
+input[type="phone"]:focus,
+input[type="email"]:focus,
+select:focus,
+textarea:focus {
+    border-color: #66BB6A;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.1);
 }
 
 button[type="submit"] {
@@ -355,13 +340,6 @@ button[type="submit"]:hover {
     border-radius: 5px;
 }
 
-textarea, input[type="phone"], input[type="text"], input[type="email"], select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
 #gender-container {
     display: flex;
     flex-direction: column;
@@ -370,15 +348,27 @@ textarea, input[type="phone"], input[type="text"], input[type="email"], select {
 
 #gender-container div {
     display: flex;
-    gap: 15px; 
-    align-items: center; 
-    margin-top: 15px;
+    gap: 20px;
+    margin-top: 10px;
 }
 
-label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
+#gender-container input[type="radio"] {
+    accent-color: #66BB6A;
+    width: 16px;
+    height: 16px;
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
 }
 
 .form-row {
@@ -393,6 +383,21 @@ label {
     position: relative;  
     top: 0;
     left: 0;
+}
+
+.row, .form-group, .form-row label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+footer {
+    background-color: #f5f5f5;
+    font-size: 12px;
+    color: #717d7e;
+    text-align: right;
+    padding: 1rem 1rem 1rem 0;
+    width: 100%;
+    margin-top: auto;
 }
 
 /* 右側填寫  */
@@ -519,97 +524,73 @@ label {
     }
     
     #calendar-container {
-        max-width: 100%; /* 確保容器寬度最大為 100% */
-        padding: 4px; /* 減少內邊距 */
-        margin: 10px auto;
+        padding: 10px;
+        max-width: 100%;
     }
     
     #calendar {
-        max-width: 100%;
-        padding: 4px; /* 減少內邊距 */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        box-sizing: border-box;
-    }
-    
-    .weekdays {
-        font-size: 10px; /* 減小字型大小 */
-        display: grid;
-        grid-template-columns: repeat(7, 1fr); /* 每列顯示 7 個星期 */
-        padding: 4px 0; /* 減少上下內邊距 */
-        gap: 2px; /* 減少格子間距 */
-        text-align: center;
-        width: 100%; 
-        box-sizing: border-box;
+        padding: 8px;
     }
     
     .weekdays div {
-        padding: 4px 0; /* 減少內邊距 */
-    }
-    
-    #days-container {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr); /* 每列顯示 7 個日期 */
-        gap: 3px; /* 減少日期間的間距 */
-        width: 100%; 
-        box-sizing: border-box;
+        padding: 6px 0;
     }
     
     .day {
-        font-size: 10px; /* 減小字型大小 */
-        padding: 6px; /* 減少內邊距 */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        background-color: #fff;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-    
-    .day:hover:not(.disabled) {
-        background-color: #66BB6A;
-        color: white;
-        transform: scale(1.1); /* 增加 hover 動畫 */
-    }
-    
-    .day.selected {
-        background-color: #66BB6A;
-        color: white;
-        border: 1px solid #66BB6A;
-    }
-    
-    .day.disabled {
-        background-color: #f0f0f0;
-        color: #ccc;
-        cursor: not-allowed;
-    }
-    
-    #calendar-buttons button {
-        font-size: 12px; /* 減小字型大小 */
-        padding: 6px 10px; /* 減少按鈕內邊距 */
+        font-size: clamp(10px, 3vw, 14px);
     }
 }
 
-@media (max-width: 1024px) {
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-left: 0;
-        gap: 0;
-    }
-
+@media (max-width: 1350px) {  
     #reservation-summary {
         display: none;
     }
 
-    #reservationForm {
-        max-width: 65%;
+    .container {
+        margin-left: 0; /
     }
 
+    #reservationForm {
+        margin: 0 auto;  
+        max-width: 90%;  
+        flex: 1;
+    }
+}
 
+@media (max-width: 768px) {
+    #reservation-summary {
+        display: none;
+    }
+
+    .container {
+        padding: 20px;
+        width: 110%; 
+        max-width: none; 
+        margin: 70px 0 0 0; 
+        transform: translateX(-5%);
+    }
+
+    #reservationForm {
+        width: 100%;  
+        margin: 0;
+        padding: 20px;
+        display: block;
+    }
+
+    #gender-container {
+        display: flex;
+        flex-direction: column-reverse; 
+        gap: 10px;
+    }
+
+    #gender-container label {
+        margin-top: 10px;
+    }
+
+    #gender-container div {
+        display: flex;
+        gap: 30px; 
+        justify-content: center;
+        margin-bottom: 5px;
+    }
 }
