@@ -988,12 +988,9 @@ app.post('/line/webhook', async (req, res) => {
                 const phone = event.message.text;
                 
                 // 驗證電話號碼格式
-                if (userStates[lineUserId] === 'WAITING_FOR_PHONE') { 
-                    // 只在綁定電話號碼時才進行驗證
-                    if (!phoneRegex.test(userMessage)) {
-                        await sendLineMessage(lineUserId, '請輸入有效的手機號碼（例：0912345678）');
-                        return;
-                    }
+                if (!phoneRegex.test(userMessage)) {
+                    await sendLineMessage(lineUserId, '請輸入有效的手機號碼（例：0912345678）');
+                    return;
                 }
 
                 // 檢查是否已經綁定
