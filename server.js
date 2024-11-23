@@ -988,9 +988,12 @@ app.post('/line/webhook', async (req, res) => {
                 const phone = event.message.text;
                 
                 // 驗證電話號碼格式
-                if (!phoneRegex.test(phone)) {
-                    await sendLineMessage(lineUserId, '請輸入有效的手機號碼（例：0912345678）');
-                    return;
+                if (userStates[lineUserId] === 'WAITING_FOR_PHONE') { 
+                    // 只在綁定電話號碼時才進行驗證
+                    if (!phoneRegex.test(userMessage)) {
+                        await sendLineMessage(lineUserId, '請輸入有效的手機號碼（例：0912345678）');
+                        return;
+                    }
                 }
 
                 // 檢查是否已經綁定
@@ -1370,30 +1373,6 @@ app.get('/api/reservation/:token', async (req, res) => {
     } catch (error) {
         console.error('Error fetching reservation:', error);
         res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-app.post('/protected-views', (req, res) => {
-    const { password } = req.body;
-    if (password === '83094123') {
-        req.session.passwordCorrect = true;
-        res.redirect('/view');
-    } else {
-        res.status(401).send('密碼錯誤');
-    }
-});
-
-app.get('/view', async (req, res) => {
-    if (!req.session.passwordCorrect) {
-        return res.status(403).send('未經授權，請先輸入密碼');
-    }
-
-    try {
-        const reservations = await Reservation.find();
-        res.render('reservations', { reservations });
-    } catch (err) {
-        console.error('Error fetching reservations:', err);
-        res.status(500).json({ message: '無法載入訂位資料' });
     }
 });
 
