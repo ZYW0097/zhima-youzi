@@ -254,11 +254,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
   
             const result = await response.json();
+            console.log('Server response:', result);
 
-            if (result.success) {
-                if (result.redirectUrl) {
-                    window.location.replace(result.redirectUrl);
-                }
+            if (result.success && result.redirectUrl) {
+                console.log('Redirecting to:', result.redirectUrl);
+                window.location.href = result.redirectUrl;
             } else {
                 alert(result.message || '訂位失敗，請稍後再試。');
             }
