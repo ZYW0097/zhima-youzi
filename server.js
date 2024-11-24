@@ -1417,19 +1417,31 @@ app.get('/api/reservation/:token', async (req, res) => {
     }
 });
 
-// 修改日誌函數
-function logAuth(action, username, success, ip) {
-    const timestamp = new Date().toISOString();
-    const logEntry = `${timestamp} | ${action} | User: ${username} | Success: ${success} | IP: ${ip}`;
+// IP 地址處理函數
+function getClientIP(req) {
+    // 獲取真實 IP 地址（如果有代理的話）
+    const realIP = req.headers['x-real-ip'] || 
+                  req.headers['x-forwarded-for'] || 
+                  req.ip || 
+                  req.connection.remoteAddress;
     
-    // 使用 console.log 而不是寫入文件
-    console.log('[Auth Log]', logEntry);
+    // 處理 IPv6 格式
+    if (realIP === '::1') {
+        return 'localhost';
+    }
+    
+    // 如果是 IPv6 格式但包含 IPv4
+    if (realIP.includes('::ffff:')) {
+        return realIP.replace('::ffff:', '');
+    }
+    
+    return realIP;
 }
 
 // 修改登入 API
 app.post('/api/login', async (req, res) => {
     const { username, password, rememberMe } = req.body;
-    const ip = req.ip || req.connection.remoteAddress;
+    const ip = getClientIP(req);
     
     const success = username === process.env.ADMIN_USERNAME && 
                    password === process.env.ADMIN_PASSWORD;
@@ -1479,17 +1491,13 @@ app.post('/api/login', async (req, res) => {
 });
 
 // 修改登出 API
-app.post('/api/logout', (req, res) => {
+app.post('/api/logout', async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
-    const ip = req.ip || req.connection.remoteAddress;
-    
-    if (refreshToken) {
-        redisClient.del(`auth_refresh_${refreshToken}`);
-    }
-    
-    // 從 token 中獲取用戶名
     const accessToken = req.cookies.accessToken;
+    const ip = getClientIP(req);
+    
     let username = 'unknown';
+    
     if (accessToken) {
         try {
             const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
@@ -1500,6 +1508,14 @@ app.post('/api/logout', (req, res) => {
     }
     
     logAuth('LOGOUT', username, true, ip);
+    
+    if (refreshToken) {
+        try {
+            await redisClient.del(`auth_refresh_${refreshToken}`);
+        } catch (err) {
+            console.error('Error deleting refresh token:', err);
+        }
+    }
     
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
