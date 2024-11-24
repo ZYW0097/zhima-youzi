@@ -1,3 +1,6 @@
+const taipeiTimeZone = 'Asia/Taipei';
+process.env.TZ = taipeiTimeZone;  // 設置整個應用的默認時區
+
 document.addEventListener('DOMContentLoaded', function () {
     const adultsSelect = document.getElementById('adults');
     const childrenSelect = document.getElementById('children');
@@ -162,11 +165,9 @@ function updateTimeButtons() {
     if (dayOfWeek === 0 || dayOfWeek === 6) {
         createTimeButtons("11:00", "14:30", 60, "假日上午");
         createTimeButtons("17:00", "20:30", 60, "假日下午");
-        console.log('Weekend schedule:', selectedDateStr, 'Day:', dayOfWeek);
     } else {
         createTimeButtons("11:00", "13:30", 30, "平日上午");
         createTimeButtons("17:00", "20:30", 30, "平日下午");
-        console.log('Weekday schedule:', selectedDateStr, 'Day:', dayOfWeek);
     }
 
     $('#time-picker-container').show();
