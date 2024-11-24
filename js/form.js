@@ -1,5 +1,4 @@
-const taipeiTimeZone = 'Asia/Taipei';
-process.env.TZ = taipeiTimeZone;  // 設置整個應用的默認時區
+const taipeiOptions = { timeZone: 'Asia/Taipei' };
 
 document.addEventListener('DOMContentLoaded', function () {
     const adultsSelect = document.getElementById('adults');
@@ -52,14 +51,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 let selectedTime = null;
 let selectedDate = null;
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
+let currentMonth = new Date().toLocaleString('zh-TW', { ...taipeiOptions, month: 'numeric' }) - 1;
+const currentYear = new Date().toLocaleString('zh-TW', { ...taipeiOptions, year: 'numeric' });
+
+const calendarToday = new Date(new Date().toLocaleString('zh-TW', taipeiOptions));
+calendarToday.setHours(0, 0, 0, 0);
 
 function generateCalendar(month = currentMonth, year = currentYear) {
     const calendarTitle = document.getElementById('calendar-title');
     const daysContainer = document.getElementById('days-container');
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
+    const firstDay = new Date(new Date(year, month, 1).toLocaleString('zh-TW', taipeiOptions));
+    const lastDay = new Date(new Date(year, month + 1, 0).toLocaleString('zh-TW', taipeiOptions));
     const daysInMonth = lastDay.getDate();
     const firstDayWeekday = firstDay.getDay();
 
@@ -76,9 +78,10 @@ function generateCalendar(month = currentMonth, year = currentYear) {
         dayElement.textContent = day;
         dayElement.classList.add('day');
 
-        const currentDate = new Date(year, month, day);
+        const currentDate = new Date(new Date(year, month, day).toLocaleString('zh-TW', taipeiOptions));
+        currentDate.setHours(0, 0, 0, 0);
 
-        if (currentDate < today) {
+        if (currentDate.getTime() < today.getTime()) {
             dayElement.classList.add('disabled');
             dayElement.style.pointerEvents = 'none';
         } else {
@@ -101,7 +104,7 @@ function generateCalendar(month = currentMonth, year = currentYear) {
 }
 
 function selectDate(day, month, year) {
-    selectedDate = new Date(year, month, day);
+    selectedDate = new Date(new Date(year, month, day).toLocaleString('zh-TW', taipeiOptions));
     document.getElementById('date').value = selectedDate.toISOString().split('T')[0];
     document.getElementById('preview-date').textContent = `${selectedDate.toLocaleDateString()}`;
 
@@ -157,7 +160,7 @@ function updateTimeButtons() {
     const selectedDateStr = $('#date').val();
     if (!selectedDateStr) return;
     
-    const selectedDate = new Date(selectedDateStr + 'T00:00:00');
+    const selectedDate = new Date(new Date(selectedDateStr + 'T00:00:00').toLocaleString('zh-TW', taipeiOptions));
     const dayOfWeek = selectedDate.getDay();
     
     $('#time-picker-container').empty();
@@ -165,17 +168,19 @@ function updateTimeButtons() {
     if (dayOfWeek === 0 || dayOfWeek === 6) {
         createTimeButtons("11:00", "14:30", 60, "假日上午");
         createTimeButtons("17:00", "20:30", 60, "假日下午");
+        console.log('Weekend schedule:', selectedDateStr, 'Day:', dayOfWeek);
     } else {
         createTimeButtons("11:00", "13:30", 30, "平日上午");
         createTimeButtons("17:00", "20:30", 30, "平日下午");
+        console.log('Weekday schedule:', selectedDateStr, 'Day:', dayOfWeek);
     }
 
-    $('#time-picker-container').show();
+    $('#time-picker-container').show(); 
 }
 
 function createTimeButtons(startTime, endTime, interval, timeLabel) {
-    const start = new Date(`1970-01-01T${startTime}:00`); 
-    const end = new Date(`1970-01-01T${endTime}:00`); 
+    const start = new Date(new Date(`1970-01-01T${startTime}:00`).toLocaleString('zh-TW', taipeiOptions));
+    const end = new Date(new Date(`1970-01-01T${endTime}:00`).toLocaleString('zh-TW', taipeiOptions));
 
     const timeContainer = $('<div class="time-container"></div>');
     timeContainer.append(`<h3>${timeLabel}</h3>`); 
