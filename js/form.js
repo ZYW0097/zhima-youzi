@@ -62,11 +62,6 @@ function generateCalendar(month = currentMonth, year = currentYear) {
     const calendarTitle = document.getElementById('calendar-title');
     const daysContainer = document.getElementById('days-container');
     
-    if (!calendarTitle || !daysContainer) {
-        console.error('Calendar elements not found');
-        return;
-    }
-    
     month = parseInt(month);
     year = parseInt(year);
     
@@ -79,16 +74,19 @@ function generateCalendar(month = currentMonth, year = currentYear) {
     const daysInMonth = lastDay.getDate();
     const firstDayWeekday = firstDay.getDay();
     
+    const calendarGrid = document.createElement('div');
+    calendarGrid.className = 'calendar-grid';
+    
     for (let i = 0; i < firstDayWeekday; i++) {
         const emptyDay = document.createElement('div');
-        emptyDay.className = 'calendar-day empty';
-        daysContainer.appendChild(emptyDay);
+        emptyDay.className = 'day empty';
+        calendarGrid.appendChild(emptyDay);
     }
     
     for (let day = 1; day <= daysInMonth; day++) {
         const dayElement = document.createElement('div');
         dayElement.textContent = day;
-        dayElement.className = 'calendar-day';
+        dayElement.className = 'day';
         
         const currentDate = new Date(new Date(year, month, day).toLocaleString('zh-TW', taipeiOptions));
         currentDate.setHours(0, 0, 0, 0);
@@ -96,17 +94,36 @@ function generateCalendar(month = currentMonth, year = currentYear) {
         if (currentDate < today) {
             dayElement.classList.add('disabled');
             dayElement.style.pointerEvents = 'none';
+            dayElement.style.color = '#ccc';
         } else {
             dayElement.addEventListener('click', () => {
-                const allDays = document.querySelectorAll('.calendar-day');
+                const allDays = daysContainer.querySelectorAll('.day');
                 allDays.forEach(d => d.classList.remove('selected'));
                 dayElement.classList.add('selected');
+                
+                const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateInput = document.getElementById('date');
+                dateInput.value = formattedDate;
+                dateInput.dispatchEvent(new Event('change'));
+                
                 selectDate(day, month, year);
             });
             dayElement.style.cursor = 'pointer';
         }
         
-        daysContainer.appendChild(dayElement);
+        calendarGrid.appendChild(dayElement);
+    }
+    
+    daysContainer.innerHTML = '';
+    daysContainer.appendChild(calendarGrid);
+    
+    const prevMonthBtn = document.getElementById('prevMonth');
+    if (month === today.getMonth() && year === today.getFullYear()) {
+        prevMonthBtn.disabled = true;
+        prevMonthBtn.style.opacity = '0.5';
+    } else {
+        prevMonthBtn.disabled = false;
+        prevMonthBtn.style.opacity = '1';
     }
 }
 
