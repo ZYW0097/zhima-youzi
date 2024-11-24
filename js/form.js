@@ -69,8 +69,8 @@ function generateCalendar(month = currentMonth, year = currentYear) {
     
     daysContainer.innerHTML = '';
     
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
+    const firstDay = new Date(new Date(year, month, 1).toLocaleString('zh-TW', taipeiOptions));
+    const lastDay = new Date(new Date(year, month + 1, 0).toLocaleString('zh-TW', taipeiOptions));
     
     const daysInMonth = lastDay.getDate();
     const firstDayWeekday = firstDay.getDay();
@@ -85,21 +85,28 @@ function generateCalendar(month = currentMonth, year = currentYear) {
         dayElement.textContent = day;
         dayElement.classList.add('day');
         
-        const currentDate = new Date(year, month, day);
+        const currentDate = new Date(new Date(year, month, day).toLocaleString('zh-TW', taipeiOptions));
         currentDate.setHours(0, 0, 0, 0);
         
-        if (currentDate.getTime() < today.getTime()) {
+        if (currentDate < today) {
             dayElement.classList.add('disabled');
             dayElement.style.pointerEvents = 'none';
         } else {
-            dayElement.addEventListener('click', () => selectDate(day, month, year));
+            dayElement.addEventListener('click', () => {
+                const allDays = document.querySelectorAll('.day');
+                allDays.forEach(d => d.classList.remove('selected'));
+                dayElement.classList.add('selected');
+                selectDate(day, month, year);
+            });
+            dayElement.style.cursor = 'pointer';
         }
         
         daysContainer.appendChild(dayElement);
     }
     
     const prevMonthButton = document.getElementById('prevMonth');
-    if (month === today.getMonth() && year === today.getFullYear()) {
+    const currentTaipeiDate = new Date(new Date().toLocaleString('zh-TW', taipeiOptions));
+    if (month === currentTaipeiDate.getMonth() && year === currentTaipeiDate.getFullYear()) {
         prevMonthButton.disabled = true;
         prevMonthButton.style.pointerEvents = 'none';
         prevMonthButton.style.opacity = 0.5;
@@ -111,20 +118,21 @@ function generateCalendar(month = currentMonth, year = currentYear) {
 }
 
 function selectDate(day, month, year) {
-    selectedDate = new Date(new Date(year, month, day).toLocaleString('zh-TW', taipeiOptions));
-    document.getElementById('date').value = selectedDate.toISOString().split('T')[0];
-    document.getElementById('preview-date').textContent = `${selectedDate.toLocaleDateString()}`;
-
-    const days = document.querySelectorAll('#days-container .day');
-    days.forEach(dayElement => {
-        dayElement.classList.remove('selected');
-        if (parseInt(dayElement.textContent) === day) {
-            dayElement.classList.add('selected');
-        }
-    });
-
+    const date = new Date(year, month, day);
+    const taipeiDate = new Date(date.toLocaleString('zh-TW', taipeiOptions));
+    
+    selectedDate = taipeiDate;
+    
+    const formattedDate = taipeiDate.toISOString().split('T')[0];
+    
+    document.getElementById('date').value = formattedDate;
+    document.getElementById('preview-date').textContent = taipeiDate.toLocaleDateString('zh-TW');
+    
     updateTimeButtons();
+    
     document.getElementById('contactInfoDiv').style.display = 'block';
+    
+    console.log('Date set:', formattedDate);
 }
 
 document.getElementById('nextMonth').addEventListener('click', () => {
