@@ -560,7 +560,7 @@ footer {
 @media (max-width: 768px) {
     .container {
         padding: 20px;
-        width: 85%; 
+        width: 100%; 
         max-width: none; 
         margin: 70px 0 0 0; 
         transform: translateX(-5%);
