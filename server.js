@@ -163,7 +163,7 @@ async function sendEmail(toEmail, reservationData) {
                 
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
                     <p style="color: #999; font-size: 14px;">芝麻柚子 とんかつ</p>
-                    <p style="color: #999; font-size: 14px;">電���：03 558 7360</p>
+                    <p style="color: #999; font-size: 14px;">電：03 558 7360</p>
                     <p style="color: #999; font-size: 14px;">地址：新竹縣竹北市光明一路490號</p>
                 </div>
             </div>
@@ -574,7 +574,7 @@ app.post('/line/webhook', async (req, res) => {
                                                 "contents": [
                                                     {
                                                         "type": "text",
-                                                        "text": "將定期發放最新資訊給您✨",
+                                                        "text": "將定期發放最新資��給您✨",
                                                         "wrap": true,
                                                         "color": "#666666",
                                                         "size": "md",
@@ -1345,7 +1345,15 @@ app.get('/:token/success', async (req, res) => {
             httpOnly: true 
         });
 
-        res.sendFile(path.join(__dirname, 'html', 'success.html'));
+        const successPath = path.join(__dirname, 'html', 'success.html');
+        console.log('Success page path:', successPath);
+
+        if (fs.existsSync(successPath)) {
+            res.sendFile(successPath);
+        } else {
+            console.error('Success page not found at:', successPath);
+            res.status(404).send('Success page not found');
+        }
 
         setTimeout(async () => {
             await redisClient.del(token);
