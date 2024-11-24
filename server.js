@@ -478,7 +478,7 @@ app.post('/reservations', async (req, res) => {
 
         res.json({
             success: true,
-            redirectUrl: `/${token}/success`
+            redirectUrl: `https://zhima-youzi.onrender.com/${token}/success`
         });
 
     } catch (error) {
@@ -1375,6 +1375,30 @@ app.get('/api/reservation/:token', async (req, res) => {
     } catch (error) {
         console.error('Error fetching reservation:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/protected-views', (req, res) => {
+    const { password } = req.body;
+    if (password === '83094123') {
+        req.session.passwordCorrect = true;
+        res.redirect('/view');
+    } else {
+        res.status(401).send('密碼錯誤');
+    }
+});
+
+app.get('/view', async (req, res) => {
+    if (!req.session.passwordCorrect) {
+        return res.status(403).send('未經授權，請先輸入密碼');
+    }
+
+    try {
+        const reservations = await Reservation.find();
+        res.render('reservations', { reservations });
+    } catch (err) {
+        console.error('Error fetching reservations:', err);
+        res.status(500).json({ message: '無法載入訂位資料' });
     }
 });
 
