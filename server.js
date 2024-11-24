@@ -30,60 +30,6 @@ const transporter = nodemailer.createTransport({
 
 const PORT = process.env.PORT || 3000;
 
-const authenticateToken = (req, res, next) => {
-    const accessToken = req.cookies.accessToken;
-    const ip = getClientIP(req);
-    
-    if (!accessToken) {
-        // 嘗試使用 refresh token
-        const refreshToken = req.cookies.refreshToken;
-        if (refreshToken) {
-            redisClient.get(`auth_refresh_${refreshToken}`).then(username => {
-                if (username) {
-                    const newAccessToken = jwt.sign(
-                        { username }, 
-                        process.env.JWT_SECRET, 
-                        { expiresIn: '15m' }
-                    );
-                    
-                    res.cookie('accessToken', newAccessToken, {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === 'production',
-                        sameSite: 'strict',
-                        maxAge: 15 * 60 * 1000
-                    });
-                    
-                    req.user = { username };
-                    logAuth('TOKEN_REFRESH', username, true, ip);
-                    return next();
-                }
-                logAuth('SESSION_EXPIRED', 'unknown', false, ip);
-                res.redirect('/bsl');
-            }).catch(() => {
-                logAuth('SESSION_ERROR', 'unknown', false, ip);
-                res.redirect('/bsl');
-            });
-            return;
-        }
-        logAuth('NO_TOKEN', 'unknown', false, ip);
-        return res.redirect('/bsl');
-    }
-
-    jwt.verify(accessToken, process.env.JWT_SECRET, (err, user) => {
-        if (err) {
-            // Token 過期
-            if (err.name === 'TokenExpiredError') {
-                logAuth('TOKEN_EXPIRED', user?.username || 'unknown', false, ip);
-            } else {
-                logAuth('TOKEN_INVALID', 'unknown', false, ip);
-            }
-            return res.redirect('/bsl');
-        }
-        req.user = user;
-        next();
-    });
-};
-
 require('dotenv').config();
 
 app.set('view engine', 'ejs');
@@ -163,6 +109,68 @@ const CHANNEL_ACCESS_TOKEN = process.env.CHANNEL_ACCESS_TOKEN;
 
 
 // const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');
+
+const authenticateToken = (req, res, next) => {
+    const accessToken = req.cookies.accessToken;
+    const ip = getClientIP(req);
+    
+    if (!accessToken) {
+        // 嘗試使用 refresh token
+        const refreshToken = req.cookies.refreshToken;
+        if (refreshToken) {
+            redisClient.get(`auth_refresh_${refreshToken}`).then(username => {
+                if (username) {
+                    const newAccessToken = jwt.sign(
+                        { username }, 
+                        process.env.JWT_SECRET, 
+                        { expiresIn: '15m' }
+                    );
+                    
+                    res.cookie('accessToken', newAccessToken, {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'strict',
+                        maxAge: 15 * 60 * 1000
+                    });
+                    
+                    req.user = { username };
+                    logAuth('TOKEN_REFRESH', username, true, ip);
+                    return next();
+                }
+                logAuth('SESSION_EXPIRED', 'unknown', false, ip);
+                res.redirect('/bsl');
+            }).catch(() => {
+                logAuth('SESSION_ERROR', 'unknown', false, ip);
+                res.redirect('/bsl');
+            });
+            return;
+        }
+        logAuth('NO_TOKEN', 'unknown', false, ip);
+        return res.redirect('/bsl');
+    }
+
+    jwt.verify(accessToken, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+            // Token 過期
+            if (err.name === 'TokenExpiredError') {
+                logAuth('TOKEN_EXPIRED', user?.username || 'unknown', false, ip);
+            } else {
+                logAuth('TOKEN_INVALID', 'unknown', false, ip);
+            }
+            return res.redirect('/bsl');
+        }
+        req.user = user;
+        next();
+    });
+};
+
+function logAuth(action, username, success, ip) {
+    const timestamp = new Date().toISOString();
+    const logEntry = `[Auth Log] ${timestamp} | ${action} | User: ${username} | Success: ${success} | IP: ${ip}`;
+    
+    // 使用 console.log 而不是寫入文件
+    console.log(logEntry);
+}
 
 function generateToken(length = 8) {
     return crypto.randomBytes(length).toString('hex').slice(0, length);
