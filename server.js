@@ -477,6 +477,7 @@ app.post('/reservations', async (req, res) => {
             }
         }
 
+        res.setHeader('Content-Type', 'application/json');
         res.json({
             success: true,
             redirectUrl: `https://zhima-youzi.onrender.com/${token}/success`
