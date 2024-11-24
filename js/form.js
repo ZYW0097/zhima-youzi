@@ -256,7 +256,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.success) {
-                window.location.href = result.redirectUrl;  // 修正：直接使用後端返回的 URL
+                if (result.redirectUrl) {
+                    window.location.replace(result.redirectUrl);
+                }
             } else {
                 alert(result.message || '訂位失敗，請稍後再試。');
             }
