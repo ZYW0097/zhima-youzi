@@ -51,46 +51,53 @@ document.addEventListener('DOMContentLoaded', function () {
 
 let selectedTime = null;
 let selectedDate = null;
-let currentMonth = new Date().toLocaleString('zh-TW', { ...taipeiOptions, month: 'numeric' }) - 1;
-const currentYear = new Date().toLocaleString('zh-TW', { ...taipeiOptions, year: 'numeric' });
+const now = new Date();
+let currentMonth = parseInt(now.toLocaleString('zh-TW', { ...taipeiOptions, month: 'numeric' })) - 1;
+let currentYear = parseInt(now.toLocaleString('zh-TW', { ...taipeiOptions, year: 'numeric' }));
 
-const calendarToday = new Date(new Date().toLocaleString('zh-TW', taipeiOptions));
-calendarToday.setHours(0, 0, 0, 0);
+const today = new Date(now.toLocaleString('zh-TW', taipeiOptions));
+today.setHours(0, 0, 0, 0);
 
 function generateCalendar(month = currentMonth, year = currentYear) {
     const calendarTitle = document.getElementById('calendar-title');
     const daysContainer = document.getElementById('days-container');
-    const firstDay = new Date(new Date(year, month, 1).toLocaleString('zh-TW', taipeiOptions));
-    const lastDay = new Date(new Date(year, month + 1, 0).toLocaleString('zh-TW', taipeiOptions));
+    
+    month = parseInt(month);
+    year = parseInt(year);
+    
+    calendarTitle.textContent = `${year}年 ${month + 1}月`;
+    
+    daysContainer.innerHTML = '';
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
     const daysInMonth = lastDay.getDate();
     const firstDayWeekday = firstDay.getDay();
-
-    calendarTitle.textContent = `${year}年 ${month + 1}月`;
-
-    daysContainer.innerHTML = '';
-
+    
     for (let i = 0; i < firstDayWeekday; i++) {
-        daysContainer.appendChild(document.createElement('div'));
+        const emptyDay = document.createElement('div');
+        daysContainer.appendChild(emptyDay);
     }
-
+    
     for (let day = 1; day <= daysInMonth; day++) {
         const dayElement = document.createElement('div');
         dayElement.textContent = day;
         dayElement.classList.add('day');
-
-        const currentDate = new Date(new Date(year, month, day).toLocaleString('zh-TW', taipeiOptions));
+        
+        const currentDate = new Date(year, month, day);
         currentDate.setHours(0, 0, 0, 0);
-
+        
         if (currentDate.getTime() < today.getTime()) {
             dayElement.classList.add('disabled');
             dayElement.style.pointerEvents = 'none';
         } else {
             dayElement.addEventListener('click', () => selectDate(day, month, year));
         }
-
+        
         daysContainer.appendChild(dayElement);
     }
-
+    
     const prevMonthButton = document.getElementById('prevMonth');
     if (month === today.getMonth() && year === today.getFullYear()) {
         prevMonthButton.disabled = true;
@@ -140,16 +147,17 @@ document.getElementById('prevMonth').addEventListener('click', () => {
 });
 
 document.getElementById('currentMonth').addEventListener('click', () => {
-    currentMonth = new Date().getMonth();
-    currentYear = new Date().getFullYear();
+    const now = new Date();
+    currentMonth = now.getMonth();
+    currentYear = now.getFullYear();
     generateCalendar(currentMonth, currentYear);
 });
 
-window.onload = () => {
-    generateCalendar(currentMonth, currentYear);
-};
+document.addEventListener('DOMContentLoaded', () => {
+    generateCalendar();
+    console.log('Calendar initialized:', currentYear, currentMonth + 1);
+});
 
-const today = new Date();
 const dd = String(today.getDate()).padStart(2, '0');
 const mm = String(today.getMonth() + 1).padStart(2, '0'); // 1月是0
 const yyyy = today.getFullYear();
