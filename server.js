@@ -32,6 +32,7 @@ const PORT = process.env.PORT || 3000;
 
 const authenticateToken = (req, res, next) => {
     const accessToken = req.cookies.accessToken;
+    const ip = getClientIP(req);
     
     if (!accessToken) {
         // 嘗試使用 refresh token
@@ -53,19 +54,31 @@ const authenticateToken = (req, res, next) => {
                     });
                     
                     req.user = { username };
+                    logAuth('TOKEN_REFRESH', username, true, ip);
                     return next();
                 }
+                logAuth('SESSION_EXPIRED', 'unknown', false, ip);
                 res.redirect('/bsl');
             }).catch(() => {
+                logAuth('SESSION_ERROR', 'unknown', false, ip);
                 res.redirect('/bsl');
             });
             return;
         }
+        logAuth('NO_TOKEN', 'unknown', false, ip);
         return res.redirect('/bsl');
     }
 
     jwt.verify(accessToken, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.redirect('/bsl');
+        if (err) {
+            // Token 過期
+            if (err.name === 'TokenExpiredError') {
+                logAuth('TOKEN_EXPIRED', user?.username || 'unknown', false, ip);
+            } else {
+                logAuth('TOKEN_INVALID', 'unknown', false, ip);
+            }
+            return res.redirect('/bsl');
+        }
         req.user = user;
         next();
     });
@@ -706,7 +719,7 @@ app.post('/line/webhook', async (req, res) => {
 
                     switch (action) {
                         case 'bind_phone':
-                            await sendLineMessage(lineUserId, '請輸入要綁定的電話號碼：');
+                            await sendLineMessage(lineUserId, '請入要綁定的電話號碼：');
                             break;
 
                         case 'confirm_recent_reservation':
@@ -1318,8 +1331,31 @@ app.post('/line/webhook', async (req, res) => {
     }
 });
 
+// 在發送 LINE 訊息前檢查並更新用戶資料
 async function sendLineMessage(to, message) {
     try {
+        // 先獲取用戶的 LINE 個人資料
+        const userProfile = await axios.get(`https://api.line.me/v2/bot/profile/${to}`, {
+            headers: {
+                'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
+            }
+        });
+        
+        // 查找現有用戶資料
+        const existingUser = await UserID.findOne({ lineUserId: to });
+        
+        // 如果名稱有變更才更新
+        if (existingUser && existingUser.lineName !== userProfile.data.displayName) {
+            console.log(`Updating LINE name for user ${to} from "${existingUser.lineName}" to "${userProfile.data.displayName}"`);
+            
+            await UserID.findOneAndUpdate(
+                { lineUserId: to },
+                { lineName: userProfile.data.displayName },
+                { new: true }
+            );
+        }
+
+        // 發送訊息
         await axios.post('https://api.line.me/v2/bot/message/push', {
             to: to,
             messages: Array.isArray(message) ? message : [
@@ -1332,7 +1368,7 @@ async function sendLineMessage(to, message) {
             }
         });
     } catch (error) {
-        console.error('Error sending LINE message:', error.response?.data || error);
+        console.error('Error in sendLineMessage:', error.response?.data || error);
         throw error;
     }
 }
