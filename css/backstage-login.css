@@ -1,0 +1,276 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f6fa;
+    font-family: 'Microsoft JhengHei', sans-serif;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+.login-container {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 380px;
+    overflow-y: auto;
+    max-height: 90vh;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h2 {
+    color: #2d3436;
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.login-header p {
+    color: #636e72;
+    margin-top: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2d3436;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    border-color: #66BB6A;
+    box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.1);
+    outline: none;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #636e72;
+    padding: 4px;
+}
+
+.password-toggle:hover {
+    color: #2d3436;
+}
+
+#password {
+    padding-right: 40px;
+}
+
+.login-button {
+    width: 100%;
+    padding: 1rem;
+    background: #66BB6A;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login-button:hover {
+    background: #4CAF50;
+    transform: translateY(-2px);
+}
+
+.error-message {
+    color: #d63031;
+    text-align: center;
+    display: none;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    background: #fff3f3;
+    border-radius: 8px;
+}
+.remember-text {
+    color: #2d3436;
+    font-size: 0.9rem;
+}
+
+.remember-me {
+    width: 100%;
+    margin: 10px 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.remember-label {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-left: 35px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.remember-label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #fff;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.remember-label:hover input ~ .checkmark {
+    border-color: #4CAF50;
+}
+
+.remember-label input:checked ~ .checkmark {
+    background-color: #66BB6A;
+    border-color: #66BB6A;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.remember-label input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.remember-text {
+    color: #666;
+    font-size: 14px;
+}
+
+/* 確保與其他輸入框的間距一致 */
+.remember-me + .login-button {
+    margin-top: 15px;
+}
+
+/* 行動裝置適配 */
+@media (max-width: 768px) {
+    .login-container {
+        max-width: 85%;
+        padding: 2rem;
+        margin: 0 15px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    /* 調整輸入框大小 */
+    .form-group input {
+        font-size: 16px;
+        padding: 0.7rem 1rem;
+    }
+
+    /* 調整按鈕大小 */
+    .login-button {
+        padding: 0.8rem;
+    }
+
+    /* 調整記住我的大小 */
+    .remember-label {
+        padding-left: 30px;
+    }
+
+    .checkmark {
+        height: 18px;
+        width: 18px;
+    }
+}
+
+/* 處理橫向模式 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .login-container {
+        padding: 1.5rem;
+        max-height: 85vh;
+    }
+
+    h2 {
+        margin: 0.5rem 0;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+}
+
+/* 確保輸入框在 iOS 上不會有奇怪的行為 */
+input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    
+    /* 防止 iOS 自動放大 */
+    font-size: 16px;
+    
+    /* 移除預設樣式 */
+    border-radius: 0;
+    
+    /* 移除點擊時的高亮 */
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 修正 iOS 上的按鈕行為 */
+button {
+    /* 移除預設外觀 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    
+    /* 移除點擊時的高亮 */
+    -webkit-tap-highlight-color: transparent;
+}
