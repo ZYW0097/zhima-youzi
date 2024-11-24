@@ -1417,18 +1417,13 @@ app.get('/api/reservation/:token', async (req, res) => {
     }
 });
 
-// 添加日誌函數
+// 修改日誌函數
 function logAuth(action, username, success, ip) {
     const timestamp = new Date().toISOString();
-    const logEntry = `${timestamp} | ${action} | User: ${username} | Success: ${success} | IP: ${ip}\n`;
+    const logEntry = `${timestamp} | ${action} | User: ${username} | Success: ${success} | IP: ${ip}`;
     
-    fs.appendFile(
-        path.join(__dirname, 'logs', 'auth.log'),
-        logEntry,
-        (err) => {
-            if (err) console.error('Error writing to auth log:', err);
-        }
-    );
+    // 使用 console.log 而不是寫入文件
+    console.log('[Auth Log]', logEntry);
 }
 
 // 修改登入 API
