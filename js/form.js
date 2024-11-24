@@ -62,11 +62,15 @@ function generateCalendar(month = currentMonth, year = currentYear) {
     const calendarTitle = document.getElementById('calendar-title');
     const daysContainer = document.getElementById('days-container');
     
+    if (!calendarTitle || !daysContainer) {
+        console.error('Calendar elements not found');
+        return;
+    }
+    
     month = parseInt(month);
     year = parseInt(year);
     
     calendarTitle.textContent = `${year}年 ${month + 1}月`;
-    
     daysContainer.innerHTML = '';
     
     const firstDay = new Date(new Date(year, month, 1).toLocaleString('zh-TW', taipeiOptions));
@@ -77,13 +81,14 @@ function generateCalendar(month = currentMonth, year = currentYear) {
     
     for (let i = 0; i < firstDayWeekday; i++) {
         const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
         daysContainer.appendChild(emptyDay);
     }
     
     for (let day = 1; day <= daysInMonth; day++) {
         const dayElement = document.createElement('div');
         dayElement.textContent = day;
-        dayElement.classList.add('day');
+        dayElement.className = 'calendar-day';
         
         const currentDate = new Date(new Date(year, month, day).toLocaleString('zh-TW', taipeiOptions));
         currentDate.setHours(0, 0, 0, 0);
@@ -93,7 +98,7 @@ function generateCalendar(month = currentMonth, year = currentYear) {
             dayElement.style.pointerEvents = 'none';
         } else {
             dayElement.addEventListener('click', () => {
-                const allDays = document.querySelectorAll('.day');
+                const allDays = document.querySelectorAll('.calendar-day');
                 allDays.forEach(d => d.classList.remove('selected'));
                 dayElement.classList.add('selected');
                 selectDate(day, month, year);
@@ -102,18 +107,6 @@ function generateCalendar(month = currentMonth, year = currentYear) {
         }
         
         daysContainer.appendChild(dayElement);
-    }
-    
-    const prevMonthButton = document.getElementById('prevMonth');
-    const currentTaipeiDate = new Date(new Date().toLocaleString('zh-TW', taipeiOptions));
-    if (month === currentTaipeiDate.getMonth() && year === currentTaipeiDate.getFullYear()) {
-        prevMonthButton.disabled = true;
-        prevMonthButton.style.pointerEvents = 'none';
-        prevMonthButton.style.opacity = 0.5;
-    } else {
-        prevMonthButton.disabled = false;
-        prevMonthButton.style.pointerEvents = 'auto';
-        prevMonthButton.style.opacity = 1;
     }
 }
 
