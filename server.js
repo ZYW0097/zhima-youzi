@@ -79,8 +79,8 @@ app.get('/form', (req, res) => res.sendFile(path.join(__dirname, 'html', 'form.h
 app.get('/questions', (req, res) => res.sendFile(path.join(__dirname, 'html', 'questions.html')));
 app.get('/menu', (req, res) => res.sendFile(path.join(__dirname, 'html', 'menu.html')));
 app.get('/line', (req, res) => res.sendFile(path.join(__dirname, 'html', 'line.html')));
-app.get('/bsl', (req, res) => res.sendFile(path.join(__dirname, 'html', 'backstage-login.html')));
-app.get('/bs', (req, res) => res.sendFile(path.join(__dirname, 'html', 'backstage.html')));
+app.get(['/bsl', '/backstage-login'], (req, res) => res.sendFile(path.join(__dirname, 'html', 'backstage-login.html')));
+app.get(['/bs', '/backstage'], (req, res) => res.sendFile(path.join(__dirname, 'html', 'backstage.html')));
 
 connectToDatabase();
 redisClient.connect().catch(console.error);
