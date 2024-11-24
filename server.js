@@ -12,6 +12,7 @@ const redisUrl = process.env.REDIS_URL;
 const fs = require('fs');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
+const userStates = {};
 
 const app = express();
 const redisClient = createClient({
