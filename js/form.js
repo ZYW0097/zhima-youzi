@@ -252,15 +252,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify(formData)
             });
-  
-            const result = await response.json();
-            console.log('Server response:', result);
 
-            if (result.success && result.redirectUrl) {
-                console.log('Redirecting to:', result.redirectUrl);
-                window.location.href = result.redirectUrl;
+            if (response.ok) {
+                // 如果後端成功處理，頁面會由後端自動重定向
+                console.log('Reservation successful, waiting for redirect...');
             } else {
-                alert(result.message || '訂位失敗，請稍後再試。');
+                alert('訂位失敗，請稍後再試。');
             }
         } catch (error) {
             console.error('Reservation error:', error);
