@@ -563,7 +563,6 @@ footer {
         width: 100%; 
         max-width: none; 
         margin: 70px 0 0 0; 
-        transform: translateX(-5%);
     }
 
     #reservationForm {
