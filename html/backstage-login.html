@@ -5,124 +5,7 @@
     <link href="/images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
     <title>後台管理系統 | 登入</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f5f6fa;
-            font-family: 'Microsoft JhengHei', sans-serif;
-        }
-
-        .login-container {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 380px;
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .login-header h2 {
-            color: #2d3436;
-            margin: 0;
-            font-size: 1.8rem;
-        }
-
-        .login-header p {
-            color: #636e72;
-            margin-top: 0.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #2d3436;
-            font-size: 0.9rem;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        .form-group input:focus {
-            border-color: #74b9ff;
-            box-shadow: 0 0 0 4px rgba(116, 185, 255, 0.1);
-            outline: none;
-        }
-
-        .password-wrapper {
-            position: relative;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            border: none;
-            background: none;
-            cursor: pointer;
-            color: #636e72;
-            padding: 4px;
-        }
-
-        .password-toggle:hover {
-            color: #2d3436;
-        }
-
-        #password {
-            padding-right: 40px;
-        }
-
-        .login-button {
-            width: 100%;
-            padding: 1rem;
-            background: #74b9ff;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .login-button:hover {
-            background: #0984e3;
-            transform: translateY(-2px);
-        }
-
-        .error-message {
-            color: #d63031;
-            text-align: center;
-            display: none;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            padding: 0.5rem;
-            background: #fff3f3;
-            border-radius: 8px;
-        }
-    </style>
+    <link rel="stylesheet" href="/web2/css/backstage-login.css">
 </head>
 <body>
     <div class="login-container">
@@ -141,6 +24,13 @@
                     <i class="fas fa-eye" id="toggleIcon"></i>
                 </button>
             </div>
+        </div>
+        <div class="remember-me">
+            <label class="remember-label">
+                <input type="checkbox" id="rememberMe">
+                <span class="checkmark"></span>
+                <span class="remember-text">記住我</span>
+            </label>
         </div>
         <button class="login-button" onclick="checkLogin()">登入系統</button>
         <div id="error-message" class="error-message">帳號或密碼錯誤，請重試</div>
