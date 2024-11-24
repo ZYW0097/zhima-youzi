@@ -1,5 +1,3 @@
-const taipeiOptions = { timeZone: 'Asia/Taipei' };
-
 document.addEventListener('DOMContentLoaded', function () {
     const adultsSelect = document.getElementById('adults');
     const childrenSelect = document.getElementById('children');
@@ -47,107 +45,73 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('specialNeeds').addEventListener('input', () => {
         document.getElementById('preview-special').textContent = document.getElementById('specialNeeds').value;
     });
-
-    const now = new Date(new Date().toLocaleString('zh-TW', taipeiOptions));
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    const today = new Date(now.toLocaleString('zh-TW', taipeiOptions));
-    today.setHours(0, 0, 0, 0);
-
-    generateCalendar(currentMonth, currentYear);
-
-    document.getElementById('prevMonth').addEventListener('click', (e) => {
-        e.preventDefault();
-        const newDate = new Date(currentYear, currentMonth - 1, 1);
-        generateCalendar(newDate.getMonth(), newDate.getFullYear());
-    });
-
-    document.getElementById('nextMonth').addEventListener('click', (e) => {
-        e.preventDefault();
-        const newDate = new Date(currentYear, currentMonth + 1, 1);
-        generateCalendar(newDate.getMonth(), newDate.getFullYear());
-    });
-
-    document.getElementById('currentMonth').addEventListener('click', (e) => {
-        e.preventDefault();
-        generateCalendar(now.getMonth(), now.getFullYear());
-    });
 });
 
 let selectedTime = null;
 let selectedDate = null;
-const now = new Date();
-let currentMonth = parseInt(now.toLocaleString('zh-TW', { ...taipeiOptions, month: 'numeric' })) - 1;
-let currentYear = parseInt(now.toLocaleString('zh-TW', { ...taipeiOptions, year: 'numeric' }));
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
 
-const today = new Date(now.toLocaleString('zh-TW', taipeiOptions));
-today.setHours(0, 0, 0, 0);
-
-function generateCalendar(month, year) {
+function generateCalendar(month = currentMonth, year = currentYear) {
     const calendarTitle = document.getElementById('calendar-title');
     const daysContainer = document.getElementById('days-container');
-    
-    if (!calendarTitle || !daysContainer) return;
-    
-    calendarTitle.textContent = `${year}年 ${month + 1}月`;
-    daysContainer.innerHTML = '';
-    
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    
     const daysInMonth = lastDay.getDate();
     const firstDayWeekday = firstDay.getDay();
-    
+
+    calendarTitle.textContent = `${year}年 ${month + 1}月`;
+
+    daysContainer.innerHTML = '';
+
     for (let i = 0; i < firstDayWeekday; i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'day empty';
-        daysContainer.appendChild(emptyDay);
+        daysContainer.appendChild(document.createElement('div'));
     }
-    
+
     for (let day = 1; day <= daysInMonth; day++) {
         const dayElement = document.createElement('div');
         dayElement.textContent = day;
-        dayElement.className = 'day';
-        
+        dayElement.classList.add('day');
+
         const currentDate = new Date(year, month, day);
-        currentDate.setHours(0, 0, 0, 0);
-        
+
         if (currentDate < today) {
             dayElement.classList.add('disabled');
+            dayElement.style.pointerEvents = 'none';
         } else {
-            dayElement.addEventListener('click', () => {
-                const allDays = document.querySelectorAll('.day');
-                allDays.forEach(d => d.classList.remove('selected'));
-                dayElement.classList.add('selected');
-                
-                const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                document.getElementById('date').value = formattedDate;
-                document.getElementById('preview-date').textContent = new Date(formattedDate).toLocaleDateString('zh-TW');
-                
-                updateTimeButtons();
-            });
+            dayElement.addEventListener('click', () => selectDate(day, month, year));
         }
-        
+
         daysContainer.appendChild(dayElement);
+    }
+
+    const prevMonthButton = document.getElementById('prevMonth');
+    if (month === today.getMonth() && year === today.getFullYear()) {
+        prevMonthButton.disabled = true;
+        prevMonthButton.style.pointerEvents = 'none';
+        prevMonthButton.style.opacity = 0.5;
+    } else {
+        prevMonthButton.disabled = false;
+        prevMonthButton.style.pointerEvents = 'auto';
+        prevMonthButton.style.opacity = 1;
     }
 }
 
 function selectDate(day, month, year) {
-    const date = new Date(year, month, day);
-    const taipeiDate = new Date(date.toLocaleString('zh-TW', taipeiOptions));
-    
-    selectedDate = taipeiDate;
-    
-    const formattedDate = taipeiDate.toISOString().split('T')[0];
-    
-    document.getElementById('date').value = formattedDate;
-    document.getElementById('preview-date').textContent = taipeiDate.toLocaleDateString('zh-TW');
-    
+    selectedDate = new Date(year, month, day);
+    document.getElementById('date').value = selectedDate.toISOString().split('T')[0];
+    document.getElementById('preview-date').textContent = `${selectedDate.toLocaleDateString()}`;
+
+    const days = document.querySelectorAll('#days-container .day');
+    days.forEach(dayElement => {
+        dayElement.classList.remove('selected');
+        if (parseInt(dayElement.textContent) === day) {
+            dayElement.classList.add('selected');
+        }
+    });
+
     updateTimeButtons();
-    
     document.getElementById('contactInfoDiv').style.display = 'block';
-    
-    console.log('Date set:', formattedDate);
 }
 
 document.getElementById('nextMonth').addEventListener('click', () => {
@@ -170,17 +134,16 @@ document.getElementById('prevMonth').addEventListener('click', () => {
 });
 
 document.getElementById('currentMonth').addEventListener('click', () => {
-    const now = new Date();
-    currentMonth = now.getMonth();
-    currentYear = now.getFullYear();
+    currentMonth = new Date().getMonth();
+    currentYear = new Date().getFullYear();
     generateCalendar(currentMonth, currentYear);
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    generateCalendar();
-    console.log('Calendar initialized:', currentYear, currentMonth + 1);
-});
+window.onload = () => {
+    generateCalendar(currentMonth, currentYear);
+};
 
+const today = new Date();
 const dd = String(today.getDate()).padStart(2, '0');
 const mm = String(today.getMonth() + 1).padStart(2, '0'); // 1月是0
 const yyyy = today.getFullYear();
@@ -188,30 +151,25 @@ const currentDate = `${yyyy}-${mm}-${dd}`;
 document.getElementById('date').setAttribute('min', currentDate);
 
 function updateTimeButtons() {
-    const selectedDateStr = $('#date').val();
-    if (!selectedDateStr) return;
-    
-    const selectedDate = new Date(new Date(selectedDateStr + 'T00:00:00').toLocaleString('zh-TW', taipeiOptions));
-    const dayOfWeek = selectedDate.getDay();
-    
-    $('#time-picker-container').empty();
+    const selectedDate = new Date($('#date').val());
+    const dayOfWeek = selectedDate.getDay(); 
 
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-        createTimeButtons("11:00", "14:30", 60, "假日上午");
-        createTimeButtons("17:00", "20:30", 60, "假日下午");
-        console.log('Weekend schedule:', selectedDateStr, 'Day:', dayOfWeek);
-    } else {
+    $('#time-picker-container').empty(); 
+
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {  
         createTimeButtons("11:00", "13:30", 30, "平日上午");
         createTimeButtons("17:00", "20:30", 30, "平日下午");
-        console.log('Weekday schedule:', selectedDateStr, 'Day:', dayOfWeek);
+    } else {  
+        createTimeButtons("11:00", "14:30", 60, "假日上午");
+        createTimeButtons("17:00", "20:30", 60, "假日下午");
     }
 
     $('#time-picker-container').show(); 
 }
 
 function createTimeButtons(startTime, endTime, interval, timeLabel) {
-    const start = new Date(new Date(`1970-01-01T${startTime}:00`).toLocaleString('zh-TW', taipeiOptions));
-    const end = new Date(new Date(`1970-01-01T${endTime}:00`).toLocaleString('zh-TW', taipeiOptions));
+    const start = new Date(`1970-01-01T${startTime}:00`); 
+    const end = new Date(`1970-01-01T${endTime}:00`); 
 
     const timeContainer = $('<div class="time-container"></div>');
     timeContainer.append(`<h3>${timeLabel}</h3>`); 
@@ -296,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
+                // 如果後端成功處理，頁面會由後端自動重定向
                 console.log('Reservation successful, waiting for redirect...');
             } else {
                 alert('訂位失敗，請稍後再試。');
