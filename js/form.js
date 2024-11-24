@@ -98,9 +98,9 @@ function generateCalendar(month = currentMonth, year = currentYear) {
 }
 
 function selectDate(day, month, year) {
-    selectedDate = new Date(new Date(year, month, day).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }));
+    selectedDate = new Date(year, month, day);
     document.getElementById('date').value = selectedDate.toISOString().split('T')[0];
-    document.getElementById('preview-date').textContent = `${selectedDate.toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' })}`;
+    document.getElementById('preview-date').textContent = `${selectedDate.toLocaleDateString()}`;
 
     const days = document.querySelectorAll('#days-container .day');
     days.forEach(dayElement => {
@@ -143,38 +143,38 @@ window.onload = () => {
     generateCalendar(currentMonth, currentYear);
 };
 
-const today = new Date(new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }));
+const today = new Date();
 const dd = String(today.getDate()).padStart(2, '0');
-const mm = String(today.getMonth() + 1).padStart(2, '0');
+const mm = String(today.getMonth() + 1).padStart(2, '0'); // 1月是0
 const yyyy = today.getFullYear();
 const currentDate = `${yyyy}-${mm}-${dd}`;
 document.getElementById('date').setAttribute('min', currentDate);
 
 function updateTimeButtons() {
-    const selectedDate = new Date(new Date($('#date').val()).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }));
-    const dayOfWeek = selectedDate.getDay();
+    const selectedDate = new Date($('#date').val());
+    const dayOfWeek = selectedDate.getDay(); 
 
-    $('#time-picker-container').empty();
+    $('#time-picker-container').empty(); 
 
-    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {  
         createTimeButtons("11:00", "13:30", 30, "平日上午");
         createTimeButtons("17:00", "20:30", 30, "平日下午");
-    } else {
+    } else {  
         createTimeButtons("11:00", "14:30", 60, "假日上午");
         createTimeButtons("17:00", "20:30", 60, "假日下午");
     }
 
-    $('#time-picker-container').show();
+    $('#time-picker-container').show(); 
 }
 
 function createTimeButtons(startTime, endTime, interval, timeLabel) {
-    const start = new Date(new Date(`1970-01-01T${startTime}:00`).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }));
-    const end = new Date(new Date(`1970-01-01T${endTime}:00`).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }));
+    const start = new Date(`1970-01-01T${startTime}:00`); 
+    const end = new Date(`1970-01-01T${endTime}:00`); 
 
     const timeContainer = $('<div class="time-container"></div>');
-    timeContainer.append(`<h3>${timeLabel}</h3>`);
+    timeContainer.append(`<h3>${timeLabel}</h3>`); 
 
-    const buttonRow = $('<div class="time-buttons"></div>');
+    const buttonRow = $('<div class="time-buttons"></div>'); 
 
     for (let time = start; time <= end; time.setMinutes(time.getMinutes() + interval)) {
         const timeString = time.toTimeString().slice(0, 5);
@@ -184,19 +184,19 @@ function createTimeButtons(startTime, endTime, interval, timeLabel) {
     timeContainer.append(buttonRow);
     $('#time-picker-container').append(timeContainer);
     $('.time-button').on('click', function() {
-        $('.time-button').removeClass('selected');
-        $(this).addClass('selected');
-
+        $('.time-button').removeClass('selected'); 
+        $(this).addClass('selected'); 
+        
         const selectedTime = $(this).data('time');
-        $('#selectedTime').val(selectedTime);
-        document.getElementById('preview-time').textContent = selectedTime;
-
-        $('.form-row').addClass('show');
+        $('#selectedTime').val(selectedTime); 
+        document.getElementById('preview-time').textContent = selectedTime; 
+        
+        $('.form-row').addClass('show'); 
     });
 }
 
 $('#date').on('change', function() {
-    updateTimeButtons();
+    updateTimeButtons(); 
     $('.form-row').removeClass('show');
 });
 
@@ -207,10 +207,10 @@ document.getElementById('viewReservationsBtn').addEventListener('click', functio
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('reservationForm');
-
+  
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
-
+  
         const formData = {
             name: form.name.value,
             phone: form.phone.value,
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
             specialNeeds: form.specialNeeds.value,
             notes: form.notes.value,
         };
-
+  
         try {
             const response = await fetch('/reservations', {
                 method: 'POST',
@@ -235,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
+                // 如果後端成功處理，頁面會由後端自動重定向
                 console.log('Reservation successful, waiting for redirect...');
             } else {
                 alert('訂位失敗，請稍後再試。');
