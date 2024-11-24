@@ -605,7 +605,7 @@ app.post('/line/webhook', async (req, res) => {
                                                 "contents": [
                                                     {
                                                         "type": "text",
-                                                        "text": "將定期發放最新資��給您✨",
+                                                        "text": "將定期發放最新資給您✨",
                                                         "wrap": true,
                                                         "color": "#666666",
                                                         "size": "md",
@@ -1417,12 +1417,31 @@ app.get('/api/reservation/:token', async (req, res) => {
     }
 });
 
+// 添加日誌函數
+function logAuth(action, username, success, ip) {
+    const timestamp = new Date().toISOString();
+    const logEntry = `${timestamp} | ${action} | User: ${username} | Success: ${success} | IP: ${ip}\n`;
+    
+    fs.appendFile(
+        path.join(__dirname, 'logs', 'auth.log'),
+        logEntry,
+        (err) => {
+            if (err) console.error('Error writing to auth log:', err);
+        }
+    );
+}
+
+// 修改登入 API
 app.post('/api/login', async (req, res) => {
     const { username, password, rememberMe } = req.body;
+    const ip = req.ip || req.connection.remoteAddress;
     
-    if (username === process.env.ADMIN_USERNAME && 
-        password === process.env.ADMIN_PASSWORD) {
-        
+    const success = username === process.env.ADMIN_USERNAME && 
+                   password === process.env.ADMIN_PASSWORD;
+    
+    logAuth('LOGIN', username, success, ip);
+    
+    if (success) {
         // 生成 access token
         const accessToken = jwt.sign(
             { username }, 
@@ -1464,11 +1483,28 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// 修改登出 API
 app.post('/api/logout', (req, res) => {
     const refreshToken = req.cookies.refreshToken;
+    const ip = req.ip || req.connection.remoteAddress;
+    
     if (refreshToken) {
         redisClient.del(`auth_refresh_${refreshToken}`);
     }
+    
+    // 從 token 中獲取用戶名
+    const accessToken = req.cookies.accessToken;
+    let username = 'unknown';
+    if (accessToken) {
+        try {
+            const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+            username = decoded.username;
+        } catch (err) {
+            console.error('Error decoding token during logout:', err);
+        }
+    }
+    
+    logAuth('LOGOUT', username, true, ip);
     
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
