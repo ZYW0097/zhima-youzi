@@ -151,20 +151,25 @@ const currentDate = `${yyyy}-${mm}-${dd}`;
 document.getElementById('date').setAttribute('min', currentDate);
 
 function updateTimeButtons() {
-    const selectedDate = new Date($('#date').val());
-    const dayOfWeek = selectedDate.getDay(); 
+    const selectedDateStr = $('#date').val();
+    if (!selectedDateStr) return;
+    
+    const selectedDate = new Date(selectedDateStr + 'T00:00:00');
+    const dayOfWeek = selectedDate.getDay();
+    
+    $('#time-picker-container').empty();
 
-    $('#time-picker-container').empty(); 
-
-    if (dayOfWeek >= 1 && dayOfWeek <= 5) {  
-        createTimeButtons("11:00", "13:30", 30, "平日上午");
-        createTimeButtons("17:00", "20:30", 30, "平日下午");
-    } else {  
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
         createTimeButtons("11:00", "14:30", 60, "假日上午");
         createTimeButtons("17:00", "20:30", 60, "假日下午");
+        console.log('Weekend schedule:', selectedDateStr, 'Day:', dayOfWeek);
+    } else {
+        createTimeButtons("11:00", "13:30", 30, "平日上午");
+        createTimeButtons("17:00", "20:30", 30, "平日下午");
+        console.log('Weekday schedule:', selectedDateStr, 'Day:', dayOfWeek);
     }
 
-    $('#time-picker-container').show(); 
+    $('#time-picker-container').show();
 }
 
 function createTimeButtons(startTime, endTime, interval, timeLabel) {
@@ -254,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                // 如果後端成功處理，頁面會由後端自動重定向
                 console.log('Reservation successful, waiting for redirect...');
             } else {
                 alert('訂位失敗，請稍後再試。');
