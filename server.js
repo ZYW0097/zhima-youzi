@@ -35,6 +35,9 @@ const authenticateToken = (req, res, next) => {
     const ip = getClientIP(req);
     
     if (!accessToken) {
+        // 確保清除過期的 cookie
+        res.clearCookie('accessToken');
+        
         // 嘗試使用 refresh token
         const refreshToken = req.cookies.refreshToken;
         if (refreshToken) {
@@ -71,7 +74,9 @@ const authenticateToken = (req, res, next) => {
 
     jwt.verify(accessToken, process.env.JWT_SECRET, (err, user) => {
         if (err) {
-            // Token 過期
+            // Token 過期時，確保清除 cookie
+            res.clearCookie('accessToken');
+            
             if (err.name === 'TokenExpiredError') {
                 logAuth('TOKEN_EXPIRED', user?.username || 'unknown', false, ip);
             } else {
@@ -1561,8 +1566,18 @@ app.post('/api/logout', async (req, res) => {
         }
     }
     
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    // 確保完全清除 cookie
+    res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+    
     res.json({ success: true });
 });
 
