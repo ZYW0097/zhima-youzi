@@ -13,6 +13,8 @@ const fs = require('fs');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 const userStates = {};
+const jwt = require('jsonwebtoken');
+
 
 const app = express();
 const redisClient = createClient({
@@ -27,6 +29,47 @@ const transporter = nodemailer.createTransport({
 });
 
 const PORT = process.env.PORT || 3000;
+
+const authenticateToken = (req, res, next) => {
+    const accessToken = req.cookies.accessToken;
+    
+    if (!accessToken) {
+        // 嘗試使用 refresh token
+        const refreshToken = req.cookies.refreshToken;
+        if (refreshToken) {
+            redisClient.get(`auth_refresh_${refreshToken}`).then(username => {
+                if (username) {
+                    const newAccessToken = jwt.sign(
+                        { username }, 
+                        process.env.JWT_SECRET, 
+                        { expiresIn: '15m' }
+                    );
+                    
+                    res.cookie('accessToken', newAccessToken, {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'strict',
+                        maxAge: 15 * 60 * 1000
+                    });
+                    
+                    req.user = { username };
+                    return next();
+                }
+                res.redirect('/bsl');
+            }).catch(() => {
+                res.redirect('/bsl');
+            });
+            return;
+        }
+        return res.redirect('/bsl');
+    }
+
+    jwt.verify(accessToken, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.redirect('/bsl');
+        req.user = user;
+        next();
+    });
+};
 
 require('dotenv').config();
 
@@ -79,36 +122,23 @@ app.get('/form', (req, res) => res.sendFile(path.join(__dirname, 'html', 'form.h
 app.get('/questions', (req, res) => res.sendFile(path.join(__dirname, 'html', 'questions.html')));
 app.get('/menu', (req, res) => res.sendFile(path.join(__dirname, 'html', 'menu.html')));
 app.get('/line', (req, res) => res.sendFile(path.join(__dirname, 'html', 'line.html')));
-app.get(['/bsl', '/backstage-login'], (req, res) => res.sendFile(path.join(__dirname, 'html', 'backstage-login.html')));
-app.get(['/bs', '/backstage'], (req, res) => res.sendFile(path.join(__dirname, 'html', 'backstage.html')));
+app.get(['/bsl', '/backstage-login'], (req, res) => {
+    const accessToken = req.cookies.accessToken;
+    if (accessToken) {
+        try {
+            jwt.verify(accessToken, process.env.JWT_SECRET);
+            return res.redirect('/bs');
+        } catch (err) {
+        }
+    }
+    res.sendFile(path.join(__dirname, 'html', 'backstage-login.html'));
+});
+app.get(['/bs', '/backstage'], authenticateToken, (req, res) => {
+res.sendFile(path.join(__dirname, 'html', 'backstage.html'));
+});
 
 connectToDatabase();
 redisClient.connect().catch(console.error);
-
-
-// const reservationSchema = new mongoose.Schema({
-//     name: { type: String, required: true },
-//     phone: { type: String, required: true },
-//     email: { type: String, required: true },
-//     gender: { type: String, required: true },
-//     date: { type: String, required: true },
-//     time: { type: String, required: true },
-//     adults: { type: Number, required: true },
-//     children: { type: Number, required: true },
-//     vegetarian: { type: String, default: '否' },
-//     specialNeeds: { type: String, default: '無' },
-//     notes: { 
-//         type: String, 
-//         required: false,  
-//         default: '無',    
-//         maxlength: 30
-//     },
-//     reservationToken: { type: String }, 
-//     sessionId: { type: String },        
-//     createdAt: { type: Date, default: Date.now }  
-// });
-
-// reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
 
 const { invalidPhoneNumbers } = JSON.parse(fs.readFileSync('pnb.json', 'utf-8'));
 const invalidNumbersPattern = invalidPhoneNumbers.join('|');
@@ -1387,15 +1417,62 @@ app.get('/api/reservation/:token', async (req, res) => {
     }
 });
 
-app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
+app.post('/api/login', async (req, res) => {
+    const { username, password, rememberMe } = req.body;
     
     if (username === process.env.ADMIN_USERNAME && 
         password === process.env.ADMIN_PASSWORD) {
+        
+        // 生成 access token
+        const accessToken = jwt.sign(
+            { username }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '15m' }
+        );
+        
+        // 設置 access token cookie
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000
+        });
+
+        if (rememberMe) {
+            // 生成 refresh token
+            const refreshToken = crypto.randomBytes(64).toString('hex');
+            
+            // 存儲 refresh token 到 Redis
+            await redisClient.set(
+                `auth_refresh_${refreshToken}`,
+                username,
+                'EX',
+                30 * 24 * 60 * 60  // 30天
+            );
+            
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 30 * 24 * 60 * 60 * 1000  // 30天
+            });
+        }
+
         res.json({ success: true });
     } else {
         res.json({ success: false });
     }
+});
+
+app.post('/api/logout', (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+        redisClient.del(`auth_refresh_${refreshToken}`);
+    }
+    
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    res.json({ success: true });
 });
 
 app.listen(PORT, () => {
