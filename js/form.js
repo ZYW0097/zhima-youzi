@@ -52,6 +52,10 @@ let selectedDate = null;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 
+const today = new Date();
+today.setDate(today.getDate());
+today.setHours(0, 0, 0, 0);
+
 function generateCalendar(month = currentMonth, year = currentYear) {
     const calendarTitle = document.getElementById('calendar-title');
     const daysContainer = document.getElementById('days-container');
@@ -143,7 +147,6 @@ window.onload = () => {
     generateCalendar(currentMonth, currentYear);
 };
 
-const today = new Date();
 const dd = String(today.getDate()).padStart(2, '0');
 const mm = String(today.getMonth() + 1).padStart(2, '0'); // 1月是0
 const yyyy = today.getFullYear();
