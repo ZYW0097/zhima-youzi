@@ -53,7 +53,6 @@ let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 
 const today = new Date();
-today.setDate(today.getDate() - 1);
 today.setHours(0, 0, 0, 0);
 
 function generateCalendar(month = currentMonth, year = currentYear) {
@@ -78,8 +77,9 @@ function generateCalendar(month = currentMonth, year = currentYear) {
         dayElement.classList.add('day');
 
         const currentDate = new Date(year, month, day);
+        currentDate.setHours(0, 0, 0, 0);
 
-        if (currentDate < today) {
+        if (currentDate.getTime() < today.getTime()) {
             dayElement.classList.add('disabled');
             dayElement.style.pointerEvents = 'none';
         } else {
