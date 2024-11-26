@@ -1,0 +1,146 @@
+{
+    "type": "bubble",
+    "header": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                    {
+                        "type": "image",
+                        "url": "https://raw.githubusercontent.com/ZYW0097/zhima-youzi/refs/heads/main/images/logo-circle.png",
+                        "size": "sm",
+                        "aspectRatio": "1:1",
+                        "flex": 1
+                    },
+                    {
+                        "type": "text",
+                        "text": "芝麻柚子 とんかつ",
+                        "color": "#ffffff",
+                        "align": "center",
+                        "gravity": "center",
+                        "size": "lg",
+                        "flex": 4,
+                        "weight": "bold"
+                    }
+                ],
+                "alignItems": "center"
+            }
+        ],
+        "backgroundColor": "#66BB6A",
+        "paddingAll": "20px"
+    },
+    "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "歡迎加入好友！",
+                "weight": "bold",
+                "size": "xl",
+                "align": "center",
+                "color": "#2E4A62"
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "margin": "lg",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "spacing": "md",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "將定期發放最新資給您✨",
+                                "wrap": true,
+                                "color": "#666666",
+                                "size": "md",
+                                "flex": 5,
+                                "align": "center"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "spacing": "md",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "綁定電話號碼來獲取訂位資訊📧",
+                                "wrap": true,
+                                "color": "#666666",
+                                "size": "md",
+                                "flex": 5,
+                                "align": "center"
+                            }
+                        ],
+                        "margin": "md"
+                    }
+                ]
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "margin": "xxl",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "‼請注意‼",
+                        "size": "lg",
+                        "color": "#ff5551",
+                        "weight": "bold",
+                        "align": "center"
+                    },
+                    {
+                        "type": "text",
+                        "text": "請輸入訂位時使用的電話號碼",
+                        "margin": "sm",
+                        "size": "xs",
+                        "color": "#ff5551",
+                        "wrap": true,
+                        "align": "center"
+                    },
+                    {
+                        "type": "text",
+                        "text": "以確保能收到訂位資訊。",
+                        "margin": "sm",
+                        "size": "xs",
+                        "color": "#ff5551",
+                        "align": "center"
+                    }
+                ],
+                "paddingAll": "13px",
+                "backgroundColor": "#FFF0F0",
+                "cornerRadius": "2px"
+            }
+        ],
+        "paddingAll": "20px"
+    },
+    "footer": {
+        "type": "box",
+        "layout": "vertical",
+        "spacing": "sm",
+        "contents": [
+            {
+                "type": "button",
+                "style": "primary",
+                "height": "sm",
+                "action": {
+                    "type": "postback",
+                    "label": "綁定電話號碼",
+                    "data": "action=bind_phone"
+                },
+                "color": "#66BB6A"
+            }
+        ],
+        "flex": 0,
+        "paddingAll": "20px"
+    }
+}
