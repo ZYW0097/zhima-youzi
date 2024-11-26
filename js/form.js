@@ -122,8 +122,9 @@ function selectDate(day, month, year) {
         }
     });
 
+    document.getElementById('time-picker-container').style.display = 'block';
+    
     updateTimeButtons();
-    document.getElementById('contactInfoDiv').style.display = 'block';
 }
 
 document.getElementById('nextMonth').addEventListener('click', () => {
@@ -176,7 +177,9 @@ async function updateTimeButtons() {
         // 獲取該日期的預訂狀態和限制
         const response = await fetch(`/api/time-slots?date=${dateString}`);
         const data = await response.json();
-        console.log('Fetching URL:', url);
+        
+        // 顯示時段容器
+        $('#time-picker-container').show();
         
         const timeContainer = document.createElement('div');
         timeContainer.className = 'time-slots';
