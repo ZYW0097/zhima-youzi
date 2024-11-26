@@ -21,6 +21,35 @@ const reservationSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
+const glwSchema = new mongoose.Schema({
+    date: { type: String, required: true, unique: true },
+    wm1: { type: Number, default: 0 },
+    wm2: { type: Number, default: 0 },
+    wm3: { type: Number, default: 0 },
+    wa1: { type: Number, default: 0 },
+    wa2: { type: Number, default: 0 },
+    wa3: { type: Number, default: 0 }
+});
+
+const glhSchema = new mongoose.Schema({
+    date: { type: String, required: true, unique: true },
+    hm1: { type: Number, default: 0 },
+    hm2: { type: Number, default: 0 },
+    hm3: { type: Number, default: 0 },
+    hm4: { type: Number, default: 0 },
+    ha1: { type: Number, default: 0 },
+    ha2: { type: Number, default: 0 },
+    ha3: { type: Number, default: 0 }
+});
+
+const settingsSchema = new mongoose.Schema({
+    upt: { type: Date, default: Date.now },
+    wm: { type: Number, default: 2 },
+    wa: { type: Number, default: 2 },
+    hm: { type: Number, default: 3 },
+    ha: { type: Number, default: 3 }
+});
+
 reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
 reservationSchema.index({ createdAt: 1 });
 
@@ -32,6 +61,9 @@ const userIDSchema = new mongoose.Schema({
 
 const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');  // 將會建立名為 'bookings' 的集合
 const UserID = mongoose.model('UserID', userIDSchema, 'userids');
+const GLW = mongoose.model('GLW', glwSchema, 'glw');
+const GLH = mongoose.model('GLH', glhSchema, 'glh');
+const Settings = mongoose.model('Settings', settingsSchema, 'settings');
 
 async function connectToDatabase() {
     try {
@@ -46,5 +78,8 @@ async function connectToDatabase() {
 module.exports = {
     connectToDatabase,
     Reservation,
-    UserID
+    UserID,
+    GLW,
+    GLH,
+    Settings
 };
