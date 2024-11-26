@@ -338,28 +338,41 @@ app.get('/api/time-slots', async (req, res) => {
     }
 });
 
+app.get('/api/settings', async (req, res) => {
+    try {
+        const settings = await Settings.findOne({});
+        if (!settings) {
+            // 如果沒有設置，返回默認值
+            return res.json({
+                wm: 2,
+                wa: 2,
+                hm: 3,
+                ha: 3,
+                upt: '-'
+            });
+        }
+        res.json(settings);
+    } catch (error) {
+        console.error('Error fetching settings:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 app.post('/api/settings', async (req, res) => {
     try {
-        const { wm, wa, hm, ha } = req.body;
+        const { wm, wa, hm, ha, upt } = req.body;
         
-        if (!wm || !wa || !hm || !ha || 
-            wm < 0 || wa < 0 || hm < 0 || ha < 0) {
-            return res.status(400).json({ error: '無效的設置值' });
-        }
-
-        await Settings.findOneAndUpdate(
-            {},
-            { 
-                wm, wa, hm, ha,
-                upt: moment.tz('Asia/Taipei').toDate()
-            },
-            { upsert: true, new: true }
+        // 更新或創建設置
+        const settings = await Settings.findOneAndUpdate(
+            {}, // 空條件表示更新第一個文檔
+            { wm, wa, hm, ha, upt },
+            { upsert: true, new: true } // 如果不存在則創建，返回更新後的文檔
         );
-
-        res.json({ message: '設置更新成功' });
+        
+        res.json(settings);
     } catch (error) {
         console.error('Error updating settings:', error);
-        res.status(500).json({ error: '更新設置失敗' });
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
