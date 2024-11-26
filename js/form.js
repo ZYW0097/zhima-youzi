@@ -1,4 +1,5 @@
 const today = new Date();
+today.setHours(0, 0, 0, 0);
 
 document.addEventListener('DOMContentLoaded', function () {
     const adultsSelect = document.getElementById('adults');
@@ -76,6 +77,7 @@ function generateCalendar(month = currentMonth, year = currentYear) {
         dayElement.classList.add('day');
 
         const currentDate = new Date(year, month, day);
+        currentDate.setHours(0, 0, 0, 0);
 
         if (currentDate < today) {
             dayElement.classList.add('disabled');
