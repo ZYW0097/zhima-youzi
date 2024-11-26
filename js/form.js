@@ -53,6 +53,11 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('specialNeeds').addEventListener('input', () => {
         document.getElementById('preview-special').textContent = document.getElementById('specialNeeds').value;
     });
+
+    // 初始隱藏所有 form-row
+    document.querySelectorAll('.form-row').forEach(row => {
+        row.style.display = 'none';
+    });
 });
 
 
@@ -120,6 +125,11 @@ function selectDate(day, month, year) {
         if (parseInt(dayElement.textContent) === day) {
             dayElement.classList.add('selected');
         }
+    });
+
+    // 確保所有 form-row 都是隱藏的
+    document.querySelectorAll('.form-row').forEach(row => {
+        row.style.display = 'none';
     });
 
     document.getElementById('time-picker-container').style.display = 'block';
@@ -273,11 +283,6 @@ function createTimeSection(title, slots, container) {
     section.appendChild(buttonsContainer);
     container.appendChild(section);
 }
-
-document.getElementById('viewReservationsBtn').addEventListener('click', function() {
-    document.getElementById('passwordModal').style.display = 'block';
-});
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('reservationForm');
