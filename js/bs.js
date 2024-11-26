@@ -68,12 +68,22 @@ async function saveSettings() {
         return;
     }
 
+    // 使用台灣時區並格式化時間
     const settings = {
         wm,
         wa,
         hm,
         ha,
-        upt: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
+        upt: new Date().toLocaleString('zh-TW', {
+            timeZone: 'Asia/Taipei',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false  // 使用24小時制
+        })
     };
 
     try {
@@ -89,7 +99,7 @@ async function saveSettings() {
             alert('設置已更新');
             originalSettings = settings;
             document.getElementById('lastUpdateTime').textContent = settings.upt;
-            toggleEdit(); // 儲存成功後關閉編輯模式
+            toggleEdit();
         } else {
             alert('更新失敗');
         }
