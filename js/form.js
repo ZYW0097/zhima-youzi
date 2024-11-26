@@ -103,6 +103,7 @@ function generateCalendar(month = currentMonth, year = currentYear) {
 
 function selectDate(day, month, year) {
     selectedDate = new Date(year, month, day);
+    selectedDate.setHours(0, 0, 0, 0)
     document.getElementById('date').value = selectedDate.toISOString().split('T')[0];
     document.getElementById('preview-date').textContent = `${selectedDate.toLocaleDateString()}`;
 
@@ -115,6 +116,7 @@ function selectDate(day, month, year) {
     });
 
     updateTimeButtons();
+    document.getElementById('contactInfoDiv').style.display = 'block';
 }
 
 document.getElementById('nextMonth').addEventListener('click', () => {
