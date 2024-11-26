@@ -77,13 +77,14 @@ async function saveSettings() {
         upt: new Date().toLocaleString('zh-TW', {
             timeZone: 'Asia/Taipei',
             year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
+            month: 'long',
+            day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
-            hour12: false  // 使用24小時制
-        })
+            hour12: false,
+            weekday: 'long'
+        }).replace(/\//g, '年').replace(/,/g, '日')
     };
 
     try {
