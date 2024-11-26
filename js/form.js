@@ -257,6 +257,11 @@ function createTimeSection(title, slots, container) {
                 button.classList.add('selected');
                 document.getElementById('selectedTime').value = time;
                 document.getElementById('preview-time').textContent = time;
+                
+                // 顯示所有 form-row
+                document.querySelectorAll('.form-row').forEach(row => {
+                    row.style.display = 'flex';  // 或者 'block'，依據你的布局需求
+                });
             });
             
             slotContainer.appendChild(button);
