@@ -232,26 +232,37 @@ function createTimeSection(title, slots, container) {
     buttonsContainer.className = 'time-buttons';
     
     slots.forEach(slot => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'time-button';
-        button.dataset.times = JSON.stringify(slot.times);
-        button.textContent = slot.times.join('/');
+        // 創建一個時段的容器
+        const slotContainer = document.createElement('div');
+        slotContainer.className = 'time-slot-group';
         
-        // 如果已達到限制，禁用按鈕
-        if (slot.count >= slot.limit) {
-            button.disabled = true;
-            button.classList.add('disabled');
-        }
-        
-        button.addEventListener('click', () => {
-            document.querySelectorAll('.time-button').forEach(btn => btn.classList.remove('selected'));
-            button.classList.add('selected');
-            document.getElementById('time').value = slot.times[0];
-            document.getElementById('preview-time').textContent = slot.times.join('/');
+        // 為每個時間創建獨立的按鈕，但保持它們的分組關係
+        slot.times.forEach(time => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'time-button';
+            button.dataset.slotId = slot.id; // 保存時段ID (wm1, wm2等)
+            button.textContent = time;
+            
+            // 如果已達到限制，整個時段的按鈕都禁用
+            if (slot.count >= slot.limit) {
+                button.disabled = true;
+                button.classList.add('disabled');
+            }
+            
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.time-button').forEach(btn => 
+                    btn.classList.remove('selected')
+                );
+                button.classList.add('selected');
+                document.getElementById('time').value = time;
+                document.getElementById('preview-time').textContent = time;
+            });
+            
+            slotContainer.appendChild(button);
         });
         
-        buttonsContainer.appendChild(button);
+        buttonsContainer.appendChild(slotContainer);
     });
     
     section.appendChild(buttonsContainer);
