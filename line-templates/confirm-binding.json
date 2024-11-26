@@ -1,0 +1,84 @@
+{
+    "type": "bubble",
+    "header": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "確認綁定電話",
+                        "color": "#ffffff",
+                        "align": "center",
+                        "gravity": "center",
+                        "size": "lg",
+                        "flex": 4,
+                        "weight": "bold"
+                    }
+                ],
+                "alignItems": "center"
+            }
+        ],
+        "backgroundColor": "#66BB6A",
+        "paddingAll": "20px"
+    },
+    "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "確認要綁定此電話號碼嗎？",
+                "weight": "bold",
+                "size": "md",
+                "wrap": true,
+                "align": "center",
+                "color": "#2E4A62"
+            },
+            {
+                "type": "text",
+                "text": "${phone}",
+                "weight": "bold",
+                "size": "xl",
+                "wrap": true,
+                "align": "center",
+                "color": "#2E4A62",
+                "margin": "md"
+            }
+        ],
+        "paddingAll": "20px"
+    },
+    "footer": {
+        "type": "box",
+        "layout": "horizontal",
+        "spacing": "sm",
+        "contents": [
+            {
+                "type": "button",
+                "style": "secondary",
+                "height": "sm",
+                "action": {
+                    "type": "postback",
+                    "label": "取消",
+                    "data": "action=cancel_binding"
+                }
+            },
+            {
+                "type": "button",
+                "style": "primary",
+                "height": "sm",
+                "action": {
+                    "type": "postback",
+                    "label": "確認",
+                    "data": "action=confirm_general_binding&phone=${phone}",
+                    "color": "#66BB6A"
+                }
+            }
+        ],
+        "flex": 0,
+        "paddingAll": "20px"
+    }
+}

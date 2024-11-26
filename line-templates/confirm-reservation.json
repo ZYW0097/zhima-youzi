@@ -1,0 +1,165 @@
+{
+    "type": "bubble",
+    "header": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "確認訂位資訊",
+                        "color": "#ffffff",
+                        "align": "center",
+                        "gravity": "center",
+                        "size": "lg",
+                        "flex": 4,
+                        "weight": "bold"
+                    }
+                ],
+                "alignItems": "center"
+            }
+        ],
+        "backgroundColor": "#66BB6A",
+        "paddingAll": "20px"
+    },
+    "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "請確認以下訂位資訊：",
+                "weight": "bold",
+                "size": "md",
+                "wrap": true,
+                "align": "center",
+                "color": "#2E4A62"
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "margin": "lg",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "姓名",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 2
+                            },
+                            {
+                                "type": "text",
+                                "text": "${maskedName}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 5
+                            }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "電話",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 2
+                            },
+                            {
+                                "type": "text",
+                                "text": "${maskedPhone}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 5
+                            }
+                        ],
+                        "margin": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "日期",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 2
+                            },
+                            {
+                                "type": "text",
+                                "text": "${date}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 5
+                            }
+                        ],
+                        "margin": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "時間",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 2
+                            },
+                            {
+                                "type": "text",
+                                "text": "${time}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 5
+                            }
+                        ],
+                        "margin": "md"
+                    }
+                ]
+            }
+        ],
+        "paddingAll": "20px"
+    },
+    "footer": {
+        "type": "box",
+        "layout": "horizontal",
+        "spacing": "sm",
+        "contents": [
+            {
+                "type": "button",
+                "style": "secondary",
+                "height": "sm",
+                "action": {
+                    "type": "postback",
+                    "label": "取消",
+                    "data": "action=cancel_binding"
+                }
+            },
+            {
+                "type": "button",
+                "style": "primary",
+                "height": "sm",
+                "action": {
+                    "type": "postback",
+                    "label": "確認",
+                    "data": "action=confirm_recent_reservation&phone=${phone}"
+                },
+                "color": "#66BB6A"
+            }
+        ],
+        "flex": 0,
+        "paddingAll": "20px"
+    }
+}

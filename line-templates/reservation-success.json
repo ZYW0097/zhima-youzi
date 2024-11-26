@@ -1,0 +1,219 @@
+{
+    "type": "bubble",
+    "header": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "訂位成功通知！",
+                        "color": "#ffffff",
+                        "align": "center",
+                        "gravity": "center",
+                        "size": "lg",
+                        "flex": 4,
+                        "weight": "bold"
+                    }
+                ],
+                "alignItems": "center"
+            }
+        ],
+        "backgroundColor": "#66BB6A",
+        "paddingAll": "20px"
+    },
+    "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "${lineName}，您好！",
+                "weight": "bold",
+                "size": "md",
+                "wrap": true,
+                "color": "#2E4A62",
+                "margin": "md"
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "margin": "lg",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "姓名",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "${name}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 7,
+                                "wrap": true
+                            }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "日期",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "${date}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 7,
+                                "wrap": true
+                            }
+                        ],
+                        "margin": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "時間",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "${time}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 7,
+                                "wrap": true
+                            }
+                        ],
+                        "margin": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "人數",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "${adults}大${children}小",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 7,
+                                "wrap": true
+                            }
+                        ],
+                        "margin": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "素食",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "${vegetarian}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 7,
+                                "wrap": true
+                            }
+                        ],
+                        "margin": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "特殊需求",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "${specialNeeds}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 7,
+                                "wrap": true
+                            }
+                        ],
+                        "margin": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "備註",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "${notes}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 7,
+                                "wrap": true
+                            }
+                        ],
+                        "margin": "md"
+                    }
+                ]
+            }
+        ],
+        "paddingAll": "20px"
+    },
+    "footer": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "感謝您的訂位！",
+                "align": "center",
+                "color": "#66BB6A",
+                "weight": "bold"
+            }
+        ],
+        "paddingAll": "20px"
+    }
+}
