@@ -321,6 +321,41 @@ document.addEventListener('DOMContentLoaded', () => {
   
             if (response.ok) {
                 console.log('Reservation successful, waiting for redirect...');
+                
+                // 清除表單內容
+                form.reset();
+                
+                // 重置預覽區域
+                document.getElementById('preview-adults').textContent = '1';
+                document.getElementById('preview-children').textContent = '0';
+                document.getElementById('preview-date').textContent = '尚未選擇';
+                document.getElementById('preview-time').textContent = '尚未選擇';
+                document.getElementById('preview-vegetarian').textContent = '否';
+                document.getElementById('preview-special').textContent = '無';
+                document.getElementById('preview-phone').textContent = '尚未填寫';
+                document.getElementById('preview-email').textContent = '尚未填寫';
+                document.getElementById('preview-notes').textContent = '無';
+                
+                // 重置日曆和時間選擇
+                const days = document.querySelectorAll('#days-container .day');
+                days.forEach(day => day.classList.remove('selected'));
+                
+                document.querySelectorAll('.time-button').forEach(btn => 
+                    btn.classList.remove('selected')
+                );
+                
+                // 隱藏時間選擇器和表單欄位
+                document.getElementById('time-picker-container').style.display = 'none';
+                document.querySelectorAll('.form-row').forEach(row => {
+                    row.classList.remove('show');
+                });
+                
+                // 重置下拉選單
+                document.getElementById('adults').value = '1';
+                document.getElementById('children').value = '0';
+                document.getElementById('vegetarian').value = '否';
+                document.getElementById('specialNeeds').value = '無';
+                
             } else {
                 alert(responseData.error || '訂位失敗，請稍後再試。');
             }
