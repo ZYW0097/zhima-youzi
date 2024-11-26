@@ -1,4 +1,5 @@
 const today = new Date();
+today.setHours(0, 0, 0, 0)
 
 document.addEventListener('DOMContentLoaded', function () {
     const adultsSelect = document.getElementById('adults');
@@ -102,7 +103,8 @@ function generateCalendar(month = currentMonth, year = currentYear) {
 
 function selectDate(day, month, year) {
     selectedDate = new Date(year, month, day);
-    document.getElementById('date').value = selectedDate.toISOString().split('T')[0];
+    const localDate = selectedDate.toLocaleDateString('en-CA');
+    document.getElementById('date').value = localDate;
     document.getElementById('preview-date').textContent = `${selectedDate.toLocaleDateString()}`;
 
     const days = document.querySelectorAll('#days-container .day');
