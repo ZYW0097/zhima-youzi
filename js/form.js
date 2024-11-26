@@ -1,3 +1,5 @@
+const today = new Date();
+
 document.addEventListener('DOMContentLoaded', function () {
     const adultsSelect = document.getElementById('adults');
     const childrenSelect = document.getElementById('children');
