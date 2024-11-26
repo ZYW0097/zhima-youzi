@@ -243,6 +243,7 @@ function createTimeSection(title, slots, container) {
             button.type = 'button';
             button.className = 'time-button';
             button.dataset.slotId = slot.id;
+            button.dataset.time = time;
             button.textContent = time;
             
             if (slot.count >= slot.limit) {
@@ -250,16 +251,14 @@ function createTimeSection(title, slots, container) {
                 button.classList.add('disabled');
             }
             
-            button.addEventListener('click', () => {
-                // 移除其他按鈕的選中狀態
+            button.addEventListener('click', function() {
                 document.querySelectorAll('.time-button').forEach(btn => 
                     btn.classList.remove('selected')
                 );
-                button.classList.add('selected');
+                this.classList.add('selected');
                 
-                // 設置時間值
-                const selectedTime = $(this).data('time');
-                $('#time').val(selectedTime);
+                const selectedTime = this.dataset.time;
+                document.getElementById('time').value = selectedTime;
                 document.getElementById('preview-time').textContent = selectedTime;
                 
                 // 測試代碼：檢查 jQuery 選擇器
