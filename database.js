@@ -43,11 +43,11 @@ const glhSchema = new mongoose.Schema({
 });
 
 const settingsSchema = new mongoose.Schema({
-    upt: { type: Date, default: Date.now },
     wm: { type: Number, default: 2 },
     wa: { type: Number, default: 2 },
     hm: { type: Number, default: 3 },
-    ha: { type: Number, default: 3 }
+    ha: { type: Number, default: 3 },
+    upt: { type: String, default: '-' }
 });
 
 reservationSchema.index({ phone: 1, date: 1, time: 1 }, { unique: true });
