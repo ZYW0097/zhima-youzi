@@ -124,9 +124,6 @@ function selectDate(day, month, year) {
 
     // 顯示時間選擇器，確保表單欄位保持隱藏
     document.getElementById('time-picker-container').style.display = 'block';
-    document.querySelectorAll('.form-row').forEach(row => {
-        row.style.display = 'none';
-    });
     
     updateTimeButtons();
 }
