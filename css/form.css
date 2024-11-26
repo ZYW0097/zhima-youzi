@@ -322,7 +322,7 @@ button[type="submit"]:hover {
 }
 
 .form-row {
-    display: none;
+    display: flex;
     gap: 20px; 
     margin-bottom: 15px;
     align-items: center; /
