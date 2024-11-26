@@ -3,11 +3,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
-    <title>後台管理系統</title>
+    <title>芝麻柚子 とんかつ | 後台管理</title>
+    <link rel="stylesheet" href="/css/backstage.css">  
 </head>
 <body>
-    <h1>test</h1>
-    <button onclick="logout()" class="logout-button">登出</button>
-    <script src="/js/bsl.js"></script>
+    <div class="logout-container">
+        <button class="logout-button" onclick="logout()">登出</button>
+    </div>
+
+    <div class="settings-container">
+        <h2 class="settings-title">設置時段組數上限</h2>
+        <p class="last-update">最後更改時間：<span id="lastUpdateTime">-</span></p>
+        
+        <div class="edit-container">
+            <button class="edit-button" onclick="toggleEdit()">編輯</button>
+        </div>
+
+        <div class="settings-row">
+            <div class="settings-group">
+                <label class="settings-label">平日上午</label>
+                <input type="number" id="wm" class="settings-input" value="2" min="0" disabled>
+            </div>
+            <div class="settings-group">
+                <label class="settings-label">平日下午</label>
+                <input type="number" id="wa" class="settings-input" value="2" min="0" disabled>
+            </div>
+        </div>
+        
+        <div class="settings-row">
+            <div class="settings-group">
+                <label class="settings-label">假日上午</label>
+                <input type="number" id="hm" class="settings-input" value="3" min="0" disabled>
+            </div>
+            <div class="settings-group">
+                <label class="settings-label">假日下午</label>
+                <input type="number" id="ha" class="settings-input" value="3" min="0" disabled>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="button cancel-button" onclick="resetSettings()" disabled>取消更改</button>
+            <button class="button confirm-button" onclick="saveSettings()" disabled>確認更改</button>
+        </div>
+    </div>
+
+    <script src="/js/bs.js"></script>
 </body>
 </html>
