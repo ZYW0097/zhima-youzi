@@ -1,5 +1,10 @@
-const today = new Date();
-today.setHours(0, 0, 0, 0)
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery is not loaded!');
+        return;
+    }
+    console.log('jQuery is loaded');
+});
 
 document.addEventListener('DOMContentLoaded', function () {
     const adultsSelect = document.getElementById('adults');
@@ -50,6 +55,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+
+const today = new Date();
+today.setHours(0, 0, 0, 0)
 let selectedTime = null;
 let selectedDate = null;
 let currentMonth = new Date().getMonth();
@@ -115,6 +123,7 @@ function selectDate(day, month, year) {
     });
 
     updateTimeButtons();
+    document.getElementById('contactInfoDiv').style.display = 'block';
 }
 
 document.getElementById('nextMonth').addEventListener('click', () => {
@@ -157,6 +166,9 @@ async function updateTimeButtons() {
     const dayOfWeek = selectedDate.getDay();
     const dateString = selectedDate.toISOString().split('T')[0];
     
+    console.log('Selected date:', dateString);
+    console.log('Day of week:', dayOfWeek);
+    
     // 清空現有的時間按鈕
     $('#time-picker-container').empty();
     
@@ -164,9 +176,11 @@ async function updateTimeButtons() {
         // 獲取該日期的預訂狀態和限制
         const response = await fetch(`/api/time-slots?date=${dateString}`);
         const data = await response.json();
+        console.log('Fetching URL:', url);
         
         const timeContainer = document.createElement('div');
         timeContainer.className = 'time-slots';
+        console.log('API response:', data);
         
         if (dayOfWeek >= 1 && dayOfWeek <= 5) {
             // 平日時段
@@ -240,6 +254,10 @@ function createTimeSection(title, slots, container) {
     section.appendChild(buttonsContainer);
     container.appendChild(section);
 }
+
+document.getElementById('viewReservationsBtn').addEventListener('click', function() {
+    document.getElementById('passwordModal').style.display = 'block';
+});
 
 
 document.addEventListener('DOMContentLoaded', () => {
