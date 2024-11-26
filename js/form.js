@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('preview-special').textContent = document.getElementById('specialNeeds').value;
     });
 
-    // 初始隱藏所有 form-row
+    // 一開始就隱藏表單欄位
     document.querySelectorAll('.form-row').forEach(row => {
         row.style.display = 'none';
     });
@@ -127,12 +127,11 @@ function selectDate(day, month, year) {
         }
     });
 
-    // 確保所有 form-row 都是隱藏的
+    // 顯示時間選擇器，確保表單欄位保持隱藏
+    document.getElementById('time-picker-container').style.display = 'block';
     document.querySelectorAll('.form-row').forEach(row => {
         row.style.display = 'none';
     });
-
-    document.getElementById('time-picker-container').style.display = 'block';
     
     updateTimeButtons();
 }
@@ -266,12 +265,10 @@ function createTimeSection(title, slots, container) {
                 );
                 button.classList.add('selected');
                 
-                // 修改這裡，確保使用正確的 ID
-                const selectedTimeInput = document.getElementById('selectedTime');
-                selectedTimeInput.value = time;
+                document.getElementById('selectedTime').value = time;
                 document.getElementById('preview-time').textContent = time;
                 
-                // 顯示所有 form-row
+                // 選擇時間後才顯示表單欄位
                 document.querySelectorAll('.form-row').forEach(row => {
                     row.style.display = 'flex';
                 });
