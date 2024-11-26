@@ -114,7 +114,6 @@ function selectDate(day, month, year) {
     });
 
     updateTimeButtons();
-    document.getElementById('contactInfoDiv').style.display = 'block';
 }
 
 document.getElementById('nextMonth').addEventListener('click', () => {
