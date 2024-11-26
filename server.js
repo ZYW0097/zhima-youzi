@@ -983,6 +983,8 @@ app.post('/line/webhook', async (req, res) => {
 
                     if (recentReservation) {
                         // 發送遮罩後的訂位資訊確認
+                        const messageTemplate = JSON.parse(JSON.stringify(confirmReservationTemplate));
+
                         const maskedName = recentReservation.name.charAt(0) + '*'.repeat(recentReservation.name.length - 1);
                         const maskedPhone = `${phone.slice(0, 4)}**${phone.slice(-2)}`;
                         
