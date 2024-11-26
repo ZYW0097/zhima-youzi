@@ -261,14 +261,15 @@ function createTimeSection(title, slots, container) {
                 document.getElementById('time').value = time;
                 document.getElementById('preview-time').textContent = time;
                 
-                // 使用原生 JavaScript 顯示表單欄位
-                document.querySelectorAll('.form-row').forEach(row => {
-                    console.log('處理元素:', row);  // 檢查每個元素
-                    row.style.visibility = 'visible';
-                    row.style.position = 'relative';
-                    row.style.top = '0';
-                    row.style.left = '0';
-                });
+                // 測試代碼：檢查 jQuery 選擇器
+                console.log('找到的 form-row 元素數量:', $('.form-row').length);
+                console.log('form-row 元素:', $('.form-row'));
+                
+                // 顯示所有表單欄位
+                $('.form-row').addClass('show');
+                
+                // 再次檢查是否成功添加 show class
+                console.log('有 show class 的元素數量:', $('.form-row.show').length);
             });
             
             slotContainer.appendChild(button);
