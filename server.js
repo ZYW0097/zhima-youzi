@@ -16,11 +16,11 @@ const userStates = {};
 const jwt = require('jsonwebtoken');
 const CronJob = require('cron').CronJob;
 const moment = require('moment-timezone');
-const reservationSuccessTemplate = require('../line-templates/reservation-success.json');
-const welcomeTemplate = require('../line-templates/welcome.json');
-const bindingSuccessTemplate = require('../line-templates/binding-success.json');
-const confirmReservationTemplate = require('../line-templates/confirm-reservation.json');
-const confirmBindingTemplate = require('../line-templates/confirm-binding.json');
+const reservationSuccessTemplate = require('/line-templates/reservation-success.json');
+const welcomeTemplate = require('/line-templates/welcome.json');
+const bindingSuccessTemplate = require('/line-templates/binding-success.json');
+const confirmReservationTemplate = require('/line-templates/confirm-reservation.json');
+const confirmBindingTemplate = require('/line-templates/confirm-binding.json');
 
 
 const app = express();
