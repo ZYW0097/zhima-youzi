@@ -77,7 +77,6 @@ function generateCalendar(month = currentMonth, year = currentYear) {
         dayElement.classList.add('day');
 
         const currentDate = new Date(year, month, day);
-        currentDate.setHours(0, 0, 0, 0);
 
         if (currentDate < today) {
             dayElement.classList.add('disabled');
@@ -148,64 +147,99 @@ window.onload = () => {
 };
 
 const dd = String(today.getDate()).padStart(2, '0');
-const mm = String(today.getMonth() + 1).padStart(2, '0'); // 1月是0
+const mm = String(today.getMonth() + 1).padStart(2, '0'); 
 const yyyy = today.getFullYear();
 const currentDate = `${yyyy}-${mm}-${dd}`;
 document.getElementById('date').setAttribute('min', currentDate);
 
-function updateTimeButtons() {
+async function updateTimeButtons() {
     const selectedDate = new Date($('#date').val());
-    const dayOfWeek = selectedDate.getDay(); 
-
-    $('#time-picker-container').empty(); 
-
-    if (dayOfWeek >= 1 && dayOfWeek <= 5) {  
-        createTimeButtons("11:00", "13:30", 30, "平日上午");
-        createTimeButtons("17:00", "20:30", 30, "平日下午");
-    } else {  
-        createTimeButtons("11:00", "14:30", 60, "假日上午");
-        createTimeButtons("17:00", "20:30", 60, "假日下午");
+    const dayOfWeek = selectedDate.getDay();
+    const dateString = selectedDate.toISOString().split('T')[0];
+    
+    // 清空現有的時間按鈕
+    $('#time-picker-container').empty();
+    
+    try {
+        // 獲取該日期的預訂狀態和限制
+        const response = await fetch(`/api/time-slots?date=${dateString}`);
+        const data = await response.json();
+        
+        const timeContainer = document.createElement('div');
+        timeContainer.className = 'time-slots';
+        
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+            // 平日時段
+            createTimeSection('上午', [
+                { id: 'wm1', times: ['11:00', '11:30'], count: data.wm1, limit: data.settings.wm },
+                { id: 'wm2', times: ['12:00', '12:30'], count: data.wm2, limit: data.settings.wm },
+                { id: 'wm3', times: ['13:00', '13:30'], count: data.wm3, limit: data.settings.wm }
+            ], timeContainer);
+            
+            createTimeSection('下午', [
+                { id: 'wa1', times: ['17:00', '17:30'], count: data.wa1, limit: data.settings.wa },
+                { id: 'wa2', times: ['18:00', '18:30'], count: data.wa2, limit: data.settings.wa },
+                { id: 'wa3', times: ['19:00', '19:30', '20:00'], count: data.wa3, limit: data.settings.wa }
+            ], timeContainer);
+        } else {
+            // 假日時段
+            createTimeSection('上午', [
+                { id: 'hm1', times: ['11:00', '11:30'], count: data.hm1, limit: data.settings.hm },
+                { id: 'hm2', times: ['12:00', '12:30'], count: data.hm2, limit: data.settings.hm },
+                { id: 'hm3', times: ['13:00', '13:30'], count: data.hm3, limit: data.settings.hm },
+                { id: 'hm4', times: ['14:00', '14:30'], count: data.hm4, limit: data.settings.hm }
+            ], timeContainer);
+            
+            createTimeSection('下午', [
+                { id: 'ha1', times: ['17:00', '17:30'], count: data.ha1, limit: data.settings.ha },
+                { id: 'ha2', times: ['18:00', '18:30'], count: data.ha2, limit: data.settings.ha },
+                { id: 'ha3', times: ['19:00', '19:30', '20:00'], count: data.ha3, limit: data.settings.ha }
+            ], timeContainer);
+        }
+        
+        $('#time-picker-container').append(timeContainer);
+    } catch (error) {
+        console.error('Error fetching time slots:', error);
     }
-
-    $('#time-picker-container').show(); 
 }
 
-function createTimeButtons(startTime, endTime, interval, timeLabel) {
-    const start = new Date(`1970-01-01T${startTime}:00`); 
-    const end = new Date(`1970-01-01T${endTime}:00`); 
-
-    const timeContainer = $('<div class="time-container"></div>');
-    timeContainer.append(`<h3>${timeLabel}</h3>`); 
-
-    const buttonRow = $('<div class="time-buttons"></div>'); 
-
-    for (let time = start; time <= end; time.setMinutes(time.getMinutes() + interval)) {
-        const timeString = time.toTimeString().slice(0, 5);
-        buttonRow.append(`<button type="button" class="time-button" data-time="${timeString}">${timeString}</button>`);
-    }
-
-    timeContainer.append(buttonRow);
-    $('#time-picker-container').append(timeContainer);
-    $('.time-button').on('click', function() {
-        $('.time-button').removeClass('selected'); 
-        $(this).addClass('selected'); 
+function createTimeSection(title, slots, container) {
+    const section = document.createElement('div');
+    section.className = 'time-section';
+    
+    const titleElement = document.createElement('h3');
+    titleElement.textContent = title;
+    section.appendChild(titleElement);
+    
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'time-buttons';
+    
+    slots.forEach(slot => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'time-button';
+        button.dataset.times = JSON.stringify(slot.times);
+        button.textContent = slot.times.join('/');
         
-        const selectedTime = $(this).data('time');
-        $('#selectedTime').val(selectedTime); 
-        document.getElementById('preview-time').textContent = selectedTime; 
+        // 如果已達到限制，禁用按鈕
+        if (slot.count >= slot.limit) {
+            button.disabled = true;
+            button.classList.add('disabled');
+        }
         
-        $('.form-row').addClass('show'); 
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.time-button').forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+            document.getElementById('time').value = slot.times[0];
+            document.getElementById('preview-time').textContent = slot.times.join('/');
+        });
+        
+        buttonsContainer.appendChild(button);
     });
+    
+    section.appendChild(buttonsContainer);
+    container.appendChild(section);
 }
-
-$('#date').on('change', function() {
-    updateTimeButtons(); 
-    $('.form-row').removeClass('show');
-});
-
-document.getElementById('viewReservationsBtn').addEventListener('click', function() {
-    document.getElementById('passwordModal').style.display = 'block';
-});
 
 
 document.addEventListener('DOMContentLoaded', () => {
