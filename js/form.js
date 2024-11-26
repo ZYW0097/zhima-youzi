@@ -264,10 +264,8 @@ function createTimeSection(title, slots, container) {
                 document.getElementById('time').value = time;
                 document.getElementById('preview-time').textContent = time;
                 
-                // 顯示所有表單欄位和提交按鈕
-                document.querySelectorAll('.form-row').forEach(row => {
-                    row.classList.add('show');
-                });
+                // 使用 jQuery 顯示所有表單欄位
+                $('.form-row').addClass('show');
             });
             
             slotContainer.appendChild(button);
