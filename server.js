@@ -244,37 +244,19 @@ app.post('/reservations', async (req, res) => {
     const { name, phone, email, gender, date, time, adults, children, vegetarian, specialNeeds, notes } = req.body;
     const token = generateToken();
 
-    const [year, month, day] = date.split('-').map(Number);
-    let adjustedYear = year;
-    let adjustedMonth = month;
-    let adjustedDay = day + 1;
-
-    const lastDayOfMonth = new Date(year, month, 0).getDate();
-    if (adjustedDay > lastDayOfMonth) {
-        adjustedDay = 1;
-        adjustedMonth++;
-        
-        if (adjustedMonth > 12) {
-            adjustedMonth = 1;
-            adjustedYear++;
-        }
-    }
-
-    const adjustedDate = `${adjustedYear}-${String(adjustedMonth).padStart(2, '0')}-${String(adjustedDay).padStart(2, '0')}`;
-
     try {
         const existingLineUser = await UserID.findOne({ phone });
         
         const reservationData = {
             name, phone, email, gender, 
-            date: adjustedDate, time,
+            date, time,
             adults, children, 
             vegetarian, specialNeeds, notes,
         };
 
         const existingReservation = await Reservation.findOne({
             phone,
-            date: adjustedDate,
+            date,
             time
         });
 
@@ -295,7 +277,7 @@ app.post('/reservations', async (req, res) => {
 
         await sendEmail(email, {
             name,
-            date: adjustedDate,
+            date,
             time,
             adults,
             children,
@@ -389,7 +371,7 @@ app.post('/reservations', async (req, res) => {
                                                 },
                                                 {
                                                     "type": "text",
-                                                    "text": adjustedDate.replace(/-/g, '/'),
+                                                    "text": `${date}`,
                                                     "size": "sm",
                                                     "color": "#111111",
                                                     "flex": 7,
@@ -867,7 +849,7 @@ app.post('/line/webhook', async (req, res) => {
                                                                     },
                                                                     {
                                                                         "type": "text",
-                                                                        "text": reservation.date.replace(/-/g, '/'),
+                                                                        "text": reservation.date,
                                                                         "size": "sm",
                                                                         "color": "#111111",
                                                                         "flex": 7,
