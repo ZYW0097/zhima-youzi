@@ -250,26 +250,34 @@ function createTimeSection(title, slots, container) {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'time-button';
-            button.dataset.slotId = slot.id; // 保存時段ID (wm1, wm2等)
+            button.dataset.slotId = slot.id;
             button.textContent = time;
             
-            // 如果已達到限制，整個時段的按鈕都禁用
             if (slot.count >= slot.limit) {
                 button.disabled = true;
                 button.classList.add('disabled');
             }
             
             button.addEventListener('click', () => {
+                // 移除其他按鈕的選中狀態
                 document.querySelectorAll('.time-button').forEach(btn => 
                     btn.classList.remove('selected')
                 );
                 button.classList.add('selected');
                 
+                // 設置時間值
                 document.getElementById('time').value = time;
                 document.getElementById('preview-time').textContent = time;
                 
+                // 顯示所有表單欄位
                 document.querySelectorAll('.form-row').forEach(row => {
-                    row.style.display = 'flex';
+                    if (row.tagName.toLowerCase() === 'button') {
+                        // 如果是提交按鈕，使用 block 顯示
+                        row.style.display = 'block';
+                    } else {
+                        // 其他表單欄位使用 flex 顯示
+                        row.style.display = 'flex';
+                    }
                 });
             });
             
