@@ -47,19 +47,6 @@ function checkLogin() {
     });
 }
 
-function logout() {
-    fetch('/api/logout', {
-        method: 'POST',
-        credentials: 'same-origin'
-    })
-    .then(() => {
-        window.location.href = '/bsl';
-    })
-    .catch(error => {
-        console.error('Logout error:', error);
-    });
-}
-
 // Enter 鍵觸發登入
 document.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
