@@ -258,8 +258,9 @@ function createTimeSection(title, slots, container) {
                 button.classList.add('selected');
                 
                 // 設置時間值
-                document.getElementById('time').value = time;
-                document.getElementById('preview-time').textContent = time;
+                const selectedTime = $(this).data('time');
+                $('#time').val(selectedTime);
+                document.getElementById('preview-time').textContent = selectedTime;
                 
                 // 測試代碼：檢查 jQuery 選擇器
                 console.log('找到的 form-row 元素數量:', $('.form-row').length);
@@ -302,6 +303,9 @@ document.addEventListener('DOMContentLoaded', () => {
             notes: form.notes.value,
         };
   
+        // 添加表單數據檢查
+        console.log('Submitting form data:', formData);
+  
         try {
             const response = await fetch('/reservations', {
                 method: 'POST',
@@ -310,15 +314,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify(formData)
             });
-
+  
+            // 添加響應檢查
+            const responseData = await response.json();
+            console.log('Server response:', responseData);
+  
             if (response.ok) {
-                // 如果後端成功處理，頁面會由後端自動重定向
                 console.log('Reservation successful, waiting for redirect...');
             } else {
-                alert('訂位失敗，請稍後再試。');
+                alert(responseData.error || '訂位失敗，請稍後再試。');
             }
         } catch (error) {
-            console.error('Reservation error:', error);
+            console.error('Reservation error details:', error);
             alert('提交失敗，請稍後再試。');
         }
     });
