@@ -53,11 +53,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('specialNeeds').addEventListener('input', () => {
         document.getElementById('preview-special').textContent = document.getElementById('specialNeeds').value;
     });
-
-    // 一開始就隱藏表單欄位
-    document.querySelectorAll('.form-row').forEach(row => {
-        row.style.display = 'none';
-    });
 });
 
 
@@ -269,15 +264,9 @@ function createTimeSection(title, slots, container) {
                 document.getElementById('time').value = time;
                 document.getElementById('preview-time').textContent = time;
                 
-                // 顯示所有表單欄位
+                // 顯示所有表單欄位和提交按鈕
                 document.querySelectorAll('.form-row').forEach(row => {
-                    if (row.tagName.toLowerCase() === 'button') {
-                        // 如果是提交按鈕，使用 block 顯示
-                        row.style.display = 'block';
-                    } else {
-                        // 其他表單欄位使用 flex 顯示
-                        row.style.display = 'flex';
-                    }
+                    row.classList.add('show');
                 });
             });
             
