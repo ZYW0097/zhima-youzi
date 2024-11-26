@@ -255,7 +255,7 @@ function createTimeSection(title, slots, container) {
                     btn.classList.remove('selected')
                 );
                 button.classList.add('selected');
-                document.getElementById('time').value = time;
+                document.getElementById('selectedTime').value = time;
                 document.getElementById('preview-time').textContent = time;
             });
             
