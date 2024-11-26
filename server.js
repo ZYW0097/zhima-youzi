@@ -384,6 +384,10 @@ app.post('/reservations', async (req, res) => {
             name, phone, email, gender, date, time, 
             adults, children, vegetarian, specialNeeds, notes 
         } = req.body;
+
+        if (!time || time.trim() === '') {
+            return res.status(400).json({ error: '請選擇用餐時間' });
+        }
         
         const token = generateToken();
         
