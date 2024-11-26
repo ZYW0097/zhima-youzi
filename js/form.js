@@ -265,10 +265,9 @@ function createTimeSection(title, slots, container) {
                 );
                 button.classList.add('selected');
                 
-                document.getElementById('selectedTime').value = time;
+                document.getElementById('time').value = time;
                 document.getElementById('preview-time').textContent = time;
                 
-                // 選擇時間後才顯示表單欄位
                 document.querySelectorAll('.form-row').forEach(row => {
                     row.style.display = 'flex';
                 });
@@ -296,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
             email: form.email.value,
             gender: form.gender.value,
             date: form.date.value,
-            time: form.selectedTime.value,
+            time: form.time.value,
             adults: form.adults.value,
             children: form.children.value,
             vegetarian: form.vegetarian.value,
