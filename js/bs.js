@@ -217,7 +217,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 初始化顯示
+    loadSettings();
+    loadTodayBookings();
+    checkTokenValidity();
     showPage('reservations');
 });
 
