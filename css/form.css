@@ -315,6 +315,14 @@ button[type="submit"]:hover {
     color: white;
 }
 
+.time-button:disabled::-moz-default-content {
+    display: none;
+}
+
+.time-button:disabled::-webkit-validation-bubble-message {
+    display: none;
+}
+
 .time-button.disabled {
     background: #f5f5f5;
     cursor: not-allowed;
