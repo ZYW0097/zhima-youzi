@@ -21,7 +21,12 @@
 
         <div class="main-content">
             <div class="content-page" id="reservations">
-                <h2>今日訂位</h2>
+                <div class="header-actions">
+                    <h2>今日訂位</h2>
+                    <button class="refresh-button" onclick="loadTodayBookings()">
+                        <i class="fas fa-sync-alt"></i> 重新整理
+                    </button>
+                </div>
                 <div class="reservations-container">
                     <div class="reservations-header">
                         <div class="header-cell">時段</div>
