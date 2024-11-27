@@ -10,31 +10,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const adultsSelect = document.getElementById('adults');
     const childrenSelect = document.getElementById('children');
 
-    for (let i = 1; i <= 8; i++) {
+    for (let i = 1; i <= 6; i++) {
         const option = document.createElement('option');
         option.value = i;
-        option.textContent = i;
+        option.textContent = `${i}位大人`;
         adultsSelect.appendChild(option);
     }
 
-    for (let i = 0; i <= 8; i++) {
+    for (let i = 0; i <= 6; i++) {
         const option = document.createElement('option');
         option.value = i;
-        option.textContent = i;
+        option.textContent = `${i}位小孩`;
         childrenSelect.appendChild(option);
     }
 
     adultsSelect.value = 1;
-    document.getElementById('preview-adults').textContent = 1;
+    document.getElementById('preview-adults').textContent = '1位大人';
+    document.getElementById('preview-children').textContent = '0位小孩';
 
     adultsSelect.addEventListener('change', () => {
         document.getElementById('preview-adults').textContent = adultsSelect.value;
     });
     childrenSelect.addEventListener('change', () => {
         document.getElementById('preview-children').textContent = childrenSelect.value;
-    });
-    document.getElementById('date').addEventListener('change', () => {
-        document.getElementById('preview-date').textContent = document.getElementById('date').value;
     });
     document.getElementById('phone').addEventListener('input', () => {
         document.getElementById('preview-phone').textContent = document.getElementById('phone').value;
@@ -86,6 +84,17 @@ function generateCalendar(month = currentMonth, year = currentYear) {
 
         const currentDate = new Date(year, month, day);
 
+        const isToday = currentDate.getDate() === today.getDate() &&
+                       currentDate.getMonth() === today.getMonth() &&
+                       currentDate.getFullYear() === today.getFullYear();
+
+        // 如果是今天，添加底線
+        if (isToday) {
+            const underline = document.createElement('div');
+            underline.classList.add('day-underline');
+            dayElement.appendChild(underline);
+        }
+
         if (currentDate < today) {
             dayElement.classList.add('disabled');
             dayElement.style.pointerEvents = 'none';
@@ -110,9 +119,13 @@ function generateCalendar(month = currentMonth, year = currentYear) {
 
 function selectDate(day, month, year) {
     selectedDate = new Date(year, month, day);
-    const localDate = selectedDate.toLocaleDateString('en-CA');
+    const localDate = selectedDate.toLocaleDateString('en-CA'); 
     document.getElementById('date').value = localDate;
-    document.getElementById('preview-date').textContent = `${selectedDate.toLocaleDateString()}`;
+
+    const formattedDate = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+    const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+    const weekday = weekdays[selectedDate.getDay()];
+    document.getElementById('preview-date').textContent = `${formattedDate} (${weekday})`;
 
     const days = document.querySelectorAll('#days-container .day');
     days.forEach(dayElement => {
@@ -144,12 +157,6 @@ document.getElementById('prevMonth').addEventListener('click', () => {
     } else {
         currentMonth--;
     }
-    generateCalendar(currentMonth, currentYear);
-});
-
-document.getElementById('currentMonth').addEventListener('click', () => {
-    currentMonth = new Date().getMonth();
-    currentYear = new Date().getFullYear();
     generateCalendar(currentMonth, currentYear);
 });
 
@@ -319,8 +326,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Reservation successful, waiting for redirect...');
                 
                 window.location.href = response.url;
-                
-                form.reset();
+
+                setTimeout(() => {
+                    form.reset();
                 
                 // 重置預覽區域
                 document.getElementById('preview-adults').textContent = '1';
@@ -357,6 +365,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('children').value = '0';
                 document.getElementById('vegetarian').value = '否';
                 document.getElementById('specialNeeds').value = '無';
+                }, 100);
+                
 
                 return;
 
