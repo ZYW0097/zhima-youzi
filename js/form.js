@@ -311,14 +311,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData),
-                redirect: 'follow' 
+                body: JSON.stringify(formData)
             });
   
-            if (response.ok) {
+            if (data.success && data.redirectUrl) {
                 console.log('Reservation successful, waiting for redirect...');
                 
-                // 清除表單內容
+                window.location.href = data.redirectUrl;
+                
                 form.reset();
                 
                 // 重置預覽區域
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('specialNeeds').value = '無';
 
             } else {
-                throw new Error('預訂失敗，請稍後再試');
+                throw new Error(data.message || '預訂失敗，請稍後再試');
             }
         } catch (error) {
             console.error('Reservation error details:', error);
