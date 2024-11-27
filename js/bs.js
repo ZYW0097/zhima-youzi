@@ -179,6 +179,17 @@ document.addEventListener('DOMContentLoaded', function() {
     checkTokenValidity();
 });
 
+function getPeriodText(time) {
+    const hour = parseInt(time.split(':')[0]);
+    if (hour >= 11 && hour < 15) {
+        return '上午';
+    } else if (hour >= 17 && hour <= 20) {
+        return '下午';
+    } else {
+        return '未知時段';
+    }
+}
+
 // 載入今日訂位
 async function loadTodayBookings() {
     try {
@@ -204,7 +215,10 @@ async function loadTodayBookings() {
                 if (booking.notes !== '無') notes.push(booking.notes);
                 const noteText = notes.length > 0 ? notes.join(', ') : '-';
                 
+                const periodText = getPeriodText(booking.time);
+                
                 bookingItem.innerHTML = `
+                    <div class="booking-cell">${periodText}</div>
                     <div class="booking-cell">${booking.time}</div>
                     <div class="booking-cell">${booking.name}</div>
                     <div class="booking-cell">${booking.phone}</div>
@@ -221,12 +235,4 @@ async function loadTodayBookings() {
     } catch (error) {
         console.error('載入訂位失敗:', error);
     }
-}
-
-// 轉換時段代碼為文字
-function getPeriodText(period) {
-    const [type, time] = period.split('-');
-    const dayType = type === 'w' ? '平日' : '假日';
-    const timeText = time === 'm' ? '上午' : '下午';
-    return `${dayType}${timeText}`;
 }
