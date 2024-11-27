@@ -312,6 +312,18 @@ button[type="submit"]:hover {
     margin-bottom: 10px;
 }
 
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error {
+    text-align: center;
+    padding: 20px;
+    color: #f44336;
+}
+
 .time-button {
     padding: 8px;
     border: 1px solid #ddd;
