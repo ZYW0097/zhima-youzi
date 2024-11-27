@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadTodayBookings();
 });
 
-setInterval(loadTodayBookings, 60000);
+setInterval(loadTodayBookings, 300000);
 setInterval(checkTokenValidity, 60000); 
 
 document.addEventListener('DOMContentLoaded', checkTokenValidity);
