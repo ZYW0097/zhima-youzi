@@ -1362,6 +1362,11 @@ app.post('/api/logout', async (req, res) => {
     res.json({ success: true });
 });
 
+// 添加 check-auth 路由
+app.get('/api/check-auth', authenticateToken, (req, res) => {
+    res.json({ success: true });
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     console.log(`Connected to database: ${mongoose.connection.name}`);
