@@ -274,6 +274,7 @@ function createTimeSection(title, slots, container) {
                 
                 // 顯示所有表單欄位
                 $('.form-row').addClass('show');
+                $('.pe-note').addClass('show');
                 
                 // 再次檢查是否成功添加 show class
                 console.log('有 show class 的元素數量:', $('.form-row.show').length);
