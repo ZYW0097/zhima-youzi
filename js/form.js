@@ -247,8 +247,8 @@ function createTimeSection(title, slots, container) {
             button.textContent = time;
             
             if (slot.count >= slot.limit) {
-                button.disabled = true;
                 button.classList.add('disabled');
+                button.style.pointerEvents = 'none';
             }
             
             button.addEventListener('click', function() {
