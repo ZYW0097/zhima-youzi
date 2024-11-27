@@ -356,11 +356,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('specialNeeds').value = '無';
                 
             } else {
-                alert(responseData.error || '訂位失敗，請稍後再試。');
+                alert(error.message);
             }
         } catch (error) {
             console.error('Reservation error details:', error);
-            alert('提交失敗，請稍後再試。');
+            alert(error.message);
         }
     });
 });
