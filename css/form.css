@@ -93,60 +93,63 @@ nav a {
 }
 
 #calendar-header {
-    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-top: 20px;
+    gap: 15px;
     margin-bottom: 25px;
+    width: 100%;
 }
 
 #calendar-title {
     font-size: 32px;
-    margin-top: 30px;
     font-weight: bold;
     text-align: center;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-#calendar-title span {
-    display: inline-block;
-    margin-right: 10px;
 }
 
 #calendar-buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 10px;
-    margin: 15px 0;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    align-items: center;
 }
 
-#calendar-buttons .month-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+#prevMonth {
+    grid-column: 1;
+    justify-self: center;
 }
 
-#calendar-buttons button {
-    padding: 8px 16px;
-    font-size: 14px;
-    line-height: 1.2;
-    height: 36px;
+#nextMonth {
+    grid-column: 7;
+    justify-self: center;
+}
+
+/* 左右箭頭按鈕 */
+#prevMonth,
+#nextMonth {
+    width: 40px;
+    height: 40px;
+    background-color: #E8F5E9;
+    color: #4CAF50;
+    border: none;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #66BB6A;
-    color: white;
-    border: none;
-    border-radius: 6px;
     cursor: pointer;
+    font-size: 20px;
 }
 
-#calendar-buttons button:hover {
-    background-color: #4CAF50;
+#currentMonth {
+    width: auto;  /* 讓寬度自適應文字 */
+    padding: 0 20px;
+}
+
+#prevMonth:hover,
+#nextMonth:hover,
+#currentMonth:hover {
+    background-color: #C8E6C9;
 }
 
 #calendar {
@@ -178,18 +181,16 @@ nav a {
 .day {
     aspect-ratio: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: 14px;
+    font-weight: bold;
     border: 1px solid #e0e0e0;
     border-radius: 6px;
     min-height: 40px;
-    padding: 0;
-}
-
-.day.today {
-    border: 2px solid #4CAF50;  /* 綠色邊框 */
-    font-weight: bold;          /* 粗體 */
+    padding: 5px;
+    gap: 2px;
 }
 
 .day span {
@@ -201,8 +202,6 @@ nav a {
 }
 
 .day:hover:not(.disabled) {
-    background-color: #66BB6A; 
-    color: white;
     transform: scale(1.1);
 }
 
@@ -210,6 +209,17 @@ nav a {
     background-color: #66BB6A;
     color: white;
     border-color: #66BB6A;
+}
+
+.day-underline {
+    width: 7px;
+    height: 2px;
+    background-color: #66BB6A;
+    margin-top: 2px;
+}
+
+.day.selected .day-underline {
+    background-color: white;
 }
 
 .day.disabled {
@@ -237,13 +247,17 @@ nav a {
     margin-bottom: 1.5rem;
 }
 
+.field select {
+    color: #333;
+}
+
 .field label {
     width: 100px;
     display: block;
     margin-bottom: 0.8rem;
     font-size: 0.95rem;
     color: #555;
-    font-weight: 500;
+    font-weight: bold;
 }
 
 input[type="text"],
@@ -318,7 +332,7 @@ button[type="submit"]:hover {
 .time-button.disabled {
     background: #f5f5f5;
     color: #333;
-    cursor: not-allowed;
+    cursor: not-allowed;   
     opacity: 0.6;
 }
 
@@ -394,7 +408,7 @@ textarea {
     align-items: center; /
 }
 
-.row, .form-group, .form-row label {
+.row, .form-group, .form-row label {    
     font-weight: bold;
     margin-bottom: 5px;
 }
