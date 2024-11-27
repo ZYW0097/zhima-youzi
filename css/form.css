@@ -305,12 +305,12 @@ button[type="submit"]:hover {
     margin-top: 15px;
 }
 
-.time-slot-group {
+/* .time-slot-group {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 8px;
     margin-bottom: 10px;
-}
+} */
 
 .loading {
     text-align: center;
@@ -324,30 +324,53 @@ button[type="submit"]:hover {
     color: #f44336;
 }
 
-.time-button {
-    padding: 8px 16px;
-    margin: 4px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.time-section {
+    margin-bottom: 20px;
 }
 
-.time-button:hover {
+.time-section h3 {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+    padding-left: 5px;
+}
+
+.time-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    padding: 5px;
+}
+
+.time-button {
+    width: 100%;
+    padding: 8px 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #333;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.time-button:hover:not(.disabled) {
     background: #f5f5f5;
+    border-color: #4CAF50;
 }
 
 .time-button.selected {
     background: #4CAF50;
     color: white;
+    border-color: #4CAF50;
 }
 
 .time-button.disabled {
     background: #f5f5f5;
-    color: #333;
-    cursor: not-allowed;   
-    opacity: 0.6;
+    color: #bdbdbd;
+    border-color: #e0e0e0;
+    cursor: not-allowed;
 }
 
 .form-group {
@@ -696,6 +719,16 @@ footer {
         gap: 30px; 
         justify-content: center;
         margin-bottom: 5px;
+    }
+
+    .time-buttons {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 6px;
+    }
+    
+    .time-button {
+        font-size: 13px;
+        padding: 6px 0;
     }
 }
 
