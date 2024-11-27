@@ -218,8 +218,7 @@ async function loadTodayBookings() {
                 const periodText = getPeriodText(booking.time);
                 
                 bookingItem.innerHTML = `
-                    <div class="booking-cell">${periodText}</div>
-                    <div class="booking-cell">${booking.time}</div>
+                    <div class="booking-cell">${periodText} ${booking.time}</div>
                     <div class="booking-cell">${booking.name}</div>
                     <div class="booking-cell">${booking.phone}</div>
                     <div class="booking-cell">${totalPeople}人</div>
