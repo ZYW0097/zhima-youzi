@@ -419,7 +419,7 @@ app.post('/reservations', async (req, res) => {
             const glwData = await GLW.findOne({ date });
             
             if (!glwData) {
-                // 如果不在資料庫中 - 創建新記錄
+                // 如��不在資料庫中 - 創建新記錄
                 const newGLW = new GLW({
                     date,
                     wm1: 0, wm2: 0, wm3: 0,
@@ -876,7 +876,11 @@ app.post('/line/webhook', async (req, res) => {
 
                     switch (action) {
                         case 'bind_phone':
-                            await sendLineMessage(lineUserId, '請入要綁定的電話號碼：');
+                            userStates[lineUserId] = 'WAITING_FOR_PHONE';
+                            await sendLineMessage(lineUserId, {
+                                type: 'text',
+                                text: '請輸入您的手機號碼（例：0912345678）'
+                            });
                             break;
 
                         case 'confirm_recent_reservation':
@@ -947,7 +951,10 @@ app.post('/line/webhook', async (req, res) => {
                                 }
                             } catch (error) {
                                 console.error('Error in confirm_recent_reservation:', error);
-                                await sendLineMessage(lineUserId, '綁定過程發生錯誤，請稍後再試。');
+                                await sendLineMessage(lineUserId, {
+                                    type: 'text',
+                                    text: '綁定過程發生錯誤，請稍後再試。'
+                                });
                             }
                             break;
 
@@ -966,27 +973,36 @@ app.post('/line/webhook', async (req, res) => {
                                 });
                                 await newUserID.save();
 
-                                await sendLineMessage(lineUserId, '電話號碼綁定成功！未來訂位時輸入此電話號碼將會收到通知。');
+                                await sendLineMessage(lineUserId, {
+                                    type: 'text',
+                                    text: '電話號碼綁定成功！未來訂位時輸入此電話號碼將會收到通知。'
+                                });
                             } catch (error) {
                                 console.error('Error in confirm_general_binding:', error);
-                                await sendLineMessage(lineUserId, '綁定過程發生錯誤，請稍後再試。');
+                                await sendLineMessage(lineUserId, {
+                                    type: 'text',
+                                    text: '綁定過程發生錯誤，請稍後再試。'
+                                });
                             }
                             break;
 
                         case 'cancel_binding':
-                            await sendLineMessage(lineUserId, '已取消綁定。');
+                            delete userStates[lineUserId];
+                            await sendLineMessage(lineUserId, {
+                                type: 'text',
+                                text: '已取消綁定。'
+                            });
                             break;
                     }
                 }
 
                 // 3. 處理電話號碼輸入
                 if (event.type === 'message' && event.message.type === 'text') {
-                    const lineUserId = event.source.userId;
                     const userMessage = event.message.text;
                     
                     // 驗證電話號碼格式
                     if (userStates[lineUserId] === 'WAITING_FOR_PHONE') { 
-                        const phoneRegex = /^09\d{8}$/;  // 添加正則表達式定義
+                        const phoneRegex = /^09\d{8}$/;
                         if (!phoneRegex.test(userMessage)) {
                             await sendLineMessage(lineUserId, {
                                 type: 'text',
@@ -1016,12 +1032,11 @@ app.post('/line/webhook', async (req, res) => {
                         if (recentReservation) {
                             // 發送遮罩後的訂位資訊確認
                             const messageTemplate = JSON.parse(JSON.stringify(confirmReservationTemplate));
-                            
-                            // 更新模板內容
+
                             const maskedName = recentReservation.name.charAt(0) + '*'.repeat(recentReservation.name.length - 1);
                             const maskedPhone = `${userMessage.slice(0, 4)}**${userMessage.slice(-2)}`;
                             
-                            // 確保更新模板中的相應欄位
+                            // 更新模板中的資訊
                             messageTemplate.body.contents = messageTemplate.body.contents.map(content => {
                                 if (content.text?.includes('${maskedName}')) {
                                     content.text = content.text.replace('${maskedName}', maskedName);
@@ -1029,8 +1044,23 @@ app.post('/line/webhook', async (req, res) => {
                                 if (content.text?.includes('${maskedPhone}')) {
                                     content.text = content.text.replace('${maskedPhone}', maskedPhone);
                                 }
+                                if (content.text?.includes('${date}')) {
+                                    content.text = content.text.replace('${date}', 
+                                        moment(recentReservation.date).format('YYYY/MM/DD'));
+                                }
+                                if (content.text?.includes('${time}')) {
+                                    content.text = content.text.replace('${time}', recentReservation.time);
+                                }
+                                if (content.text?.includes('${people}')) {
+                                    content.text = content.text.replace('${people}', 
+                                        `${recentReservation.adults + recentReservation.children}`);
+                                }
                                 return content;
                             });
+
+                            // 更新確認按鈕的 data
+                            messageTemplate.footer.contents[1].action.data = 
+                                `action=confirm_recent_reservation&phone=${userMessage}`;
 
                             await sendLineMessage(lineUserId, {
                                 type: 'flex',
@@ -1040,7 +1070,6 @@ app.post('/line/webhook', async (req, res) => {
                         } else {
                             // 發送一般綁定確認
                             const messageTemplate = JSON.parse(JSON.stringify(confirmBindingTemplate));
-                            
                             // 更新電話號碼
                             messageTemplate.body.contents[1].text = userMessage;
                             // 更新確認按鈕的 data
