@@ -16,16 +16,23 @@ function toggleEdit() {
     const buttons = document.querySelectorAll('.button');
     
     if (isEditing) {
+        // 進入編輯模式
         editButton.textContent = '取消編輯';
         editButton.classList.add('editing');
         inputs.forEach(input => input.disabled = false);
-        buttons.forEach(button => button.disabled = false);
+        document.querySelector('.cancel-button').disabled = false;
+        document.querySelector('.confirm-button').disabled = false;
     } else {
+        // 退出編輯模式
         editButton.textContent = '編輯';
         editButton.classList.remove('editing');
-        inputs.forEach(input => input.disabled = true);
-        buttons.forEach(button => button.disabled = true);
-        resetSettings(); // 取消編輯時重置設置
+        inputs.forEach(input => {
+            input.disabled = true;
+            // 重置為原始值
+            input.value = originalSettings[input.id];
+        });
+        document.querySelector('.cancel-button').disabled = true;
+        document.querySelector('.confirm-button').disabled = true;
     }
 }
 
@@ -49,10 +56,10 @@ async function loadSettings() {
 
 // 重置設置
 function resetSettings() {
-    document.getElementById('wm').value = originalSettings.wm;
-    document.getElementById('wa').value = originalSettings.wa;
-    document.getElementById('hm').value = originalSettings.hm;
-    document.getElementById('ha').value = originalSettings.ha;
+    const inputs = document.querySelectorAll('.settings-input');
+    inputs.forEach(input => {
+        input.value = originalSettings[input.id];
+    });
 }
 
 // 儲存設置
@@ -124,5 +131,107 @@ function logout() {
     });
 }
 
-// 頁面載入時讀取設置
+async function checkTokenValidity() {
+    try {
+        const response = await fetch('/api/check-auth', {
+            method: 'GET',
+            credentials: 'same-origin' 
+        });
+
+        if (!response.ok) {
+            window.location.href = '/bsl';
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error('Auth check failed:', error);
+        window.location.href = '/bsl';
+        return false;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const menuItems = document.querySelectorAll('.menu-item');
+    
+    menuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // 移除所有活動狀態
+            menuItems.forEach(i => i.classList.remove('active'));
+            // 添加當前活動狀態
+            this.classList.add('active');
+            
+            // 隱藏所有頁面
+            document.querySelectorAll('.content-page').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // 顯示選中的頁面
+            const pageId = this.dataset.page;
+            document.getElementById(pageId).style.display = 'block';
+        });
+    });
+});
+
+// 載入今日訂位
+async function loadTodayBookings() {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const response = await fetch(`/api/bookings?date=${today}`);
+        const bookings = await response.json();
+        
+        const bookingsList = document.getElementById('bookings-list');
+        bookingsList.innerHTML = '';
+        
+        if (bookings && bookings.length > 0) {
+            bookings.forEach(booking => {
+                const bookingItem = document.createElement('div');
+                bookingItem.className = 'booking-item';
+                
+                // 計算總人數
+                const totalPeople = booking.adults + booking.children;
+                
+                // 組合備註資訊
+                let notes = [];
+                if (booking.vegetarian !== '否') notes.push(`素食: ${booking.vegetarian}`);
+                if (booking.specialNeeds !== '無') notes.push(booking.specialNeeds);
+                if (booking.notes !== '無') notes.push(booking.notes);
+                const noteText = notes.length > 0 ? notes.join(', ') : '-';
+                
+                bookingItem.innerHTML = `
+                    <div class="booking-cell">${booking.time}</div>
+                    <div class="booking-cell">${booking.name}</div>
+                    <div class="booking-cell">${booking.phone}</div>
+                    <div class="booking-cell">${totalPeople}人</div>
+                    <div class="booking-cell">${noteText}</div>
+                    <div class="booking-cell status-active">已確認</div>
+                `;
+                
+                bookingsList.appendChild(bookingItem);
+            });
+        } else {
+            bookingsList.innerHTML = '<div class="no-bookings">今日無訂位</div>';
+        }
+    } catch (error) {
+        console.error('載入訂位失敗:', error);
+    }
+}
+
+// 轉換時段代碼為文字
+function getPeriodText(period) {
+    const [type, time] = period.split('-');
+    const dayType = type === 'w' ? '平日' : '假日';
+    const timeText = time === 'm' ? '上午' : '下午';
+    return `${dayType}${timeText}`;
+}
+
+// 在頁面載入時讀取今日訂位
+document.addEventListener('DOMContentLoaded', function() {
+    // ... 現有的 DOMContentLoaded 程式碼 ...
+    loadTodayBookings();
+});
+
+setInterval(loadTodayBookings, 60000);
+setInterval(checkTokenValidity, 60000); 
+
+document.addEventListener('DOMContentLoaded', checkTokenValidity);
 document.addEventListener('DOMContentLoaded', loadSettings);
