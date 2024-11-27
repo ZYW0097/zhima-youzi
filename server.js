@@ -68,14 +68,23 @@ const authenticateToken = (req, res, next) => {
                     return next();
                 }
                 logAuth('SESSION_EXPIRED', 'unknown', false, ip);
+                if (req.path.startsWith('/api/')) {
+                    return res.status(401).json({ error: 'Unauthorized' });
+                }
                 res.redirect('/bsl');
             }).catch(() => {
                 logAuth('SESSION_ERROR', 'unknown', false, ip);
+                if (req.path.startsWith('/api/')) {
+                    return res.status(401).json({ error: 'Unauthorized' });
+                }
                 res.redirect('/bsl');
             });
             return;
         }
         logAuth('NO_TOKEN', 'unknown', false, ip);
+        if (req.path.startsWith('/api/')) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
         return res.redirect('/bsl');
     }
 
@@ -88,6 +97,9 @@ const authenticateToken = (req, res, next) => {
                 logAuth('TOKEN_EXPIRED', user?.username || 'unknown', false, ip);
             } else {
                 logAuth('TOKEN_INVALID', 'unknown', false, ip);
+            }
+            if (req.path.startsWith('/api/')) {
+                return res.status(401).json({ error: 'Unauthorized' });
             }
             return res.redirect('/bsl');
         }
@@ -503,7 +515,10 @@ app.post('/reservations', async (req, res) => {
                 }
 
                 // 跳轉到成功頁面
-                return res.redirect(`/${token}/success`);
+                return res.json({ 
+                    success: true,
+                    redirectUrl: `/${token}/success`
+                });        
 
             } else {
                 // 如果在資料庫中 - 檢查限制
@@ -608,7 +623,11 @@ app.post('/reservations', async (req, res) => {
                 }
 
                 // 跳轉到成功頁面
-                return res.redirect(`/${token}/success`);
+                return res.json({ 
+                    success: true,
+                    redirectUrl: `/${token}/success`
+                });
+        
             }
         } else {
             const glhData = await GLH.findOne({ date });
@@ -710,7 +729,11 @@ app.post('/reservations', async (req, res) => {
                 }
 
                 // 跳轉到成功頁面
-                return res.redirect(`/${token}/success`);
+                return res.json({ 
+                    success: true,
+                    redirectUrl: `/${token}/success`
+                });
+        
 
             } else {
                 // 如果在資料庫中 - 檢查限制
@@ -815,7 +838,11 @@ app.post('/reservations', async (req, res) => {
                 }
 
                 // 跳轉到成功頁面
-                return res.redirect(`/${token}/success`);
+                return res.json({ 
+                    success: true,
+                    redirectUrl: `/${token}/success`
+                });
+        
             }
         }
 
@@ -1097,7 +1124,7 @@ app.get('/:token/success', async (req, res) => {
             const reservation = await Reservation.findOne({ reservationToken: token });
             if (!reservation) {
                 console.error('No reservation found for token:', token);
-                return res.redirect('/form?error=invalid_token');
+                return res.redirect('/form');
             }
             reservationData = JSON.stringify(reservation);
         }
