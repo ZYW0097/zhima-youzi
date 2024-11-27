@@ -314,10 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(formData)
             });
   
-            // 添加響應檢查
-            const responseData = await response.json();
-            console.log('Server response:', responseData);
-  
             if (response.ok) {
                 console.log('Reservation successful, waiting for redirect...');
                 
