@@ -419,7 +419,7 @@ app.post('/reservations', async (req, res) => {
             const glwData = await GLW.findOne({ date });
             
             if (!glwData) {
-                // 如��不在資料庫中 - 創建新記錄
+                // 如果不在資料庫中 - 創建新記錄
                 const newGLW = new GLW({
                     date,
                     wm1: 0, wm2: 0, wm3: 0,
@@ -1096,32 +1096,32 @@ app.post('/line/webhook', async (req, res) => {
 });
 
 // 在發送 LINE 訊息前檢查並更新用戶資料
-async function sendLineMessage(to, message) {
+async function sendLineMessage(userId, message) {
     try {
         // 先獲取用戶的 LINE 個人資料
-        const userProfile = await axios.get(`https://api.line.me/v2/bot/profile/${to}`, {
+        const userProfile = await axios.get(`https://api.line.me/v2/bot/profile/${userId}`, {
             headers: {
                 'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
             }
         });
         
         // 查找現有用戶資料
-        const existingUser = await UserID.findOne({ lineUserId: to });
+        const existingUser = await UserID.findOne({ lineUserId: userId });
         
         // 如果名稱有變更才更新
         if (existingUser && existingUser.lineName !== userProfile.data.displayName) {
-            console.log(`Updating LINE name for user ${to} from "${existingUser.lineName}" to "${userProfile.data.displayName}"`);
+            console.log(`Updating LINE name for user ${userId} from "${existingUser.lineName}" to "${userProfile.data.displayName}"`);
             
             await UserID.findOneAndUpdate(
-                { lineUserId: to },
+                { lineUserId: userId },
                 { lineName: userProfile.data.displayName },
                 { new: true }
             );
         }
 
         // 發送訊息
-        await axios.post('https://api.line.me/v2/bot/message/push', {
-            to: to,
+        const response = await axios.post('https://api.line.me/v2/bot/message/push', {
+            to: userId,
             messages: Array.isArray(message) ? message : [
                 typeof message === 'string' ? { type: 'text', text: message } : message
             ]
@@ -1131,8 +1131,9 @@ async function sendLineMessage(to, message) {
                 'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
             }
         });
+        return response.data;
     } catch (error) {
-        console.error('Error in sendLineMessage:', error.response?.data || error);
+        console.error('LINE API Error:', error.response?.data || error);
         throw error;
     }
 }
