@@ -154,29 +154,71 @@ setInterval(checkTokenValidity, 60000);
 
 document.addEventListener('DOMContentLoaded', function() {
     const menuItems = document.querySelectorAll('.menu-item');
-    
+    const content = document.querySelector('.content');
+    const sidebar = document.querySelector('.sidebar');
+    const backButton = document.querySelector('.back-button');
+    const pageTitle = document.querySelector('.page-title');
+
+    function showPage(pageId) {
+        // 隱藏所有頁面
+        document.querySelectorAll('.content-page').forEach(page => {
+            page.style.display = 'none';
+        });
+        // 顯示選中的頁面
+        const selectedPage = document.getElementById(pageId);
+        if (selectedPage) {
+            selectedPage.style.display = 'block';
+        }
+    }
+
     menuItems.forEach(item => {
         item.addEventListener('click', function() {
-            // 移除所有活動狀態
+            const pageId = this.dataset.page;
+            
+            // 更新選中狀態
             menuItems.forEach(i => i.classList.remove('active'));
-            // 添加當前活動狀態
             this.classList.add('active');
             
-            // 隱藏所有頁面
-            document.querySelectorAll('.content-page').forEach(page => {
-                page.style.display = 'none';
-            });
+            // 更新頁面標題
+            pageTitle.textContent = this.textContent;
             
             // 顯示選中的頁面
-            const pageId = this.dataset.page;
-            document.getElementById(pageId).style.display = 'block';
+            showPage(pageId);
+
+            // 在移動端切換顯示
+            if (window.innerWidth <= 768) {
+                sidebar.style.display = 'none';
+                content.style.display = 'block';
+                content.classList.add('show');
+            }
         });
     });
 
-    // 載入設置和今日訂位
-    loadSettings();
-    loadTodayBookings();
-    checkTokenValidity();
+    // 返回按鈕處理
+    backButton.addEventListener('click', function() {
+        content.classList.remove('show');
+        sidebar.style.display = 'block';
+        content.style.display = 'none';
+    });
+
+    // 處理視窗大小變化
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            sidebar.style.display = 'block';
+            content.style.display = 'block';
+            content.classList.remove('show');
+        } else {
+            if (content.classList.contains('show')) {
+                sidebar.style.display = 'none';
+            } else {
+                sidebar.style.display = 'block';
+                content.style.display = 'none';
+            }
+        }
+    });
+
+    // 初始化顯示
+    showPage('reservations');
 });
 
 function getPeriodText(time) {
@@ -205,7 +247,6 @@ async function loadTodayBookings() {
                 const bookingItem = document.createElement('div');
                 bookingItem.className = 'booking-item';
                 
-                // 計算總人數
                 const totalPeople = booking.adults + booking.children;
                 
                 // 組合備註資訊
