@@ -150,6 +150,8 @@ async function checkTokenValidity() {
     }
 }
 
+setInterval(checkTokenValidity, 60000); 
+
 document.addEventListener('DOMContentLoaded', function() {
     const menuItems = document.querySelectorAll('.menu-item');
     
@@ -170,6 +172,11 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById(pageId).style.display = 'block';
         });
     });
+
+    // 載入設置和今日訂位
+    loadSettings();
+    loadTodayBookings();
+    checkTokenValidity();
 });
 
 // 載入今日訂位
@@ -223,15 +230,3 @@ function getPeriodText(period) {
     const timeText = time === 'm' ? '上午' : '下午';
     return `${dayType}${timeText}`;
 }
-
-// 在頁面載入時讀取今日訂位
-document.addEventListener('DOMContentLoaded', function() {
-    // ... 現有的 DOMContentLoaded 程式碼 ...
-    loadTodayBookings();
-});
-
-setInterval(loadTodayBookings, 300000);
-setInterval(checkTokenValidity, 60000); 
-
-document.addEventListener('DOMContentLoaded', checkTokenValidity);
-document.addEventListener('DOMContentLoaded', loadSettings);
