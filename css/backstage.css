@@ -327,3 +327,86 @@ body {
     background-color: #66BB6A;
     transform: translateY(-2px);
 }
+
+.container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f7fa;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: white;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #f5f7fa;
+}
+
+.mobile-header {
+    display: none;
+    padding: 15px;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.back-button {
+    display: none;
+    padding: 8px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 18px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        display: block;
+    }
+
+    .content {
+        display: none;
+        padding: 0;
+    }
+
+    .content.show {
+        display: block;
+    }
+
+    .mobile-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .back-button {
+        display: block;
+    }
+
+    /* 調整表格在移動端的顯示 */
+    .reservations-header,
+    .booking-item {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .booking-cell {
+        padding: 5px;
+        font-size: 14px;
+    }
+}
