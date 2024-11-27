@@ -981,56 +981,80 @@ app.post('/line/webhook', async (req, res) => {
 
                 // 3. 處理電話號碼輸入
                 if (event.type === 'message' && event.message.type === 'text') {
-                    const phone = event.message.text;
+                    const lineUserId = event.source.userId;
+                    const userMessage = event.message.text;
                     
                     // 驗證電話號碼格式
                     if (userStates[lineUserId] === 'WAITING_FOR_PHONE') { 
+                        const phoneRegex = /^09\d{8}$/;  // 添加正則表達式定義
                         if (!phoneRegex.test(userMessage)) {
-                            await sendLineMessage(lineUserId, '請輸入有效的手機號碼（例：0912345678）');
+                            await sendLineMessage(lineUserId, {
+                                type: 'text',
+                                text: '請輸入有效的手機號碼（例：0912345678）'
+                            });
                             return;
                         }
-                    }
 
-                    // 檢查是否已經綁定
-                    const existingBinding = await UserID.findOne({ phone });
-                    if (existingBinding) {
-                        await sendLineMessage(lineUserId, '此電話號碼已經被綁定。');
-                        return;
-                    }
-
-                    // 查詢2分鐘內的新訂位
-                    const recentReservation = await Reservation.findOne({
-                        phone,
-                        createdAt: { 
-                            $gte: new Date(Date.now() - 120000)
+                        // 檢查是否已經綁定
+                        const existingBinding = await UserID.findOne({ phone: userMessage });
+                        if (existingBinding) {
+                            await sendLineMessage(lineUserId, {
+                                type: 'text',
+                                text: '此電話號碼已經被綁定。'
+                            });
+                            return;
                         }
-                    }).sort({ createdAt: -1 });
 
-                    if (recentReservation) {
-                        // 發送遮罩後的訂位資訊確認
-                        const messageTemplate = JSON.parse(JSON.stringify(confirmReservationTemplate));
+                        // 查詢2分鐘內的新訂位
+                        const recentReservation = await Reservation.findOne({
+                            phone: userMessage,
+                            createdAt: { 
+                                $gte: new Date(Date.now() - 120000)
+                            }
+                        }).sort({ createdAt: -1 });
 
-                        const maskedName = recentReservation.name.charAt(0) + '*'.repeat(recentReservation.name.length - 1);
-                        const maskedPhone = `${phone.slice(0, 4)}**${phone.slice(-2)}`;
+                        if (recentReservation) {
+                            // 發送遮罩後的訂位資訊確認
+                            const messageTemplate = JSON.parse(JSON.stringify(confirmReservationTemplate));
+                            
+                            // 更新模板內容
+                            const maskedName = recentReservation.name.charAt(0) + '*'.repeat(recentReservation.name.length - 1);
+                            const maskedPhone = `${userMessage.slice(0, 4)}**${userMessage.slice(-2)}`;
+                            
+                            // 確保更新模板中的相應欄位
+                            messageTemplate.body.contents = messageTemplate.body.contents.map(content => {
+                                if (content.text?.includes('${maskedName}')) {
+                                    content.text = content.text.replace('${maskedName}', maskedName);
+                                }
+                                if (content.text?.includes('${maskedPhone}')) {
+                                    content.text = content.text.replace('${maskedPhone}', maskedPhone);
+                                }
+                                return content;
+                            });
+
+                            await sendLineMessage(lineUserId, {
+                                type: 'flex',
+                                altText: '確認訂位資訊',
+                                contents: messageTemplate
+                            });
+                        } else {
+                            // 發送一般綁定確認
+                            const messageTemplate = JSON.parse(JSON.stringify(confirmBindingTemplate));
+                            
+                            // 更新電話號碼
+                            messageTemplate.body.contents[1].text = userMessage;
+                            // 更新確認按鈕的 data
+                            messageTemplate.footer.contents[1].action.data = `action=confirm_general_binding&phone=${userMessage}`;
+
+                            await sendLineMessage(lineUserId, {
+                                type: 'flex',
+                                altText: '確認綁定電話',
+                                contents: messageTemplate
+                            });
+                        }
                         
-                        await sendLineMessage(lineUserId, {
-                            type: 'flex',
-                            altText: '確認訂位資訊',
-                            contents: messageTemplate
-                        });
-                    } else {
-                        // 發送一般綁定確認
-                        const messageTemplate = JSON.parse(JSON.stringify(confirmBindingTemplate));
-                        // 更新電話號碼
-                        messageTemplate.body.contents[1].text = phone;
-                        // 更新確認按鈕的 data
-                        messageTemplate.footer.contents[1].action.data = `action=confirm_general_binding&phone=${phone}`;
-
-                        await sendLineMessage(lineUserId, {
-                            type: 'flex',
-                            altText: '確認綁定電話',
-                            contents: messageTemplate
-                        });
+                        // 清除用戶狀態
+                        delete userStates[lineUserId];
                     }
                 }
             }
