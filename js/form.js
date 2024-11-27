@@ -289,17 +289,17 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
   
         const formData = {
-            name: document.getElementById('name').value,
-            phone: document.getElementById('phone').value,
-            email: document.getElementById('email').value,
-            gender: document.querySelector('input[name="gender"]:checked').value,
-            date: document.getElementById('date').value,
-            time: document.querySelector('.time-button.selected').dataset.time,
-            adults: document.getElementById('adults').value,
-            children: document.getElementById('children').value,
-            vegetarian: document.getElementById('vegetarian').value,
-            specialNeeds: document.getElementById('specialNeeds').value,
-            notes: document.getElementById('notes').value
+            name: form.name.value,
+            phone: form.phone.value,
+            email: form.email.value,
+            gender: form.gender.value,
+            date: form.date.value,
+            time: form.time.value,
+            adults: form.adults.value,
+            children: form.children.value,
+            vegetarian: form.vegetarian.value,
+            specialNeeds: form.specialNeeds.value,
+            notes: form.notes.value,
         };
   
         // 添加表單數據檢查
@@ -311,13 +311,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(formData),
+                redirect: 'follow' 
             });
   
-            if (data.success && data.redirectUrl) {
+            if (response.redirected) {
                 console.log('Reservation successful, waiting for redirect...');
                 
-                window.location.href = data.redirectUrl;
+                window.location.href = response.url;
                 
                 form.reset();
                 
@@ -356,6 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('children').value = '0';
                 document.getElementById('vegetarian').value = '否';
                 document.getElementById('specialNeeds').value = '無';
+
+                return;
 
             } else {
                 throw new Error(data.message || '預訂失敗，請稍後再試');
