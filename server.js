@@ -1119,12 +1119,30 @@ async function sendLineMessage(userId, message) {
             );
         }
 
+        // 處理 Flex Message
+        let messages;
+        if (typeof message === 'string') {
+            messages = [{ type: 'text', text: message }];
+        } else if (Array.isArray(message)) {
+            messages = message;
+        } else if (message.type === 'flex') {
+            // 移除 color 屬性
+            if (message.contents?.footer?.contents) {
+                message.contents.footer.contents.forEach(content => {
+                    if (content.action?.color) {
+                        delete content.action.color;
+                    }
+                });
+            }
+            messages = [message];
+        } else {
+            messages = [message];
+        }
+
         // 發送訊息
         const response = await axios.post('https://api.line.me/v2/bot/message/push', {
             to: userId,
-            messages: Array.isArray(message) ? message : [
-                typeof message === 'string' ? { type: 'text', text: message } : message
-            ]
+            messages: messages
         }, {
             headers: {
                 'Content-Type': 'application/json',
