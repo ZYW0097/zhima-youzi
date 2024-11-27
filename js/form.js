@@ -62,6 +62,7 @@ let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 
 function generateCalendar(month = currentMonth, year = currentYear) {
+    $('.form-row').addClass('show');
     const calendarTitle = document.getElementById('calendar-title');
     const daysContainer = document.getElementById('days-container');
     const firstDay = new Date(year, month, 1);
