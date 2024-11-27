@@ -2,14 +2,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
+    <link href="/web2/images/logo.ico" rel="shortcut icon" type="image/x-icon"/>
     <title>芝麻柚子 とんかつ | 訂位</title>
-    <link rel="stylesheet" href="css/form.css">
+    <link rel="stylesheet" href="/web2/css/form.css">
 </head>
 <body>
     <header>
         <a href="index.html" class="home-icon">
-            <img src="images/header-icon.png" alt="網站首頁" style="width:150px; height: auto;">
+            <img src="/web2/images/header-icon.png" alt="網站首頁" style="width:150px; height: auto;">
         </a>
         <nav id="menu">
             <input type="checkbox" id="menu-toggle">
@@ -40,12 +40,11 @@
             <div class="field date-field">
                 <div id="calendar-container">
                     <div id="calendar-header">
+                        <div id="calendar-title"></div>
                         <div id="calendar-buttons">
-                            <button type="button" id="prevMonth">上個月</button>
-                            <button type="button" id="currentMonth">回到這個月</button>
-                            <button type="button" id="nextMonth">下個月</button>
+                            <button type="button" id="prevMonth">&lt;</button>
+                            <button type="button" id="nextMonth">&gt;</button>
                         </div>
-                        <span id="calendar-title"></span>
                     </div>
                     <div id="calendar">
                         <div class="weekdays">
@@ -126,6 +125,8 @@
                     <select id="specialNeeds" name="specialNeeds">
                         <option value="無">無</option>
                         <option value="有行動不便者">有行動不便者</option>
+                        <option value="有嬰兒車">有嬰兒車</option>
+                        <option value="攜帶寵物">攜帶寵物</option>
                     </select>
                 </div>
             </div>
@@ -147,6 +148,6 @@
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="js/form.js"></script>
+    <script src="/web2/js/form.js"></script>
 </body>
 </html>
