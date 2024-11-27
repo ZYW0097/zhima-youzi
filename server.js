@@ -515,10 +515,7 @@ app.post('/reservations', async (req, res) => {
                 }
 
                 // 跳轉到成功頁面
-                return res.json({ 
-                    success: true,
-                    redirectUrl: `/${token}/success`
-                });        
+                return res.redirect(`/${token}/success`);
 
             } else {
                 // 如果在資料庫中 - 檢查限制
@@ -623,11 +620,7 @@ app.post('/reservations', async (req, res) => {
                 }
 
                 // 跳轉到成功頁面
-                return res.json({ 
-                    success: true,
-                    redirectUrl: `/${token}/success`
-                });
-        
+                return res.redirect(`/${token}/success`);
             }
         } else {
             const glhData = await GLH.findOne({ date });
@@ -729,11 +722,7 @@ app.post('/reservations', async (req, res) => {
                 }
 
                 // 跳轉到成功頁面
-                return res.json({ 
-                    success: true,
-                    redirectUrl: `/${token}/success`
-                });
-        
+                return res.redirect(`/${token}/success`);
 
             } else {
                 // 如果在資料庫中 - 檢查限制
@@ -838,11 +827,7 @@ app.post('/reservations', async (req, res) => {
                 }
 
                 // 跳轉到成功頁面
-                return res.json({ 
-                    success: true,
-                    redirectUrl: `/${token}/success`
-                });
-        
+                return res.redirect(`/${token}/success`);
             }
         }
 
