@@ -175,119 +175,110 @@ async function updateTimeButtons() {
     const dayOfWeek = selectedDate.getDay();
     const dateString = selectedDate.toISOString().split('T')[0];
     
-    console.log('Selected date:', dateString);
-    console.log('Day of week:', dayOfWeek);
-    
-    // 清空現有的時間按鈕
-    $('#time-picker-container').empty();
+    // 預先清空並顯示載入中的提示
+    const timeContainer = $('#time-picker-container');
+    timeContainer.html('<div class="loading">載入時段中...</div>').show();
     
     try {
-        // 獲取該日期的預訂狀態和限制
+        // 預先定義時段模板
+        const weekdaySlots = {
+            morning: [
+                { time: '11:00', id: 'wm1' },
+                { time: '11:30', id: 'wm1' },
+                { time: '12:00', id: 'wm2' },
+                { time: '12:30', id: 'wm2' },
+                { time: '13:00', id: 'wm3' },
+                { time: '13:30', id: 'wm3' }
+            ],
+            afternoon: [
+                { time: '17:00', id: 'wa1' },
+                { time: '17:30', id: 'wa1' },
+                { time: '18:00', id: 'wa2' },
+                { time: '18:30', id: 'wa2' },
+                { time: '19:00', id: 'wa3' },
+                { time: '19:30', id: 'wa3' },
+                { time: '20:00', id: 'wa3' }
+            ]
+        };
+
+        const holidaySlots = {
+            morning: [
+                { time: '11:00', id: 'hm1' },
+                { time: '11:30', id: 'hm1' },
+                { time: '12:00', id: 'hm2' },
+                { time: '12:30', id: 'hm2' },
+                { time: '13:00', id: 'hm3' },
+                { time: '13:30', id: 'hm3' },
+                { time: '14:00', id: 'hm4' },
+                { time: '14:30', id: 'hm4' }
+            ],
+            afternoon: [
+                { time: '17:00', id: 'ha1' },
+                { time: '17:30', id: 'ha1' },
+                { time: '18:00', id: 'ha2' },
+                { time: '18:30', id: 'ha2' },
+                { time: '19:00', id: 'ha3' },
+                { time: '19:30', id: 'ha3' },
+                { time: '20:00', id: 'ha3' }
+            ]
+        };
+
+        // 獲取預訂狀態
         const response = await fetch(`/api/time-slots?date=${dateString}`);
         const data = await response.json();
-        
-        // 顯示時段容器
-        $('#time-picker-container').show();
-        
-        const timeContainer = document.createElement('div');
-        timeContainer.className = 'time-slots';
-        console.log('API response:', data);
-        
-        if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-            // 平日時段
-            createTimeSection('上午', [
-                { id: 'wm1', times: ['11:00', '11:30'], count: data.wm1, limit: data.settings.wm },
-                { id: 'wm2', times: ['12:00', '12:30'], count: data.wm2, limit: data.settings.wm },
-                { id: 'wm3', times: ['13:00', '13:30'], count: data.wm3, limit: data.settings.wm }
-            ], timeContainer);
+
+        // 準備 HTML 字符串
+        let html = '';
+        const slots = (dayOfWeek >= 1 && dayOfWeek <= 5) ? weekdaySlots : holidaySlots;
+        const limits = data.settings;
+
+        // 生成上午時段
+        html += '<div class="time-section">';
+        html += '<h3>上午</h3>';
+        html += '<div class="time-buttons">';
+        slots.morning.forEach(slot => {
+            const count = data[slot.id] || 0;
+            const limit = limits[slot.id.substring(0, 2)] || 0;
+            const disabled = count >= limit ? 'disabled' : '';
+            html += `<button type="button" class="time-button ${disabled}" 
+                     data-slot-id="${slot.id}" data-time="${slot.time}" 
+                     ${disabled ? 'disabled' : ''}>${slot.time}</button>`;
+        });
+        html += '</div></div>';
+
+        // 生成下午時段
+        html += '<div class="time-section">';
+        html += '<h3>下午</h3>';
+        html += '<div class="time-buttons">';
+        slots.afternoon.forEach(slot => {
+            const count = data[slot.id] || 0;
+            const limit = limits[slot.id.substring(0, 2)] || 0;
+            const disabled = count >= limit ? 'disabled' : '';
+            html += `<button type="button" class="time-button ${disabled}" 
+                     data-slot-id="${slot.id}" data-time="${slot.time}" 
+                     ${disabled ? 'disabled' : ''}>${slot.time}</button>`;
+        });
+        html += '</div></div>';
+
+        // 一次性更新 DOM
+        timeContainer.html(html);
+
+        // 綁定事件監聽器
+        timeContainer.find('.time-button').not('.disabled').on('click', function() {
+            timeContainer.find('.time-button').removeClass('selected');
+            $(this).addClass('selected');
             
-            createTimeSection('下午', [
-                { id: 'wa1', times: ['17:00', '17:30'], count: data.wa1, limit: data.settings.wa },
-                { id: 'wa2', times: ['18:00', '18:30'], count: data.wa2, limit: data.settings.wa },
-                { id: 'wa3', times: ['19:00', '19:30', '20:00'], count: data.wa3, limit: data.settings.wa }
-            ], timeContainer);
-        } else {
-            // 假日時段
-            createTimeSection('上午', [
-                { id: 'hm1', times: ['11:00', '11:30'], count: data.hm1, limit: data.settings.hm },
-                { id: 'hm2', times: ['12:00', '12:30'], count: data.hm2, limit: data.settings.hm },
-                { id: 'hm3', times: ['13:00', '13:30'], count: data.hm3, limit: data.settings.hm },
-                { id: 'hm4', times: ['14:00', '14:30'], count: data.hm4, limit: data.settings.hm }
-            ], timeContainer);
+            const selectedTime = $(this).data('time');
+            $('#time').val(selectedTime);
+            $('#preview-time').text(selectedTime);
             
-            createTimeSection('下午', [
-                { id: 'ha1', times: ['17:00', '17:30'], count: data.ha1, limit: data.settings.ha },
-                { id: 'ha2', times: ['18:00', '18:30'], count: data.ha2, limit: data.settings.ha },
-                { id: 'ha3', times: ['19:00', '19:30', '20:00'], count: data.ha3, limit: data.settings.ha }
-            ], timeContainer);
-        }
-        
-        $('#time-picker-container').append(timeContainer);
+            $('.form-row, .pe-note').addClass('show');
+        });
+
     } catch (error) {
         console.error('Error fetching time slots:', error);
+        timeContainer.html('<div class="error">載入時段失敗，請重試</div>');
     }
-}
-
-function createTimeSection(title, slots, container) {
-    const section = document.createElement('div');
-    section.className = 'time-section';
-    
-    const titleElement = document.createElement('h3');
-    titleElement.textContent = title;
-    section.appendChild(titleElement);
-    
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.className = 'time-buttons';
-    
-    slots.forEach(slot => {
-        // 創建一個時段的容器
-        const slotContainer = document.createElement('div');
-        slotContainer.className = 'time-slot-group';
-        
-        // 為每個時間創建獨立的按鈕，但保持它們的分組關係
-        slot.times.forEach(time => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'time-button';
-            button.dataset.slotId = slot.id;
-            button.dataset.time = time;
-            button.textContent = time;
-            
-            if (slot.count >= slot.limit) {
-                button.classList.add('disabled');
-                button.style.pointerEvents = 'none';
-            }
-            
-            button.addEventListener('click', function() {
-                document.querySelectorAll('.time-button').forEach(btn => 
-                    btn.classList.remove('selected')
-                );
-                this.classList.add('selected');
-                
-                const selectedTime = this.dataset.time;
-                document.getElementById('time').value = selectedTime;
-                document.getElementById('preview-time').textContent = selectedTime;
-                
-                // 測試代碼：檢查 jQuery 選擇器
-                console.log('找到的 form-row 元素數量:', $('.form-row').length);
-                console.log('form-row 元素:', $('.form-row'));
-                
-                // 顯示所有表單欄位
-                $('.form-row').addClass('show');
-                $('.pe-note').addClass('show');
-                
-                // 再次檢查是否成功添加 show class
-                console.log('有 show class 的元素數量:', $('.form-row.show').length);
-            });
-            
-            slotContainer.appendChild(button);
-        });
-        
-        buttonsContainer.appendChild(slotContainer);
-    });
-    
-    section.appendChild(buttonsContainer);
-    container.appendChild(section);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
