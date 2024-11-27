@@ -388,6 +388,17 @@ app.post('/api/settings', async (req, res) => {
     }
 });
 
+app.get('/api/bookings', async (req, res) => {
+    try {
+        const date = req.query.date;
+        const bookings = await Reservation.find({ date: date })
+                                        .sort({ time: 1 }); 
+        res.json(bookings);
+    } catch (error) {
+        res.status(500).json({ error: '載入訂位失敗' });
+    }
+});
+
 app.post('/reservations', async (req, res) => {
     try {
         console.log('Received reservation request:', req.body);
