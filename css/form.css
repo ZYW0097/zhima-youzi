@@ -421,6 +421,22 @@ textarea {
     margin-bottom: 5px;  /* 與下方選單的間距 */
 }
 
+.pe-note {
+    visibility: hidden;
+    position: absolute;
+    top: -9999px;  
+    left: -9999px;
+}
+
+.pe-note.show {
+    visibility: visible; 
+    position: relative;  
+    display: block;
+    color: #666666;  /* 灰色 */
+    font-size: 14px;  /* 較小的字體 */
+    margin-bottom: 5px;  /* 與下方選單的間距 */
+}
+
 footer {
     background-color: #f5f5f5;
     font-size: 12px;
