@@ -355,11 +355,6 @@ button[type="submit"]:hover {
     transition: all 0.2s ease;
 }
 
-.time-button:hover:not(.disabled) {
-    background: #f5f5f5;
-    border-color: #4CAF50;
-}
-
 .time-button.selected {
     background: #4CAF50;
     color: white;
