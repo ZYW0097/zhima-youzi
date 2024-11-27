@@ -289,17 +289,17 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
   
         const formData = {
-            name: form.name.value,
-            phone: form.phone.value,
-            email: form.email.value,
-            gender: form.gender.value,
-            date: form.date.value,
-            time: form.time.value,
-            adults: form.adults.value,
-            children: form.children.value,
-            vegetarian: form.vegetarian.value,
-            specialNeeds: form.specialNeeds.value,
-            notes: form.notes.value,
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            gender: document.querySelector('input[name="gender"]:checked').value,
+            date: document.getElementById('date').value,
+            time: document.querySelector('.time-button.selected').dataset.time,
+            adults: document.getElementById('adults').value,
+            children: document.getElementById('children').value,
+            vegetarian: document.getElementById('vegetarian').value,
+            specialNeeds: document.getElementById('specialNeeds').value,
+            notes: document.getElementById('notes').value
         };
   
         // 添加表單數據檢查
