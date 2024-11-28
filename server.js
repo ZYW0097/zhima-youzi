@@ -1378,6 +1378,33 @@ app.get('/api/vip/phones', async (req, res) => {
     }
 });
 
+// 獲取分頁常客列表
+app.get('/api/vip/list', async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const vips = await VIP.find()
+            .sort({ createdAt: -1 })  // 按加入時間降序排序
+            .skip(skip)
+            .limit(limit);
+
+        const total = await VIP.countDocuments();
+        const hasNextPage = skip + vips.length < total;
+
+        res.json({
+            vips,
+            hasNextPage,
+            currentPage: page,
+            totalPages: Math.ceil(total / limit)
+        });
+    } catch (error) {
+        console.error('Error fetching VIP list:', error);
+        res.status(500).json({ message: '獲取常客列表失敗' });
+    }
+});
+
 app.post('/api/vip/add', async (req, res) => {
     try {
         const { name, phone } = req.body;
