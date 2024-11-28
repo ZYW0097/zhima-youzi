@@ -1,0 +1,109 @@
+{
+    "type": "bubble",
+    "header": {
+      "type": "box",
+      "layout": "vertical",
+      "contents": [
+        {
+          "type": "text",
+          "text": "訂位取消通知",
+          "color": "#ffffff",
+          "weight": "bold",
+          "size": "lg",
+          "align": "center"
+        }
+      ],
+      "backgroundColor": "#FF6B6B",
+      "paddingAll": "20px"
+    },
+    "body": {
+      "type": "box",
+      "layout": "vertical",
+      "contents": [
+        {
+          "type": "text",
+          "text": "${name}，您好！",
+          "weight": "bold",
+          "size": "md",
+          "wrap": true,
+          "color": "#2E4A62",
+          "margin": "md"
+        },
+        {
+          "type": "box",
+          "layout": "vertical",
+          "margin": "lg",
+          "spacing": "sm",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "已取消的訂位資訊：",
+                  "size": "sm",
+                  "color": "#555555",
+                  "flex": 1
+                }
+              ]
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "日期",
+                  "size": "sm",
+                  "color": "#555555",
+                  "flex": 3
+                },
+                {
+                  "type": "text",
+                  "text": "${date}",
+                  "size": "sm",
+                  "color": "#111111",
+                  "flex": 7
+                }
+              ]
+            },
+            {
+              "type": "box",
+              "layout": "horizontal",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "時間",
+                  "size": "sm",
+                  "color": "#555555",
+                  "flex": 3
+                },
+                {
+                  "type": "text",
+                  "text": "${time}",
+                  "size": "sm",
+                  "color": "#111111",
+                  "flex": 7
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "paddingAll": "20px"
+    },
+    "footer": {
+      "type": "box",
+      "layout": "vertical",
+      "contents": [
+        {
+          "type": "text",
+          "text": "如有任何問題，請隨時與我們聯繫",
+          "align": "center",
+          "color": "#666666"
+        }
+      ],
+      "paddingAll": "20px"
+    }
+  }
