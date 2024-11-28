@@ -26,8 +26,11 @@
             </div>
             <div class="content-page" id="reservations">
                 <div class="header-actions">
-                    <h2>今日訂位</h2>
-                    <button class="refresh-button" onclick="loadTodayBookings()">
+                    <div class="header-left">
+                        <h2>今日訂位</h2>
+                        <input type="date" id="booking-date">
+                    </div>
+                    <button class="refresh-button" onclick="loadBookings()">
                         <i class="fas fa-sync-alt"></i> 重新整理
                     </button>
                 </div>
