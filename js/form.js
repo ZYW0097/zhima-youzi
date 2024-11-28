@@ -1,4 +1,43 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
+    const reservationForm = document.getElementById('reservationForm');
+    const cancelContainer = document.getElementById('cancel-container');
+    const reservationSummary = document.getElementById('reservation-summary');
+
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            toggleBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            if (this.dataset.form === 'reservation') {
+                reservationForm.style.display = 'block';
+                cancelContainer.style.display = 'none';
+                reservationSummary.style.display = 'block';
+            } else {
+                reservationForm.style.display = 'none';
+                cancelContainer.style.display = 'block';
+                reservationSummary.style.display = 'none';
+            }
+        });
+    });
+
+    // 處理取消訂位表單的選項切換
+    const cancelMethodRadios = document.querySelectorAll('input[name="cancelMethod"]');
+    const codeInput = document.getElementById('codeInput');
+    const infoInput = document.getElementById('infoInput');
+
+    cancelMethodRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'code') {
+                codeInput.style.display = 'block';
+                infoInput.style.display = 'none';
+            } else {
+                codeInput.style.display = 'none';
+                infoInput.style.display = 'block';
+            }
+        });
+    });
+
     if (typeof jQuery === 'undefined') {
         console.error('jQuery is not loaded!');
         return;
