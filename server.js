@@ -1373,7 +1373,41 @@ app.get('/api/vip/phones', async (req, res) => {
         const phones = vips.map(vip => vip.phone);
         res.json(phones);
     } catch (error) {
+        console.error('Error fetching VIP phones:', error);
         res.status(500).json({ message: '獲取常客列表失敗' });
+    }
+});
+
+app.post('/api/vip/add', async (req, res) => {
+    try {
+        const { name, phone } = req.body;
+        
+        // 檢查是否已經是常客
+        const existingVIP = await VIP.findOne({ phone });
+        if (existingVIP) {
+            // 檢查新名字是否與現有名字不同
+            if (!existingVIP.name.includes(name)) {
+                // 更新名字，將新名字加入到現有名字後面
+                const updatedName = `${existingVIP.name},${name}`;
+                await VIP.findByIdAndUpdate(existingVIP._id, { name: updatedName });
+                return res.json({ message: '已更新常客名稱' });
+            }
+            return res.status(400).json({ message: '該客人已經在常客名單中' });
+        }
+
+        // 檢查是否有訂位紀錄
+        const hasBooking = await Reservation.findOne({ phone });
+        if (!hasBooking) {
+            return res.status(400).json({ message: '查無此客人的訂位紀錄' });
+        }
+
+        // 新增常客
+        const vip = new VIP({ name, phone });
+        await vip.save();
+        res.json({ message: '成功加入常客名單' });
+    } catch (error) {
+        console.error('Error adding/updating VIP:', error);
+        res.status(500).json({ message: '新增/更新常客失敗' });
     }
 });
 
