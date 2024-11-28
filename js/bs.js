@@ -387,32 +387,37 @@ const itemsPerPage = 10;
 
 async function loadVIPList(page = 1) {
     try {
-        const response = await fetch(`/api/vip/list?page=${page}&limit=${itemsPerPage}`);
+        const response = await fetch(`/api/vip/list?page=${page}&limit=10`);
         const data = await response.json();
         
         const vipList = document.getElementById('vip-list');
         vipList.innerHTML = '';
         
-        data.vips.forEach((vip, index) => {
-            const vipItem = document.createElement('div');
-            vipItem.className = 'vip-item';
-            vipItem.innerHTML = `
-                <div class="vip-info">
-                    <span>${((page - 1) * itemsPerPage) + index + 1}.</span>
-                    <span>${vip.name}</span>
-                    <span>${vip.phone}</span>
-                </div>
-                <span>${new Date(vip.createdAt).toLocaleDateString('zh-TW')}</span>
-            `;
-            vipList.appendChild(vipItem);
-        });
+        if (data.vips && data.vips.length > 0) {
+            data.vips.forEach((vip, index) => {
+                const vipItem = document.createElement('div');
+                vipItem.className = 'vip-item';
+                vipItem.innerHTML = `
+                    <div class="vip-info">
+                        <span>${((page - 1) * 10) + index + 1}.</span>
+                        <span>${vip.name}</span>
+                        <span>${vip.phone}</span>
+                    </div>
+                    <span>${new Date(vip.createdAt).toLocaleDateString('zh-TW')}</span>
+                `;
+                vipList.appendChild(vipItem);
+            });
 
-        // 更新分頁按鈕狀態
-        document.getElementById('prev-page').disabled = page === 1;
-        document.getElementById('next-page').disabled = !data.hasNextPage;
-        document.getElementById('page-info').textContent = `第 ${page} 頁`;
-        currentPage = page;
+            // 更新分頁按鈕狀態
+            document.getElementById('prev-page').disabled = page <= 1;
+            document.getElementById('next-page').disabled = !data.hasNextPage;
+            document.getElementById('page-info').textContent = `第 ${page} 頁`;
+            currentPage = page;
+        } else {
+            vipList.innerHTML = '<div class="no-vip">目前沒有常客資料</div>';
+        }
     } catch (error) {
         console.error('載入常客列表失敗:', error);
+        document.getElementById('vip-list').innerHTML = '<div class="error">載入失敗，請稍後再試</div>';
     }
 }
