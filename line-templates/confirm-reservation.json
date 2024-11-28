@@ -126,6 +126,28 @@
                             }
                         ],
                         "margin": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "訂位代碼",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 2
+                            },
+                            {
+                                "type": "text",
+                                "text": "${bookingCode}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 5,
+                                "weight": "bold"
+                            }
+                        ],
+                        "margin": "md"
                     }
                 ]
             }
