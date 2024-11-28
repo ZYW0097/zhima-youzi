@@ -59,11 +59,18 @@ const userIDSchema = new mongoose.Schema({
     phone: { type: String, required: true, unique: true }
 });
 
-const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');  // 將會建立名為 'bookings' 的集合
+const vipSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    phone: { type: String, required: true, unique: true },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Reservation = mongoose.model('Reservation', reservationSchema, 'bookings');  
 const UserID = mongoose.model('UserID', userIDSchema, 'userids');
 const GLW = mongoose.model('GLW', glwSchema, 'glw');
 const GLH = mongoose.model('GLH', glhSchema, 'glh');
 const Settings = mongoose.model('Settings', settingsSchema, 'settings');
+const VIP = mongoose.model('VIP', vipSchema, 'vip');
 
 async function connectToDatabase() {
     try {
@@ -81,5 +88,6 @@ module.exports = {
     UserID,
     GLW,
     GLH,
+    VIP,
     Settings
 };
