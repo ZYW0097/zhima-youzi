@@ -791,7 +791,7 @@ body.show-cancel #reservation-summary {
     }
 }
 
-@media (max-width: 1350px) {  
+@media (max-width: 1550px) {  
     #reservation-summary {
         display: none;
     }
@@ -802,6 +802,7 @@ body.show-cancel #reservation-summary {
 
     #cancel-container {
         max-width: 90%;
+        max-width: 400px;
     }
 
     #reservationForm {
@@ -849,8 +850,8 @@ body.show-cancel #reservation-summary {
     }
     
     .day.today {
-        border: 1.5px solid #4CAF50;  /* 較細的邊框 */
-        font-size: 0.9em;             /* 稍微縮小字體 */
+        border: 1.5px solid #4CAF50; 
+        font-size: 0.9em;           
     }
 
     .weekdays {
@@ -910,13 +911,16 @@ body.show-cancel #reservation-summary {
     .booking-toggle {
         width: 90%;
         max-width: 300px;
-        margin: 90px auto 20px;
     }
 
     .container {
+        position: absolute;
         margin-left: 0;
         padding: 20px;
+        transform: translateY(30%);
     }
+
+    
 }
 
 @media (hover: none) and (pointer: coarse) {
