@@ -6,7 +6,7 @@ body {
     font-family: Arial, sans-serif;
     background-color: white;
     margin: 0;
-    padding: 0px;
+    padding: 0;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -447,9 +447,9 @@ textarea {
 
 .note {
     display: block;
-    color: #666666;  /* 灰色 */
-    font-size: 14px;  /* 較小的字體 */
-    margin-bottom: 5px;  /* 與下方選單的間距 */
+    color: #666666;  
+    font-size: 14px;  
+    margin-bottom: 5px;  
 }
 
 .pe-note {
@@ -704,6 +704,11 @@ body.show-cancel #reservation-summary {
 .reservations-list {
     max-height: 300px;
     overflow-y: auto;
+}
+
+#reservation-display {
+    margin-top: 20px;
+    flex-grow: 1;
 }
 
 /* 取消訂位 */
