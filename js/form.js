@@ -43,6 +43,49 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     console.log('jQuery is loaded');
+
+    // 處理取消訂位表單提交
+    const cancelForm = document.getElementById('cancelForm');
+    if (cancelForm) {
+        cancelForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const cancelMethod = document.querySelector('input[name="cancelMethod"]:checked').value;
+            let data;
+            
+            if (cancelMethod === 'code') {
+                const bookingCode = document.querySelector('#codeInput input').value;
+                data = { bookingCode };
+            } else {
+                const name = document.querySelector('#infoInput input[type="text"]').value;
+                const phone = document.querySelector('#infoInput input[type="tel"]').value;
+                data = { name, phone };
+            }
+
+            try {
+                const endpoint = cancelMethod === 'code' ? 
+                    '/api/reservations/search-by-code' : 
+                    '/api/reservations/search-by-info';
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('查詢失敗');
+                }
+
+                const result = await response.json();
+                displayReservationInfo(result, cancelMethod);
+            } catch (error) {
+                alert(error.message || '查詢失敗，請稍後再試');
+            }
+        });
+    }
 });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -318,6 +361,95 @@ async function updateTimeButtons() {
         console.error('Error fetching time slots:', error);
         timeContainer.html('<div class="error">載入時段失敗，請重試</div>');
     }
+}
+
+function displayReservationInfo(data, method) {
+    const displayDiv = document.getElementById('reservation-display');
+    
+    if (method === 'code') {
+        // 單筆訂位顯示
+        displayDiv.innerHTML = `
+            <div class="reservation-info">
+                <h3>請確認要取消的訂位</h3>
+                <div class="reservation-details">
+                    <p>姓名：${data.name}</p>
+                    <p>電話：${data.phone}</p>
+                    <p>信箱：${data.email}</p>
+                    <p>日期：${data.date}</p>
+                    <p>時間：${data.time}</p>
+                </div>
+                <div class="button-group">
+                    <button onclick="confirmCancel('${data.bookingCode}')" class="confirm-btn">確認取消</button>
+                    <button onclick="cancelOperation()" class="cancel-btn">放棄取消</button>
+                </div>
+            </div>
+        `;
+    } else {
+        // 多筆訂位顯示
+        const reservationsHtml = Array.isArray(data) ? data.map(reservation => `
+            <div class="reservation-item">
+                <input type="radio" name="reservation" value="${reservation.bookingCode}">
+                <div class="reservation-details">
+                    <p>日期：${reservation.date}</p>
+                    <p>時間：${reservation.time}</p>
+                </div>
+            </div>
+        `).join('') : '';
+
+        displayDiv.innerHTML = `
+            <div class="reservation-info">
+                <h3>請選擇要取消的訂位</h3>
+                <div class="reservations-list">
+                    ${reservationsHtml}
+                </div>
+                <div class="button-group">
+                    <button onclick="confirmCancelSelected()" class="confirm-btn">確認取消</button>
+                    <button onclick="cancelOperation()" class="cancel-btn">放棄取消</button>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// 確認取消訂位
+async function confirmCancel(bookingCode) {
+    if (!confirm('確定要取消此訂位嗎？')) return;
+
+    try {
+        const response = await fetch('/api/reservations/cancel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ bookingCode })
+        });
+
+        if (!response.ok) {
+            throw new Error('取消失敗');
+        }
+
+        alert('訂位已成功取消');
+        location.reload();
+    } catch (error) {
+        alert(error.message || '取消失敗，請稍後再試');
+    }
+}
+
+// 確認取消選中的訂位
+async function confirmCancelSelected() {
+    const selected = document.querySelector('input[name="reservation"]:checked');
+    if (!selected) {
+        alert('請選擇要取消的訂位');
+        return;
+    }
+
+    await confirmCancel(selected.value);
+}
+
+// 放棄取消操作
+function cancelOperation() {
+    document.getElementById('reservation-display').innerHTML = '';
+    document.getElementById('cancelForm').reset();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
