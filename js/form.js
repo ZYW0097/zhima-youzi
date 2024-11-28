@@ -81,11 +81,11 @@ document.addEventListener('DOMContentLoaded', function() {
             let data;
             
             if (cancelMethod === 'code') {
-                const bookingCode = codeInput.querySelector('input').value;
+                const bookingCode = document.querySelector('#codeInput input').value;
                 data = { bookingCode };
             } else {
-                const name = infoInput.querySelector('input[name="name"]').value;
-                const phone = infoInput.querySelector('input[name="phone"]').value;
+                const name = document.querySelector('#infoInput input[name="name"]').value;
+                const phone = document.querySelector('#infoInput input[name="phone"]').value;
                 data = { name, phone };
             }
 
@@ -102,11 +102,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify(data)
                 });
 
+                const result = await response.json();
                 if (!response.ok) {
-                    throw new Error('查詢失敗');
+                    throw new Error(result.message || '查詢失敗');
                 }
 
-                const result = await response.json();
                 displayReservationInfo(result);
             } catch (error) {
                 alert(error.message || '查詢失敗，請稍後再試');
