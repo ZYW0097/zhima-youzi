@@ -650,6 +650,64 @@ body.show-cancel #reservation-summary {
     transform: translateY(0);
 }
 
+.reservation-info {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.reservation-details {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 4px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.confirm-btn, .cancel-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.confirm-btn {
+    background: #FF6B6A;
+    color: white;
+}
+
+.cancel-btn {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.reservation-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.reservation-item:last-child {
+    border-bottom: none;
+}
+
+.reservations-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* 取消訂位 */
+
 @media (max-width: 768px) {
 
     * {
