@@ -390,20 +390,49 @@ async function updateTimeButtons() {
     }
 }
 
-function displayReservationInfo(result) {
+function displayReservationInfo(results) {
+    console.log('Received results:', results); // 用於調試
+    
     const displayArea = document.getElementById('reservation-display');
-    displayArea.innerHTML = `
+    
+    // 如果沒有資料
+    if (!results || (Array.isArray(results) && results.length === 0)) {
+        displayArea.innerHTML = `
+            <div class="reservation-info">
+                <h3>查詢結果</h3>
+                <p>找不到訂位資料</p>
+            </div>
+        `;
+        return;
+    }
+
+    // 確保 results 是陣列
+    const reservations = Array.isArray(results) ? results : [results];
+    
+    // 生成所有訂位資料的 HTML
+    const reservationsHTML = reservations.map(reservation => `
         <div class="reservation-info">
             <h3>訂位資訊</h3>
             <div class="reservation-details">
-                <p>訂位人：${result.name || '未提供'}</p>
-                <p>日期：${result.date || '未提供'}</p>
-                <p>時間：${result.time || '未提供'}</p>
-                <p>人數：${result.adults || 0}大${result.children || 0}小</p>
-                <p>訂位代碼：${result.bookingCode || '未提供'}</p>
+                <p>訂位人：${reservation.name}</p>
+                <p>日期：${reservation.date}</p>
+                <p>時間：${reservation.time}</p>
+                <p>電話：${reservation.phone}</p>
+                <p>Email：${reservation.email}</p>
+                <p>人數：${reservation.adults}大${reservation.children}小</p>
+                <p>訂位代碼：${reservation.bookingCode}</p>
             </div>
             <div class="button-group">
-                <button onclick="confirmCancel('${result.bookingCode}')" class="confirm-btn">確認取消</button>
+                <button onclick="confirmCancel('${reservation._id}')" class="confirm-btn">確認取消</button>
+            </div>
+        </div>
+    `).join('');
+
+    // 顯示所有訂位資料和返回按鈕
+    displayArea.innerHTML = `
+        <div class="reservations-container">
+            ${reservationsHTML}
+            <div class="button-group">
                 <button onclick="cancelOperation()" class="cancel-btn">返回</button>
             </div>
         </div>
