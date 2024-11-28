@@ -527,10 +527,12 @@ body {
 }
 
 .vip-star {
-    color: #FFD700;  
+    color: #FFD700; 
     margin-left: 5px;
-    font-size: 16px;
-    vertical-align: middle;
+    display: inline-block;
+    vertical-align: text-top;
+    line-height: 1;  
+    font-size: 0.9em; 
 }
 
 @media (max-width: 768px) {
