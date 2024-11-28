@@ -21,6 +21,11 @@
         </nav>
     </header>
 
+    <div class="booking-toggle">
+        <button type="button" class="toggle-btn active" data-form="reservation">我要訂位</button>
+        <button type="button" class="toggle-btn" data-form="cancel">取消訂位</button>
+    </div>
+
     <div class="container">
         <div id="reservation-summary">
             <h1 id="left-title">確認及預覽</h3>
@@ -143,13 +148,42 @@
             <button class="form-row" type="submit">提交訂位</button>
             <div id="message"></div>
         </form>
+
+        <div id="cancel-container" style="display: none;">
+            <form id="cancelForm">
+                <h1 id="title">取消訂位</h1>
+                <div class="cancel-options">
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="cancelMethod" value="code" checked>
+                            使用訂位代碼
+                        </label>
+                        <div class="input-group" id="codeInput">
+                            <input type="text" placeholder="請輸入訂位代碼" required>
+                        </div>
+                    </div>
+                    
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="cancelMethod" value="info">
+                            使用訂位資訊
+                        </label>
+                        <div class="input-group" id="infoInput" style="display: none;">
+                            <input type="text" placeholder="請輸入姓名" required>
+                            <input type="tel" placeholder="請輸入電話" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">查詢訂位</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <footer>
         &copy; 2024 ZYW
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.6.2/dist/fetch.umd.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/form.js"></script>
 </body>
