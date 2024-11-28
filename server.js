@@ -238,6 +238,28 @@ async function cleanExpiredData() {
 const cleanupSchedule = new CronJob('0 0 * * *', cleanExpiredData, null, true, 'Asia/Taipei');
 cleanupSchedule.start();
 
+async function generateUniqueBookingCode() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code;
+    let isUnique = false;
+    
+    while (!isUnique) {
+        code = '';
+        for (let i = 0; i < 6; i++) {
+            code += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        
+        // 檢查代碼是否已存在
+        const existingReservation = await Reservation.findOne({ bookingCode: code });
+        if (!existingReservation) {
+            isUnique = true;
+        }
+    }
+    return code;
+}
+
+const bookingCode = await generateUniqueBookingCode();
+
 async function sendEmail(toEmail, reservationData) {
     const {
         name,
@@ -247,7 +269,8 @@ async function sendEmail(toEmail, reservationData) {
         children,
         vegetarian,
         specialNeeds,
-        notes
+        notes,
+        bookingCode
     } = reservationData;
 
     const displayDate = date.replace(/-/g, '/');
@@ -452,7 +475,8 @@ app.post('/reservations', async (req, res) => {
                     children,
                     vegetarian,
                     specialNeeds,
-                    notes
+                    notes,
+                    bookingCode
                 });
                 await reservation.save();
 
@@ -469,6 +493,7 @@ app.post('/reservations', async (req, res) => {
                     vegetarian,
                     specialNeeds,
                     notes,
+                    bookingCode,
                     createdAt: new Date().toISOString()
                 }), 'EX', 120);
 
@@ -481,7 +506,8 @@ app.post('/reservations', async (req, res) => {
                     children,
                     vegetarian,
                     specialNeeds,
-                    notes
+                    notes,
+                    bookingCode
                 });
 
                 // LINE 通知
@@ -515,6 +541,9 @@ app.post('/reservations', async (req, res) => {
                             case "備註":
                                 box.contents[1].text = notes || '無';
                                 break;
+                            case "訂位代碼":
+                                box.contents[1].text = bookingCode;
+                                break; 
                         }
                     });
 
@@ -557,7 +586,8 @@ app.post('/reservations', async (req, res) => {
                     children,
                     vegetarian,
                     specialNeeds,
-                    notes
+                    notes,
+                    bookingCode
                 });
                 await reservation.save();
 
@@ -574,6 +604,7 @@ app.post('/reservations', async (req, res) => {
                     vegetarian,
                     specialNeeds,
                     notes,
+                    bookingCode,
                     createdAt: new Date().toISOString()
                 }), 'EX', 120);
 
@@ -586,7 +617,8 @@ app.post('/reservations', async (req, res) => {
                     children,
                     vegetarian,
                     specialNeeds,
-                    notes
+                    notes,
+                    bookingCode
                 });
 
                 // LINE 通知
@@ -619,6 +651,9 @@ app.post('/reservations', async (req, res) => {
                                 break;
                             case "備註":
                                 box.contents[1].text = notes || '無';
+                                break;
+                            case "訂位代碼":
+                                box.contents[1].text = bookingCode;
                                 break;
                         }
                     });
@@ -659,7 +694,8 @@ app.post('/reservations', async (req, res) => {
                     children,
                     vegetarian,
                     specialNeeds,
-                    notes
+                    notes,
+                    bookingCode
                 });
                 await reservation.save();
 
@@ -676,6 +712,7 @@ app.post('/reservations', async (req, res) => {
                     vegetarian,
                     specialNeeds,
                     notes,
+                    bookingCode,
                     createdAt: new Date().toISOString()
                 }), 'EX', 120);
 
@@ -688,8 +725,9 @@ app.post('/reservations', async (req, res) => {
                     children,
                     vegetarian,
                     specialNeeds,
-                    notes
-                });
+                    notes,
+                    bookingCode
+                }); 
 
                 // LINE 通知
                 const existingLineUser = await UserID.findOne({ phone });
@@ -721,6 +759,9 @@ app.post('/reservations', async (req, res) => {
                                 break;
                             case "備註":
                                 box.contents[1].text = notes || '無';
+                                break;
+                            case "訂位代碼":
+                                box.contents[1].text = bookingCode;
                                 break;
                         }
                     });
@@ -764,7 +805,8 @@ app.post('/reservations', async (req, res) => {
                     children,
                     vegetarian,
                     specialNeeds,
-                    notes
+                    notes,
+                    bookingCode
                 });
                 await reservation.save();
 
@@ -781,6 +823,7 @@ app.post('/reservations', async (req, res) => {
                     vegetarian,
                     specialNeeds,
                     notes,
+                    bookingCode,    
                     createdAt: new Date().toISOString()
                 }), 'EX', 120);
 
@@ -793,7 +836,8 @@ app.post('/reservations', async (req, res) => {
                     children,
                     vegetarian,
                     specialNeeds,
-                    notes
+                    notes,
+                    bookingCode
                 });
 
                 // LINE 通知
@@ -826,6 +870,9 @@ app.post('/reservations', async (req, res) => {
                                 break;
                             case "備註":
                                 box.contents[1].text = notes || '無';
+                                break;
+                            case "訂位代碼":
+                                box.contents[1].text = bookingCode;
                                 break;
                         }
                     });
@@ -951,6 +998,9 @@ app.post('/line/webhook', async (req, res) => {
                                             case "備註":
                                                 box.contents[1].text = reservation.notes || '無';
                                                 break;
+                                            case "訂位代碼":
+                                                box.contents[1].text = reservation.bookingCode;
+                                                break;  
                                         }
                                     });
 
