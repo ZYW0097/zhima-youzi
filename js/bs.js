@@ -226,6 +226,18 @@ document.addEventListener('DOMContentLoaded', function() {
     loadBookings();
     checkTokenValidity();
     showPage('reservations');
+
+    // 初始載入常客列表
+    loadVIPList(1);
+
+    // 添加分頁按鈕事件監聽
+    document.getElementById('prev-page').addEventListener('click', () => {
+        if (currentPage > 1) loadVIPList(currentPage - 1);
+    });
+
+    document.getElementById('next-page').addEventListener('click', () => {
+        loadVIPList(currentPage + 1);
+    });
 });
 
 function getPeriodText(time) {
@@ -326,7 +338,6 @@ async function loadBookings(selectedDate = null) {
 async function checkAndAddVIP() {
     const name = document.getElementById('vip-name').value.trim();
     const phone = document.getElementById('vip-phone').value.trim();
-    const messageDiv = document.getElementById('vip-message');
     
     if (!name || !phone) {
         showVIPMessage('請填寫完整資料', 'error');
@@ -345,15 +356,19 @@ async function checkAndAddVIP() {
         const result = await response.json();
         
         if (response.ok) {
-            showVIPMessage('成功加入常客名單', 'success');
-            loadVIPList();  // 重新載入常客列表
-            // 清空輸入框
+            showVIPMessage(result.message || '成功加入常客名單', 'success');
+            // 清空輸入欄位
             document.getElementById('vip-name').value = '';
             document.getElementById('vip-phone').value = '';
+            
+            // 重新載入常客列表，回到第一頁
+            currentPage = 1;
+            await loadVIPList(1);
         } else {
             showVIPMessage(result.message || '新增失敗', 'error');
         }
     } catch (error) {
+        console.error('新增常客失敗:', error);
         showVIPMessage('系統錯誤，請稍後再試', 'error');
     }
 }
@@ -362,6 +377,9 @@ function showVIPMessage(message, type) {
     const messageDiv = document.getElementById('vip-message');
     messageDiv.textContent = message;
     messageDiv.className = `vip-message ${type}`;
+    messageDiv.style.display = 'block';  // 確保訊息是可見的
+    
+    // 3秒後隱藏訊息
     setTimeout(() => {
         messageDiv.style.display = 'none';
     }, 3000);
