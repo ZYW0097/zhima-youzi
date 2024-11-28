@@ -18,7 +18,13 @@ const reservationSchema = new mongoose.Schema({
                 default: '無',    
                 maxlength: 30
             },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    bookingCode: { 
+        type: String, 
+        required: true,
+        unique: true,
+        length: 6
+    }
 });
 
 const glwSchema = new mongoose.Schema({
