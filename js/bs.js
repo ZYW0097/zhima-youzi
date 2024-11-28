@@ -158,6 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.querySelector('.sidebar');
     const backButton = document.querySelector('.back-button');
     const pageTitle = document.querySelector('.page-title');
+    const dateSelector = document.getElementById('booking-date');
 
     function showPage(pageId) {
         // 隱藏所有頁面
@@ -217,8 +218,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    dateSelector.addEventListener('change', function(e) {
+        loadBookings(new Date(e.target.value));
+    });
+
     loadSettings();
-    loadTodayBookings();
+    loadBookings();
     checkTokenValidity();
     showPage('reservations');
 });
@@ -235,10 +240,37 @@ function getPeriodText(time) {
 }
 
 // 載入今日訂位
-async function loadTodayBookings() {
+async function loadBookings(selectedDate = null) {
     try {
-        const today = new Date().toISOString().split('T')[0];
-        const response = await fetch(`/api/bookings?date=${today}`);
+        const targetDate = selectedDate || new Date();
+        targetDate.setHours(0, 0, 0, 0);
+        const dateString = targetDate.toISOString().split('T')[0];
+
+        // 更新標題
+        const titleElement = document.querySelector('.header-left h2');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // 格式化日期
+        const weekDay = targetDate.toLocaleString('zh-TW', { weekday: 'long' });
+        if (targetDate.getTime() === today.getTime()) {
+            titleElement.textContent = `今日訂位 (${weekDay})`;
+        } else {
+            const formattedDate = targetDate.toLocaleString('zh-TW', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }).replace(/\//g, '年').replace(/ /g, '').replace(/,$/, '日');
+            titleElement.textContent = `${formattedDate} (${weekDay})`;
+        }
+
+        // 如果有日期選擇器，更新其值
+        const dateSelector = document.getElementById('booking-date');
+        if (dateSelector) {
+            dateSelector.value = dateString;
+        }
+
+        const response = await fetch(`/api/bookings?date=${dateString}`);
         const bookings = await response.json();
         
         const bookingsList = document.getElementById('bookings-list');
@@ -261,18 +293,18 @@ async function loadTodayBookings() {
                 const periodText = getPeriodText(booking.time);
                 
                 bookingItem.innerHTML = `
-                    <div class="booking-cell">${periodText} ${booking.time}</div>
-                    <div class="booking-cell">${booking.name}</div>
-                    <div class="booking-cell">${booking.phone}</div>
-                    <div class="booking-cell">${totalPeople}人</div>
-                    <div class="booking-cell">${noteText}</div>
-                    <div class="booking-cell status-active">已確認</div>
+                    <div class="booking-cell" data-label="時段">${periodText} ${booking.time}</div>
+                    <div class="booking-cell" data-label="姓名">${booking.name}</div>
+                    <div class="booking-cell" data-label="電話">${booking.phone}</div>
+                    <div class="booking-cell" data-label="人數">${totalPeople}人</div>
+                    <div class="booking-cell" data-label="備註">${noteText}</div>
+                    <div class="booking-cell" data-label="狀態"><span class="status-active">已確認</span></div>
                 `;
                 
                 bookingsList.appendChild(bookingItem);
             });
         } else {
-            bookingsList.innerHTML = '<div class="no-bookings">今日無訂位</div>';
+            bookingsList.innerHTML = '<div class="no-bookings">此日無訂位</div>';
         }
     } catch (error) {
         console.error('載入訂位失敗:', error);
