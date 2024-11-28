@@ -91,7 +91,34 @@
             </div>
 
             <div class="content-page" id="vip" style="display: none;">
-                <h2>常客管理</h2>
+                <h2 class="page-title">常客管理</h2>
+                
+                <div class="vip-add-form">
+                    <div class="form-group">
+                        <input type="text" id="vip-name" placeholder="姓名" class="vip-input">
+                        <input type="text" id="vip-phone" placeholder="電話" class="vip-input">
+                        <button onclick="checkAndAddVIP()" class="vip-add-btn">
+                            <i class="fas fa-user-plus"></i> 新增常客
+                        </button>
+                    </div>
+                    <div id="vip-message" class="vip-message"></div>
+                </div>
+
+                <div class="vip-list-container">
+                    <h3>常客名單</h3>
+                    <div class="vip-list" id="vip-list">
+                    </div>
+                    
+                    <div class="pagination">
+                        <button id="prev-page" class="page-btn" disabled>
+                            <i class="fas fa-chevron-left"></i> 上一頁
+                        </button>
+                        <span id="page-info">第 1 頁</span>
+                        <button id="next-page" class="page-btn">
+                            下一頁 <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="content-page" id="blacklist" style="display: none;">
