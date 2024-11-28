@@ -120,6 +120,28 @@ function generateToken(length = 8) {
     return crypto.randomBytes(length).toString('hex').slice(0, length);
 }
 
+async function generateUniqueBookingCode() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code;
+    let isUnique = false;
+    
+    while (!isUnique) {
+        code = '';
+        for (let i = 0; i < 6; i++) {
+            code += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        
+        // 檢查代碼是否已存在
+        const existingReservation = await Reservation.findOne({ bookingCode: code });
+        if (!existingReservation) {
+            isUnique = true;
+        }
+    }
+    return code;
+}
+
+const bookingCode = await generateUniqueBookingCode();
+
 function getTimeSlot(time, date) {
     const hour = parseInt(time.split(':')[0]);
     const reservationDate = moment.tz(date, 'Asia/Taipei');
@@ -237,28 +259,6 @@ async function cleanExpiredData() {
 
 const cleanupSchedule = new CronJob('0 0 * * *', cleanExpiredData, null, true, 'Asia/Taipei');
 cleanupSchedule.start();
-
-async function generateUniqueBookingCode() {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code;
-    let isUnique = false;
-    
-    while (!isUnique) {
-        code = '';
-        for (let i = 0; i < 6; i++) {
-            code += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        
-        // 檢查代碼是否已存在
-        const existingReservation = await Reservation.findOne({ bookingCode: code });
-        if (!existingReservation) {
-            isUnique = true;
-        }
-    }
-    return code;
-}
-
-const bookingCode = await generateUniqueBookingCode();
 
 async function sendEmail(toEmail, reservationData) {
     const {
