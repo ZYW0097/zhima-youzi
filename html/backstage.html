@@ -12,10 +12,10 @@
             <h1 class="mobile-title">後台管理</h1>
             <div class="sidebar-menu">
                 <div class="menu-item active" data-page="reservations">查看訂位</div>
-                <div class="menu-item" data-page="cancelled">已取消訂位</div>
+                <div class="menu-item" data-page="cancelled">查看已取消訂位</div>
+                <div class="menu-item" data-page="cancel-reservation">手動取消訂位</div>
                 <div class="menu-item" data-page="settings">訂位設定</div>
                 <div class="menu-item" data-page="vip">常客管理</div>
-                <div class="menu-item" data-page="blacklist">黑名單</div>
             </div>
             <button class="logout-button" onclick="logout()">登出</button>
         </div>
@@ -52,7 +52,11 @@
                 <h2>已取消訂位</h2>
             </div>
 
-           <div class="content-page" id="settings" style="display: none;">
+            <div class="content-page" id="cancel-reservation" style="display: none;"></div>
+                <h2>手動取消訂位</h2>
+            </div>
+
+            <div class="content-page" id="settings" style="display: none;">
                 <div class="settings-container">
                     <h2 class="settings-title">設置時段組數上限</h2>
                     <p class="last-update">最後更改時間：<span id="lastUpdateTime">-</span></p>
@@ -119,10 +123,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
-
-            <div class="content-page" id="blacklist" style="display: none;">
-                <h2>黑名單管理</h2>
             </div>
         </div>
     </div>
