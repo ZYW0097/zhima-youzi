@@ -140,8 +140,6 @@ async function generateUniqueBookingCode() {
     return code;
 }
 
-const bookingCode = await generateUniqueBookingCode();
-
 function getTimeSlot(time, date) {
     const hour = parseInt(time.split(':')[0]);
     const reservationDate = moment.tz(date, 'Asia/Taipei');
@@ -436,6 +434,7 @@ app.post('/reservations', async (req, res) => {
         }
         
         const token = generateToken();
+        const bookingCode = await generateUniqueBookingCode();
         
         // 轉換為台灣時間
         const reservationDate = moment.tz(date, 'Asia/Taipei');
