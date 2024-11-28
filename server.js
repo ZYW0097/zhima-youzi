@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const { createClient } = require('redis');
 const RedisStore = require('connect-redis').default;
 const cookieParser = require('cookie-parser');
-const { connectToDatabase, Reservation, UserID, GLW, GLH, Settings } = require('./database');
+const { connectToDatabase, Reservation, UserID, GLW, GLH, Settings, VIP } = require('./database');
 const redisUrl = process.env.REDIS_URL;
 const fs = require('fs');
 const axios = require('axios');
@@ -1365,6 +1365,16 @@ app.post('/api/logout', async (req, res) => {
 // 添加 check-auth 路由
 app.get('/api/check-auth', authenticateToken, (req, res) => {
     res.json({ success: true });
+});
+
+app.get('/api/vip/phones', async (req, res) => {
+    try {
+        const vips = await VIP.find({}, 'phone');
+        const phones = vips.map(vip => vip.phone);
+        res.json(phones);
+    } catch (error) {
+        res.status(500).json({ message: '獲取常客列表失敗' });
+    }
 });
 
 app.listen(PORT, () => {
