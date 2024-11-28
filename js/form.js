@@ -23,17 +23,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 處理取消訂位表單的選項切換
     const cancelMethodRadios = document.querySelectorAll('input[name="cancelMethod"]');
-    const codeInput = document.getElementById('codeInput');
-    const infoInput = document.getElementById('infoInput');
+    const codeInput = document.getElementById('codeInput').querySelector('input');
+    const nameInput = document.querySelector('#infoInput input[name="name"]');
+    const phoneInput = document.querySelector('#infoInput input[name="phone"]');
 
     cancelMethodRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.value === 'code') {
-                codeInput.style.display = 'block';
-                infoInput.style.display = 'none';
+                // 啟用代碼輸入，禁用姓名電話輸入
+                codeInput.disabled = false;
+                codeInput.required = true;
+                nameInput.disabled = true;
+                phoneInput.disabled = true;
+                nameInput.required = false;
+                phoneInput.required = false;
+                
+                document.getElementById('codeInput').style.display = 'block';
+                document.getElementById('infoInput').style.display = 'none';
+                
+                // 清空姓名電話輸入
+                nameInput.value = '';
+                phoneInput.value = '';
             } else {
-                codeInput.style.display = 'none';
-                infoInput.style.display = 'block';
+                // 啟用姓名電話輸入，禁用代碼輸入
+                codeInput.disabled = true;
+                codeInput.required = false;
+                nameInput.disabled = false;
+                phoneInput.disabled = false;
+                nameInput.required = true;
+                phoneInput.required = true;
+                
+                document.getElementById('codeInput').style.display = 'none';
+                document.getElementById('infoInput').style.display = 'block';
+                
+                // 清空代碼輸入
+                codeInput.value = '';
             }
         });
     });
