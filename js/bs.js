@@ -269,12 +269,16 @@ async function loadBookings(selectedDate = null) {
             dateSelector.value = dateString;
         }
 
-        const response = await fetch(`/api/bookings?date=${dateString}`);
-        const bookings = await response.json();
-        
-        // 先獲取所有常客的電話列表
-        const vipResponse = await fetch('/api/vip/phones');
-        const vipPhones = await vipResponse.json();
+        // 分開獲取訂位資料和常客資料
+        const [bookingsResponse, vipResponse] = await Promise.all([
+            fetch(`/api/bookings?date=${dateString}`),
+            fetch('/api/vip/phones')
+        ]);
+
+        const [bookings, vipPhones] = await Promise.all([
+            bookingsResponse.json(),
+            vipResponse.json()
+        ]);
 
         const bookingsList = document.getElementById('bookings-list');
         bookingsList.innerHTML = '';
@@ -296,7 +300,7 @@ async function loadBookings(selectedDate = null) {
                 const periodText = getPeriodText(booking.time);
                 
                 // 檢查是否為常客
-                const isVIP = vipPhones.includes(booking.phone);
+                const isVIP = Array.isArray(vipPhones) && vipPhones.includes(booking.phone);
                 const vipStar = isVIP ? '<span class="vip-star">⭐</span>' : '';
                 
                 bookingItem.innerHTML = `
