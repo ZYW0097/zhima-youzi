@@ -222,15 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
         loadBookings(new Date(e.target.value));
     });
 
-    loadSettings();
-    loadBookings();
-    checkTokenValidity();
-    showPage('reservations');
-
-    // 初始載入常客列表
-    loadVIPList(1);
-
-    // 添加分頁按鈕事件監聽
     document.getElementById('prev-page').addEventListener('click', () => {
         if (currentPage > 1) loadVIPList(currentPage - 1);
     });
@@ -238,6 +229,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('next-page').addEventListener('click', () => {
         loadVIPList(currentPage + 1);
     });
+
+    loadSettings();
+    loadBookings();
+    checkTokenValidity();
+    loadVIPList(1);
+    showPage('reservations');
 });
 
 function getPeriodText(time) {
