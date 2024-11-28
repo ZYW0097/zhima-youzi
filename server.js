@@ -21,6 +21,7 @@ const welcomeTemplate = require('./line-templates/welcome.json');
 const bindingSuccessTemplate = require('./line-templates/binding-success.json');
 const confirmReservationTemplate = require('./line-templates/confirm-reservation.json');
 const confirmBindingTemplate = require('./line-templates/confirm-binding.json');
+const reservationCancelTemplate = require('./line-templates/reservation-cancel.json');
 
 
 const app = express();
@@ -1217,6 +1218,8 @@ async function sendLineMessage(userId, message) {
     }
 }
 
+
+
 // app.post('/api/cleanup', async (req, res) => {
 //     try {
 //         const keys = await redisClient.keys('line_*');
@@ -1485,6 +1488,155 @@ app.post('/api/vip/add', async (req, res) => {
     } catch (error) {
         console.error('Error adding/updating VIP:', error);
         res.status(500).json({ message: '新增/更新常客失敗' });
+    }
+});
+
+app.post('/api/reservations/search-by-code', async (req, res) => {
+    try {
+        const { bookingCode } = req.body;
+        const reservation = await Reservation.findOne({ 
+            bookingCode,
+            canceled: { $ne: true }
+        });
+        
+        if (!reservation) {
+            return res.status(404).json({ error: '找不到訂位資料' });
+        }
+        
+        res.json({
+            name: reservation.name,
+            phone: reservation.phone,
+            email: reservation.email,
+            date: reservation.date,
+            time: reservation.time
+        });
+    } catch (error) {
+        res.status(500).json({ error: '查詢失敗' });
+    }
+});
+
+// 使用姓名和電話查詢
+app.post('/api/reservations/search-by-info', async (req, res) => {
+    try {
+        const { name, phone } = req.body;
+        const reservations = await Reservation.find({ 
+            name,
+            phone,
+            canceled: { $ne: true }
+        });
+        
+        if (!reservations.length) {
+            return res.status(404).json({ error: '找不到訂位資料' });
+        }
+        
+        res.json(reservations.map(r => ({
+            id: r._id,
+            name: r.name,
+            phone: r.phone,
+            email: r.email,
+            date: r.date,
+            time: r.time
+        })));
+    } catch (error) {
+        res.status(500).json({ error: '查詢失敗' });
+    }
+});
+
+// 取消訂位
+app.post('/api/reservations/cancel', async (req, res) => {
+    try {
+        const { bookingCode } = req.body;
+        const reservation = await Reservation.findOneAndUpdate(
+            { bookingCode },
+            { 
+                canceled: true,
+                canceledAt: new Date()
+            },
+            { new: true }
+        );
+
+        if (!reservation) {
+            return res.status(404).json({ error: '找不到訂位資料' });
+        }
+
+        // 發送取消確認郵件給客人
+        await sendEmail(reservation.email, {
+            name: reservation.name,
+            date: reservation.date,
+            time: reservation.time,
+            subject: '芝麻柚子 とんかつ | 訂位取消確認',
+            html: `
+                <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #333;">訂位取消確認</h2>
+                    <p style="color: #666;">${reservation.name} 您好，</p>
+                    <p style="color: #666;">您已成功取消以下訂位：</p>
+                    
+                    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <p style="margin: 5px 0;">日期：${reservation.date}</p>
+                        <p style="margin: 5px 0;">時間：${reservation.time}</p>
+                    </div>
+
+                    <p style="color: #666;">如有任何問題，請隨時與我們聯繫。</p>
+                    
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                        <p style="color: #999; font-size: 14px;">芝麻柚子 とんかつ</p>
+                        <p style="color: #999; font-size: 14px;">電：03 558 7360</p>
+                        <p style="color: #999; font-size: 14px;">地址：新竹縣竹北市光明一路490號</p>
+                    </div>
+                </div>
+            `
+        });
+
+        // 發送通知給餐廳
+        await sendEmail(process.env.EMAIL_USER, {
+            name: reservation.name,
+            date: reservation.date,
+            time: reservation.time,
+            subject: '訂位取消通知',
+            html: `
+                <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #333;">訂位取消通知</h2>
+                    <p style="color: #666;">有客人取消了訂位：</p>
+                    
+                    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <p style="margin: 5px 0;">姓名：${reservation.name}</p>
+                        <p style="margin: 5px 0;">日期：${reservation.date}</p>
+                        <p style="margin: 5px 0;">時間：${reservation.time}</p>
+                    </div>
+                </div>
+            `
+        });
+
+        // 如果有 LINE 帳號綁定，發送 LINE 通知
+        const lineUser = await UserID.findOne({ phone: reservation.phone });
+        if (lineUser) {
+            const messageTemplate = JSON.parse(JSON.stringify(reservationCancelTemplate));
+            messageTemplate.body.contents[0].text = `${reservation.name}，您好！`;
+            const reservationInfo = messageTemplate.body.contents[1].contents;
+            
+            reservationInfo.forEach(box => {
+                const label = box.contents[0].text;
+                switch(label) {
+                    case "日期":
+                        box.contents[1].text = reservation.date;
+                        break;
+                    case "時間":
+                        box.contents[1].text = reservation.time;
+                        break;
+                }
+            });
+
+            await sendLineMessage(lineUser.lineUserId, {
+                type: 'flex',
+                altText: '訂位取消通知',
+                contents: messageTemplate
+            });
+        }
+
+        res.json({ message: '訂位已成功取消' });
+    } catch (error) {
+        console.error('Cancel reservation error:', error);
+        res.status(500).json({ error: '取消失敗' });
     }
 });
 
