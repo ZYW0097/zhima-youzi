@@ -1508,7 +1508,10 @@ app.post('/api/reservations/search-by-code', async (req, res) => {
             phone: reservation.phone,
             email: reservation.email,
             date: reservation.date,
-            time: reservation.time
+            time: reservation.time,
+            adults: reservation.adults,
+            children: reservation.children,
+            bookingCode: reservation.bookingCode
         });
     } catch (error) {
         res.status(500).json({ error: '查詢失敗' });
@@ -1535,7 +1538,10 @@ app.post('/api/reservations/search-by-info', async (req, res) => {
             phone: r.phone,
             email: r.email,
             date: r.date,
-            time: r.time
+            time: r.time,
+            adults: r.adults,
+            children: r.children,
+            bookingCode: r.bookingCode
         })));
     } catch (error) {
         res.status(500).json({ error: '查詢失敗' });
