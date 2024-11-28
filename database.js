@@ -24,6 +24,14 @@ const reservationSchema = new mongoose.Schema({
         required: true,
         unique: true,
         length: 6
+    },
+    canceled: { 
+        type: Boolean, 
+        default: false 
+    },
+    canceledAt: { 
+        type: Date,
+        default: null
     }
 });
 
