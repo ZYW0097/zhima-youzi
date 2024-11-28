@@ -396,11 +396,11 @@ function displayReservationInfo(result) {
         <div class="reservation-info">
             <h3>訂位資訊</h3>
             <div class="reservation-details">
-                <p>訂位人：${result.name}</p>
-                <p>日期：${result.date}</p>
-                <p>時間：${result.time}</p>
-                <p>人數：${result.adults}大${result.children}小</p>
-                <p>訂位代碼：${result.bookingCode}</p>
+                <p>訂位人：${result.name || '未提供'}</p>
+                <p>日期：${result.date || '未提供'}</p>
+                <p>時間：${result.time || '未提供'}</p>
+                <p>人數：${result.adults || 0}大${result.children || 0}小</p>
+                <p>訂位代碼：${result.bookingCode || '未提供'}</p>
             </div>
             <div class="button-group">
                 <button onclick="confirmCancel('${result.bookingCode}')" class="confirm-btn">確認取消</button>
