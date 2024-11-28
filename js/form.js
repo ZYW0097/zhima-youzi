@@ -23,41 +23,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 處理取消訂位表單的選項切換
     const cancelMethodRadios = document.querySelectorAll('input[name="cancelMethod"]');
-    const codeInput = document.getElementById('codeInput').querySelector('input');
-    const nameInput = document.querySelector('#infoInput input[name="name"]');
-    const phoneInput = document.querySelector('#infoInput input[name="phone"]');
+    const codeInput = document.getElementById('codeInput');
+    const infoInput = document.getElementById('infoInput');
+    const reservationDisplay = document.getElementById('reservation-display');
+
+    // 清除函數
+    function clearForm() {
+        // 清除所有輸入框的值
+        codeInput.querySelector('input').value = '';
+        infoInput.querySelectorAll('input').forEach(input => {
+            input.value = '';
+        });
+        // 清除查詢結果
+        reservationDisplay.innerHTML = '';
+    }
 
     cancelMethodRadios.forEach(radio => {
         radio.addEventListener('change', function() {
+            // 切換選項時先清除表單和查詢結果
+            clearForm();
+            
             if (this.value === 'code') {
-                // 啟用代碼輸入，禁用姓名電話輸入
-                codeInput.disabled = false;
-                codeInput.required = true;
-                nameInput.disabled = true;
-                phoneInput.disabled = true;
-                nameInput.required = false;
-                phoneInput.required = false;
-                
-                document.getElementById('codeInput').style.display = 'block';
-                document.getElementById('infoInput').style.display = 'none';
-                
-                // 清空姓名電話輸入
-                nameInput.value = '';
-                phoneInput.value = '';
+                // 顯示代碼輸入，隱藏姓名電話輸入
+                codeInput.style.display = 'block';
+                infoInput.style.display = 'none';
+                // 設置必填項
+                codeInput.querySelector('input').required = true;
+                infoInput.querySelectorAll('input').forEach(input => {
+                    input.required = false;
+                });
             } else {
-                // 啟用姓名電話輸入，禁用代碼輸入
-                codeInput.disabled = true;
-                codeInput.required = false;
-                nameInput.disabled = false;
-                phoneInput.disabled = false;
-                nameInput.required = true;
-                phoneInput.required = true;
-                
-                document.getElementById('codeInput').style.display = 'none';
-                document.getElementById('infoInput').style.display = 'block';
-                
-                // 清空代碼輸入
-                codeInput.value = '';
+                // 顯示姓名電話輸入，隱藏代碼輸入
+                codeInput.style.display = 'none';
+                infoInput.style.display = 'block';
+                // 設置必填項
+                codeInput.querySelector('input').required = false;
+                infoInput.querySelectorAll('input').forEach(input => {
+                    input.required = true;
+                });
             }
         });
     });
@@ -78,11 +81,11 @@ document.addEventListener('DOMContentLoaded', function() {
             let data;
             
             if (cancelMethod === 'code') {
-                const bookingCode = document.querySelector('#codeInput input').value;
+                const bookingCode = codeInput.querySelector('input').value;
                 data = { bookingCode };
             } else {
-                const name = document.querySelector('#infoInput input[type="text"]').value;
-                const phone = document.querySelector('#infoInput input[type="tel"]').value;
+                const name = infoInput.querySelector('input[name="name"]').value;
+                const phone = infoInput.querySelector('input[name="phone"]').value;
                 data = { name, phone };
             }
 
@@ -104,25 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 const result = await response.json();
-                
-                // 顯示查詢結果
-                const displayArea = document.getElementById('reservation-display');
-                displayArea.innerHTML = `
-                    <div class="reservation-info">
-                        <h3>訂位資訊</h3>
-                        <div class="reservation-details">
-                            <p>訂位人：${result.name}</p>
-                            <p>日期：${result.date}</p>
-                            <p>時間：${result.time}</p>
-                            <p>人數：${result.adults}大${result.children}小</p>
-                            <p>訂位代碼：${result.bookingCode}</p>
-                        </div>
-                        <div class="button-group">
-                            <button onclick="confirmCancel('${result.bookingCode}')" class="confirm-btn">確認取消</button>
-                            <button onclick="cancelOperation()" class="cancel-btn">返回</button>
-                        </div>
-                    </div>
-                `;
+                displayReservationInfo(result);
             } catch (error) {
                 alert(error.message || '查詢失敗，請稍後再試');
             }
@@ -405,52 +390,24 @@ async function updateTimeButtons() {
     }
 }
 
-function displayReservationInfo(data, method) {
-    const displayDiv = document.getElementById('reservation-display');
-    
-    if (method === 'code') {
-        // 單筆訂位顯示
-        displayDiv.innerHTML = `
-            <div class="reservation-info">
-                <h3>請確認要取消的訂位</h3>
-                <div class="reservation-details">
-                    <p>姓名：${data.name}</p>
-                    <p>電話：${data.phone}</p>
-                    <p>信箱：${data.email}</p>
-                    <p>日期：${data.date}</p>
-                    <p>時間：${data.time}</p>
-                </div>
-                <div class="button-group">
-                    <button onclick="confirmCancel('${data.bookingCode}')" class="confirm-btn">確認取消</button>
-                    <button onclick="cancelOperation()" class="cancel-btn">放棄取消</button>
-                </div>
+function displayReservationInfo(result) {
+    const displayArea = document.getElementById('reservation-display');
+    displayArea.innerHTML = `
+        <div class="reservation-info">
+            <h3>訂位資訊</h3>
+            <div class="reservation-details">
+                <p>訂位人：${result.name}</p>
+                <p>日期：${result.date}</p>
+                <p>時間：${result.time}</p>
+                <p>人數：${result.adults}大${result.children}小</p>
+                <p>訂位代碼：${result.bookingCode}</p>
             </div>
-        `;
-    } else {
-        // 多筆訂位顯示
-        const reservationsHtml = Array.isArray(data) ? data.map(reservation => `
-            <div class="reservation-item">
-                <input type="radio" name="reservation" value="${reservation.bookingCode}">
-                <div class="reservation-details">
-                    <p>日期：${reservation.date}</p>
-                    <p>時間：${reservation.time}</p>
-                </div>
+            <div class="button-group">
+                <button onclick="confirmCancel('${result.bookingCode}')" class="confirm-btn">確認取消</button>
+                <button onclick="cancelOperation()" class="cancel-btn">返回</button>
             </div>
-        `).join('') : '';
-
-        displayDiv.innerHTML = `
-            <div class="reservation-info">
-                <h3>請選擇要取消的訂位</h3>
-                <div class="reservations-list">
-                    ${reservationsHtml}
-                </div>
-                <div class="button-group">
-                    <button onclick="confirmCancelSelected()" class="confirm-btn">確認取消</button>
-                    <button onclick="cancelOperation()" class="cancel-btn">放棄取消</button>
-                </div>
-            </div>
-        `;
-    }
+        </div>
+    `;
 }
 
 // 確認取消訂位
