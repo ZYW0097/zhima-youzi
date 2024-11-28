@@ -159,7 +159,7 @@
                             使用訂位代碼
                         </label>
                         <div class="input-group" id="codeInput">
-                            <input type="text" placeholder="請輸入訂位代碼" required>
+                            <input type="text" name="bookingCode" placeholder="請輸入訂位代碼" required>
                         </div>
                     </div>
                     
@@ -169,16 +169,16 @@
                             使用訂位資訊
                         </label>
                         <div class="input-group" id="infoInput" style="display: none;">
-                            <input type="text" placeholder="請輸入姓名" required>
-                            <input type="tel" placeholder="請輸入電話" required>
+                            <input type="text" name="name" placeholder="請輸入姓名" required>
+                            <input type="tel" name="phone" placeholder="請輸入電話" required>
                         </div>
                     </div>
                     
                     <button type="submit" class="submit-btn">查詢訂位</button>
                 </div>
             </form>
+            <div id="reservation-display"></div>
         </div>
-        <div id="reservation-display"></div>
     </div>
 
     <footer>
