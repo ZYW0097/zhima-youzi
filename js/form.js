@@ -80,7 +80,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 const result = await response.json();
-                displayReservationInfo(result, cancelMethod);
+                
+                // 顯示查詢結果
+                const displayArea = document.getElementById('reservation-display');
+                displayArea.innerHTML = `
+                    <div class="reservation-info">
+                        <h3>訂位資訊</h3>
+                        <div class="reservation-details">
+                            <p>訂位人：${result.name}</p>
+                            <p>日期：${result.date}</p>
+                            <p>時間：${result.time}</p>
+                            <p>人數：${result.adults}大${result.children}小</p>
+                            <p>訂位代碼：${result.bookingCode}</p>
+                        </div>
+                        <div class="button-group">
+                            <button onclick="confirmCancel('${result.bookingCode}')" class="confirm-btn">確認取消</button>
+                            <button onclick="cancelOperation()" class="cancel-btn">返回</button>
+                        </div>
+                    </div>
+                `;
             } catch (error) {
                 alert(error.message || '查詢失敗，請稍後再試');
             }
