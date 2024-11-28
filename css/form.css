@@ -542,20 +542,6 @@ footer {
     color: #4CAF50;
 }
 
-/* 響應式調整 */
-@media (max-width: 768px) {
-    .booking-toggle {
-        width: 90%;
-        max-width: 350px;
-        margin: 90px auto 20px;
-    }
-
-    .toggle-btn {
-        padding: 12px 20px;
-        font-size: 16px;
-    }
-}
-
 #cancel-container {
     position: absolute;  
     left: 50%;        
@@ -665,24 +651,6 @@ body.show-cancel #reservation-summary {
 }
 
 @media (max-width: 768px) {
-    #cancel-container {
-        position: relative;  /* 手機版使用相對定位 */
-        left: auto;
-        transform: none;
-        margin: 0 15px;
-        padding: 20px;
-    }
-
-    .option {
-        padding: 15px;
-    }
-
-    .submit-btn {
-        padding: 12px;
-    }
-}
-
-@media (max-width: 767px) {
 
     * {
         font-family: Arial, Helvetica, sans-serif;
@@ -766,11 +734,11 @@ body.show-cancel #reservation-summary {
     }
 
     .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        position: relative;  
         margin-left: 0;
-        gap: 0;
+        padding: 20px;
+        transform: none;   
+        margin-top: 10px;   
     }
     
     #calendar-container {
@@ -789,39 +757,25 @@ body.show-cancel #reservation-summary {
     .day {
         font-size: clamp(10px, 3vw, 14px);
     }
-}
-
-@media (max-width: 1550px) {  
-    #reservation-summary {
-        display: none;
-    }
-
-    .container {
-        margin-left: 0; /
-    }
 
     #cancel-container {
-        max-width: 90%;
-        max-width: 400px;
-    }
-
-    #reservationForm {
-        margin: 0 auto;  
-        max-width: 90%;  
-        flex: 1;
-    }
-}
-
-@media (max-width: 768px) {
-    .container {
-        padding: 20px;
-        width: 100%; 
-        max-width: none; 
-        margin: 90px 0 0 0; 
+        position: relative; 
+        left: auto;
         transform: none;
+        margin: 0 15px;
+        padding: 20px;
+    }
+
+    .option {
+        padding: 15px;
+    }
+
+    .submit-btn {
+        padding: 12px;
     }
 
     #reservationForm {
+        position: relative;
         width: 90%; 
         margin: 0 auto;
         padding: 15px;
@@ -902,25 +856,40 @@ body.show-cancel #reservation-summary {
         grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
         gap: 6px;
     }
-    
-    .time-button {
-        font-size: 13px;
-        padding: 6px 0;
-    }
 
     .booking-toggle {
         width: 90%;
-        max-width: 300px;
+        max-width: 350px;
+        margin: 90px auto 20px;
+    }
+
+    .toggle-btn {
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+
+}
+
+@media (max-width: 1550px) {  
+    #reservation-summary {
+        display: none !important;  
+        position: static;  
     }
 
     .container {
-        position: absolute;
-        margin-left: 0;
-        padding: 20px;
-        transform: translateY(30%);
+        margin-left: 0; /
     }
 
-    
+    #cancel-container {
+        max-width: 90%;
+        max-width: 400px;
+    }
+
+    #reservationForm {
+        margin: 0 auto;  
+        max-width: 90%;  
+        flex: 1;
+    }
 }
 
 @media (hover: none) and (pointer: coarse) {
