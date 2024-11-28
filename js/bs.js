@@ -243,7 +243,6 @@ function getPeriodText(time) {
 async function loadBookings(selectedDate = null) {
     try {
         const targetDate = selectedDate || new Date();
-        targetDate.setHours(0, 0, 0, 0);
         const dateString = targetDate.toISOString().split('T')[0];
 
         // 更新標題
@@ -264,7 +263,7 @@ async function loadBookings(selectedDate = null) {
             titleElement.textContent = `${formattedDate} (${weekDay})`;
         }
 
-        // 如果有日期選擇器，更新其值
+        // 更新日期選擇器的值
         const dateSelector = document.getElementById('booking-date');
         if (dateSelector) {
             dateSelector.value = dateString;
@@ -273,6 +272,10 @@ async function loadBookings(selectedDate = null) {
         const response = await fetch(`/api/bookings?date=${dateString}`);
         const bookings = await response.json();
         
+        // 先獲取所有常客的電話列表
+        const vipResponse = await fetch('/api/vip/phones');
+        const vipPhones = await vipResponse.json();
+
         const bookingsList = document.getElementById('bookings-list');
         bookingsList.innerHTML = '';
         
@@ -292,9 +295,13 @@ async function loadBookings(selectedDate = null) {
                 
                 const periodText = getPeriodText(booking.time);
                 
+                // 檢查是否為常客
+                const isVIP = vipPhones.includes(booking.phone);
+                const vipStar = isVIP ? '<span class="vip-star">⭐</span>' : '';
+                
                 bookingItem.innerHTML = `
                     <div class="booking-cell" data-label="時段">${periodText} ${booking.time}</div>
-                    <div class="booking-cell" data-label="姓名">${booking.name}</div>
+                    <div class="booking-cell" data-label="姓名">${booking.name} ${vipStar}</div>
                     <div class="booking-cell" data-label="電話">${booking.phone}</div>
                     <div class="booking-cell" data-label="人數">${totalPeople}人</div>
                     <div class="booking-cell" data-label="備註">${noteText}</div>
@@ -308,5 +315,85 @@ async function loadBookings(selectedDate = null) {
         }
     } catch (error) {
         console.error('載入訂位失敗:', error);
+    }
+}
+
+// 常客管理相關函數
+async function checkAndAddVIP() {
+    const name = document.getElementById('vip-name').value.trim();
+    const phone = document.getElementById('vip-phone').value.trim();
+    const messageDiv = document.getElementById('vip-message');
+    
+    if (!name || !phone) {
+        showVIPMessage('請填寫完整資料', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/vip/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, phone })
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            showVIPMessage('成功加入常客名單', 'success');
+            loadVIPList();  // 重新載入常客列表
+            // 清空輸入框
+            document.getElementById('vip-name').value = '';
+            document.getElementById('vip-phone').value = '';
+        } else {
+            showVIPMessage(result.message || '新增失敗', 'error');
+        }
+    } catch (error) {
+        showVIPMessage('系統錯誤，請稍後再試', 'error');
+    }
+}
+
+function showVIPMessage(message, type) {
+    const messageDiv = document.getElementById('vip-message');
+    messageDiv.textContent = message;
+    messageDiv.className = `vip-message ${type}`;
+    setTimeout(() => {
+        messageDiv.style.display = 'none';
+    }, 3000);
+}
+
+let currentPage = 1;
+const itemsPerPage = 10;
+
+async function loadVIPList(page = 1) {
+    try {
+        const response = await fetch(`/api/vip/list?page=${page}&limit=${itemsPerPage}`);
+        const data = await response.json();
+        
+        const vipList = document.getElementById('vip-list');
+        vipList.innerHTML = '';
+        
+        data.vips.forEach((vip, index) => {
+            const vipItem = document.createElement('div');
+            vipItem.className = 'vip-item';
+            vipItem.innerHTML = `
+                <div class="vip-info">
+                    <span>${((page - 1) * itemsPerPage) + index + 1}.</span>
+                    <span>${vip.name}</span>
+                    <span>${vip.phone}</span>
+                </div>
+                <span>${new Date(vip.createdAt).toLocaleDateString('zh-TW')}</span>
+            `;
+            vipList.appendChild(vipItem);
+        });
+
+        // 更新分頁按鈕狀態
+        document.getElementById('prev-page').disabled = page === 1;
+        document.getElementById('next-page').disabled = !data.hasNextPage;
+        document.getElementById('page-info').textContent = `第 ${page} 頁`;
+        currentPage = page;
+    } catch (error) {
+        console.error('載入常客列表失敗:', error);
     }
 }
