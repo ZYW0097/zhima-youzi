@@ -293,6 +293,7 @@ async function sendEmail(toEmail, reservationData) {
                     <p style="margin: 5px 0;">素食：${vegetarian}</p>
                     <p style="margin: 5px 0;">特殊需求：${specialNeeds}</p>
                     <p style="margin: 5px 0;">備註：${notes || '無'}</p>
+                    <p style="margin: 5px 0;">訂位代碼：${bookingCode}</p>
                 </div>
 
                 <p style="color: #666;">如需修改訂位，請提前來電告知。</p>
