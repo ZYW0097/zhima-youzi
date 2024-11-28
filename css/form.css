@@ -708,9 +708,8 @@ body.show-cancel #reservation-summary {
 
 #reservation-display {
     margin-top: 20px;
-    flex-grow: 1;
+    margin-bottom: 20px; 
 }
-
 /* 取消訂位 */
 
 @media (max-width: 768px) {
