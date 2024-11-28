@@ -60,9 +60,9 @@ nav a {
 .container {
     display: flex;
     gap: 20px;
-    padding: 40px;
+    padding: 20px 40px;
     justify-content: center;
-    margin-top: 70px;
+    margin-top: 0;
     margin-left: 360px;
     flex: 1;
 }
@@ -505,6 +505,183 @@ footer {
 
 /* 左側預覽  */
 
+/* 取消訂位 */
+
+.booking-toggle {
+    width: 400px;
+    margin: 120px auto 30px;
+    display: flex;
+    border: none;
+    position: relative;
+    padding: 0;
+    background: transparent;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 15px 30px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.3s ease;
+    position: relative;
+    border-bottom: 2px solid #e0e0e0; 
+}
+
+.toggle-btn.active {
+    color: #4CAF50; 
+    background: transparent;
+    box-shadow: none;
+    border-bottom: 2px solid #4CAF50;  
+}
+
+.toggle-btn:hover {
+    color: #4CAF50;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .booking-toggle {
+        width: 90%;
+        max-width: 350px;
+        margin: 90px auto 20px;
+    }
+
+    .toggle-btn {
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+}
+
+#cancel-container {
+    position: absolute;  
+    left: 50%;        
+    transform: translateX(-50%);  
+    width: 100%;
+    max-width: 500px;
+    padding: 40px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+body.show-cancel #reservation-summary {
+    display: none;
+}
+
+#cancelForm {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+#cancelForm h1 {
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.cancel-options {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.option {
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.option:hover {
+    background: #f0f0f0;
+}
+
+.option label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #444;
+}
+
+.option input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #4CAF50;
+}
+
+.input-group {
+    margin-top: 15px;
+    padding-left: 28px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+    outline: none;
+}
+
+.input-group input::placeholder {
+    color: #999;
+}
+
+.submit-btn {
+    background: #4CAF50;
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    background: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    #cancel-container {
+        position: relative;  /* 手機版使用相對定位 */
+        left: auto;
+        transform: none;
+        margin: 0 15px;
+        padding: 20px;
+    }
+
+    .option {
+        padding: 15px;
+    }
+
+    .submit-btn {
+        padding: 12px;
+    }
+}
+
 @media (max-width: 767px) {
 
     * {
@@ -623,6 +800,10 @@ footer {
         margin-left: 0; /
     }
 
+    #cancel-container {
+        max-width: 90%;
+    }
+
     #reservationForm {
         margin: 0 auto;  
         max-width: 90%;  
@@ -635,7 +816,7 @@ footer {
         padding: 20px;
         width: 100%; 
         max-width: none; 
-        margin: 70px 0 0 0; 
+        margin: 90px 0 0 0; 
         transform: none;
     }
 
@@ -724,6 +905,17 @@ footer {
     .time-button {
         font-size: 13px;
         padding: 6px 0;
+    }
+
+    .booking-toggle {
+        width: 90%;
+        max-width: 300px;
+        margin: 90px auto 20px;
+    }
+
+    .container {
+        margin-left: 0;
+        padding: 20px;
     }
 }
 
