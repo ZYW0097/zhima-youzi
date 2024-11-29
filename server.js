@@ -1522,29 +1522,25 @@ app.post('/api/reservations/search-by-code', async (req, res) => {
 app.post('/api/reservations/search-by-info', async (req, res) => {
     try {
         const { name, phone } = req.body;
-        const reservations = await Reservation.find({ 
+        
+        if (!name || !phone) {
+            return res.status(400).json({ error: '請填寫姓名和電話' });
+        }
+
+        const reservation = await Reservation.findOne({
             name,
             phone,
             canceled: { $ne: true }
         });
-        
-        if (!reservations.length) {
+
+        if (!reservation) {
             return res.status(404).json({ error: '找不到訂位資料' });
         }
-        
-        res.json(reservations.map(r => ({
-            id: r._id,
-            name: r.name,
-            phone: r.phone,
-            email: r.email,
-            date: r.date,
-            time: r.time,
-            adults: r.adults,
-            children: r.children,
-            bookingCode: r.bookingCode
-        })));
+
+        res.json(reservation);
     } catch (error) {
-        res.status(500).json({ error: '查詢失敗' });
+        console.error('Search reservation error:', error);
+        res.status(500).json({ error: '搜尋失敗' });
     }
 });
 
