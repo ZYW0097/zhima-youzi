@@ -1580,8 +1580,6 @@ app.post('/api/reservations/cancel', async (req, res) => {
         const time = reservation.time;
         const hour = parseInt(time.split(':')[0]);
         const dayOfWeek = new Date(date).getDay();
-        const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
-        const weekDay = dayMapping[dayOfWeek];
         
         // 確定是平日還是假日
         const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
@@ -1651,7 +1649,7 @@ app.post('/api/reservations/cancel', async (req, res) => {
                 const label = box.contents[0].text;
                 switch(label) {
                     case "日期":
-                        box.contents[1].text = reservation.date, weekDay;
+                        box.contents[1].text = `${reservation.date} (${weekDay})`;
                         break;
                     case "時間":
                         box.contents[1].text = reservation.time;
@@ -1675,6 +1673,9 @@ app.post('/api/reservations/cancel', async (req, res) => {
 
 // 新增取消訂位郵件函數
 async function sendCancelEmail(email, data) {
+    const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
+    const weekDay = dayMapping[new Date(data.date).getDay()];
+
     const emailData = {
         to: email,
         subject: '芝麻柚子 とんかつ | 訂位取消確認',
@@ -1687,7 +1688,7 @@ async function sendCancelEmail(email, data) {
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
                     <p style="margin: 5px 0;">姓名：${data.name}</p>
-                    <p style="margin: 5px 0;">日期：${data.date} (${weekDay})</p>
+                    <p style="margin: 5px 0;">日期：${data.date} (週${weekDay})</p>
                     <p style="margin: 5px 0;">時間：${data.time}</p>
                     <p style="margin: 5px 0;">人數：${data.adults}大${data.children}小</p>
                     <p style="margin: 5px 0;">訂位代碼：${data.bookingCode}</p>
@@ -1714,6 +1715,8 @@ async function sendCancelEmail(email, data) {
 
 // 新增餐廳通知郵件函數
 async function sendCancelNotificationEmail(email, data) {
+    const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
+    const weekDay = dayMapping[new Date(data.date).getDay()];
     const emailData = {
         to: email,
         subject: '訂位取消通知',
@@ -1725,7 +1728,7 @@ async function sendCancelNotificationEmail(email, data) {
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
                     <p style="margin: 5px 0;">姓名：${data.name}</p>
-                    <p style="margin: 5px 0;">日期：${data.date} (${weekDay})</p>
+                    <p style="margin: 5px 0;">日期：${data.date} (週${weekDay})</p>
                     <p style="margin: 5px 0;">時間：${data.time}</p>
                     <p style="margin: 5px 0;">人數：${data.adults}大${data.children}小</p>
                     <p style="margin: 5px 0;">訂位代碼：${data.bookingCode}</p>
