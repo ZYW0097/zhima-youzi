@@ -1580,6 +1580,8 @@ app.post('/api/reservations/cancel', async (req, res) => {
         const time = reservation.time;
         const hour = parseInt(time.split(':')[0]);
         const dayOfWeek = new Date(date).getDay();
+        const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
+        const weekDay = dayMapping[dayOfWeek];
         
         // 確定是平日還是假日
         const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
@@ -1649,7 +1651,7 @@ app.post('/api/reservations/cancel', async (req, res) => {
                 const label = box.contents[0].text;
                 switch(label) {
                     case "日期":
-                        box.contents[1].text = reservation.date;
+                        box.contents[1].text = reservation.date, weekDay;
                         break;
                     case "時間":
                         box.contents[1].text = reservation.time;
@@ -1685,7 +1687,7 @@ async function sendCancelEmail(email, data) {
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
                     <p style="margin: 5px 0;">姓名：${data.name}</p>
-                    <p style="margin: 5px 0;">日期：${data.date} (${data.dayOfWeek})</p>
+                    <p style="margin: 5px 0;">日期：${data.date} (${weekDay})</p>
                     <p style="margin: 5px 0;">時間：${data.time}</p>
                     <p style="margin: 5px 0;">人數：${data.adults}大${data.children}小</p>
                     <p style="margin: 5px 0;">訂位代碼：${data.bookingCode}</p>
@@ -1723,7 +1725,7 @@ async function sendCancelNotificationEmail(email, data) {
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
                     <p style="margin: 5px 0;">姓名：${data.name}</p>
-                    <p style="margin: 5px 0;">日期：${data.date} (${data.dayOfWeek})</p>
+                    <p style="margin: 5px 0;">日期：${data.date} (${weekDay})</p>
                     <p style="margin: 5px 0;">時間：${data.time}</p>
                     <p style="margin: 5px 0;">人數：${data.adults}大${data.children}小</p>
                     <p style="margin: 5px 0;">訂位代碼：${data.bookingCode}</p>
