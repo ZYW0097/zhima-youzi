@@ -901,7 +901,7 @@ body.show-cancel #reservation-summary {
         position: relative; 
         left: auto;
         transform: none;
-        margin: 100px 15px 40px;
+        margin: auto, 15px 40px;
         padding: 20px;
     }
 
