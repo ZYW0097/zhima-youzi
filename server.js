@@ -1552,42 +1552,66 @@ app.post('/api/reservations/search-by-info', async (req, res) => {
 app.post('/api/reservations/cancel', async (req, res) => {
     try {
         const { bookingCode } = req.body;
-        
-        // 查找並更新訂位
-        const reservation = await Reservation.findOneAndUpdate(
-            { 
-                bookingCode,
-                canceled: { $ne: true } // 確保未被取消的訂位
-            },
-            { 
-                canceled: true,
-                canceledAt: new Date()
-            },
-            { new: true }
-        );
+        console.log('Received cancel request for booking:', bookingCode); // 添加日誌
+
+        if (!bookingCode) {
+            return res.status(400).json({ error: '訂位代碼不能為空' });
+        }
+
+        // 先查找訂位
+        const reservation = await Reservation.findOne({ 
+            bookingCode,
+            canceled: { $ne: true }
+        });
 
         if (!reservation) {
             return res.status(404).json({ error: '找不到訂位資料或訂位已被取消' });
         }
 
-        // 修正：計算時段代碼
+        console.log('Found reservation:', reservation); // 添加日誌
+
+        // 更新訂位狀態
+        reservation.canceled = true;
+        reservation.canceledAt = new Date();
+        await reservation.save();
+
+        // 更新時段計數
+        const date = reservation.date;
         const time = reservation.time;
-        let timeSlot;
         const hour = parseInt(time.split(':')[0]);
+        const dayOfWeek = new Date(date).getDay();
         
-        if (hour < 14) {
-            timeSlot = 'm' + time.replace(':', '');
+        // 確定是平日還是假日
+        const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+        const Model = isWeekday ? GLW : GLH;
+        
+        // 確定時段代碼
+        let timeSlot;
+        if (isWeekday) {
+            if (hour === 11) timeSlot = 'wm1';
+            else if (hour === 12) timeSlot = 'wm2';
+            else if (hour === 13) timeSlot = 'wm3';
+            else if (hour === 17) timeSlot = 'wa1';
+            else if (hour === 18) timeSlot = 'wa2';
+            else if (hour >= 19) timeSlot = 'wa3';
         } else {
-            timeSlot = 'a' + time.replace(':', '');
+            if (hour === 11) timeSlot = 'hm1';
+            else if (hour === 12) timeSlot = 'hm2';
+            else if (hour === 13) timeSlot = 'hm3';
+            else if (hour === 14) timeSlot = 'hm4';
+            else if (hour === 17) timeSlot = 'ha1';
+            else if (hour === 18) timeSlot = 'ha2';
+            else if (hour >= 19) timeSlot = 'ha3';
         }
 
-        const date = reservation.date;
-        const dayOfWeek = new Date(date).getDay();
-        const Model = (dayOfWeek >= 1 && dayOfWeek <= 5) ? GLW : GLH;
-        await Model.updateOne(
+        console.log('Updating time slot:', { date, timeSlot, isWeekday }); // 添加日誌
+
+        // 更新時段資料
+        const updateResult = await Model.updateOne(
             { date },
             { $inc: { [timeSlot]: -1 } }
         );
+        console.log('Time slot update result:', updateResult); // 添加日誌
 
         // 發送取消確認郵件給客人
         await sendEmail(reservation.email, {
@@ -1665,8 +1689,11 @@ app.post('/api/reservations/cancel', async (req, res) => {
 
         res.json({ message: '訂位已成功取消' });
     } catch (error) {
-        console.error('Cancel reservation error:', error);
-        res.status(500).json({ error: '取消失敗' });
+        console.error('Cancel reservation error details:', error); // 添加詳細錯誤日誌
+        res.status(500).json({ 
+            error: '取消失敗',
+            details: error.message 
+        });
     }
 });
 
