@@ -1616,11 +1616,14 @@ app.post('/api/reservations/cancel', async (req, res) => {
         // 取得星期幾的字串
         const displayDate = reservation.date;
 
+        const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
+        const weekDay = dayMapping[dayOfWeek];
+
         // 發送取消確認郵件給客人
         await sendCancelEmail(reservation.email, {
             name: reservation.name,
             date: displayDate,
-            dayOfWeek,
+            dayOfWeek: weekDay, 
             time: reservation.time,
             adults: reservation.adults,
             children: reservation.children,
@@ -1631,7 +1634,7 @@ app.post('/api/reservations/cancel', async (req, res) => {
         await sendCancelNotificationEmail(process.env.EMAIL_USER, {
             name: reservation.name,
             date: displayDate,
-            dayOfWeek,
+            dayOfWeek: weekDay,         
             time: reservation.time,
             adults: reservation.adults,
             children: reservation.children,
@@ -1649,7 +1652,7 @@ app.post('/api/reservations/cancel', async (req, res) => {
                 const label = box.contents[0].text;
                 switch(label) {
                     case "日期":
-                        box.contents[1].text = reservation.date;
+                        box.contents[1].text = `${reservation.date} (${weekDay})`;
                         break;
                     case "時間":
                         box.contents[1].text = reservation.time;
