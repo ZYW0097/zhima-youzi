@@ -1613,52 +1613,29 @@ app.post('/api/reservations/cancel', async (req, res) => {
         );
         console.log('Time slot update result:', updateResult); // 添加日誌
 
-        // 發送取消確認郵件給客人
-        await sendEmail(reservation.email, {
-            name: reservation.name,
-            date: reservation.date,
-            time: reservation.time,
-            subject: '芝麻柚子 とんかつ | 訂位取消確認',
-            html: `
-                <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                    <h2 style="color: #333;">訂位取消確認</h2>
-                    <p style="color: #666;">${reservation.name} 您好，</p>
-                    <p style="color: #666;">您已成功取消以下訂位：</p>
-                    
-                    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                        <p style="margin: 5px 0;">日期：${reservation.date}</p>
-                        <p style="margin: 5px 0;">時間：${reservation.time}</p>
-                    </div>
+        // 取得星期幾的字串
+        const displayDate = reservation.date;
 
-                    <p style="color: #666;">如有任何問題，請隨時與我們聯繫。</p>
-                    
-                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-                        <p style="color: #999; font-size: 14px;">芝麻柚子 とんかつ</p>
-                        <p style="color: #999; font-size: 14px;">電：03 558 7360</p>
-                        <p style="color: #999; font-size: 14px;">地址：新竹縣竹北市光明一路490號</p>
-                    </div>
-                </div>
-            `
+        // 發送取消確認郵件給客人
+        await sendCancelEmail(reservation.email, {
+            name: reservation.name,
+            date: displayDate,
+            dayOfWeek,
+            time: reservation.time,
+            adults: reservation.adults,
+            children: reservation.children,
+            bookingCode: reservation.bookingCode
         });
 
         // 發送通知給餐廳
-        await sendEmail(process.env.EMAIL_USER, {
+        await sendCancelNotificationEmail(process.env.EMAIL_USER, {
             name: reservation.name,
-            date: reservation.date,
+            date: displayDate,
+            dayOfWeek,
             time: reservation.time,
-            subject: '訂位取消通知',
-            html: `
-                <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                    <h2 style="color: #333;">訂位取消通知</h2>
-                    <p style="color: #666;">有客人取消了訂位：</p>
-                    
-                    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                        <p style="margin: 5px 0;">姓名：${reservation.name}</p>
-                        <p style="margin: 5px 0;">日期：${reservation.date}</p>
-                        <p style="margin: 5px 0;">時間：${reservation.time}</p>
-                    </div>
-                </div>
-            `
+            adults: reservation.adults,
+            children: reservation.children,
+            bookingCode: reservation.bookingCode
         });
 
         // 如果有 LINE 帳號綁定，發送 LINE 通知
@@ -1689,13 +1666,63 @@ app.post('/api/reservations/cancel', async (req, res) => {
 
         res.json({ message: '訂位已成功取消' });
     } catch (error) {
-        console.error('Cancel reservation error details:', error); // 添加詳細錯誤日誌
-        res.status(500).json({ 
-            error: '取消失敗',
-            details: error.message 
-        });
+        console.error('Cancel reservation error:', error);
+        res.status(500).json({ error: '取消失敗' });
     }
 });
+
+// 新增取消訂位郵件函數
+async function sendCancelEmail(email, data) {
+    return sendEmail(email, {
+        subject: '芝麻柚子 とんかつ | 訂位取消確認',
+        html: `
+            <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #333;">訂位取消確認</h2>
+                <p style="color: #666;">${data.name} 您好，</p>
+                <p style="color: #666;">您已成功取消以下訂位：</p>
+                
+                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
+                    <p style="margin: 5px 0;">姓名：${data.name}</p>
+                    <p style="margin: 5px 0;">日期：${data.date} (${data.dayOfWeek})</p>
+                    <p style="margin: 5px 0;">時間：${data.time}</p>
+                    <p style="margin: 5px 0;">人數：${data.adults}大${data.children}小</p>
+                    <p style="margin: 5px 0;">訂位代碼：${data.bookingCode}</p>
+                </div>
+
+                <p style="color: #666;">如有任何問題，請隨時與我們聯繫。</p>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <p style="color: #999; font-size: 14px;">芝麻柚子 とんかつ</p>
+                    <p style="color: #999; font-size: 14px;">電：03 558 7360</p>
+                    <p style="color: #999; font-size: 14px;">地址：新竹縣竹北市光明一路490號</p>
+                </div>
+            </div>
+        `
+    });
+}
+
+// 新增餐廳通知郵件函數
+async function sendCancelNotificationEmail(email, data) {
+    return sendEmail(email, {
+        subject: '訂位取消通知',
+        html: `
+            <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #333;">訂位取消通知</h2>
+                <p style="color: #666;">有客人取消了訂位：</p>
+                
+                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
+                    <p style="margin: 5px 0;">姓名：${data.name}</p>
+                    <p style="margin: 5px 0;">日期：${data.date} (${data.dayOfWeek})</p>
+                    <p style="margin: 5px 0;">時間：${data.time}</p>
+                    <p style="margin: 5px 0;">人數：${data.adults}大${data.children}小</p>
+                    <p style="margin: 5px 0;">訂位代碼：${data.bookingCode}</p>
+                </div>
+            </div>
+        `
+    });
+}
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
