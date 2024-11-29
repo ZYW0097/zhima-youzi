@@ -1673,7 +1673,8 @@ app.post('/api/reservations/cancel', async (req, res) => {
 
 // 新增取消訂位郵件函數
 async function sendCancelEmail(email, data) {
-    return sendEmail(email, {
+    const emailData = {
+        to: email,
         subject: '芝麻柚子 とんかつ | 訂位取消確認',
         html: `
             <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -1699,12 +1700,20 @@ async function sendCancelEmail(email, data) {
                 </div>
             </div>
         `
+    };
+
+    return await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: emailData.to,
+        subject: emailData.subject,
+        html: emailData.html
     });
 }
 
 // 新增餐廳通知郵件函數
 async function sendCancelNotificationEmail(email, data) {
-    return sendEmail(email, {
+    const emailData = {
+        to: email,
         subject: '訂位取消通知',
         html: `
             <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -1721,6 +1730,13 @@ async function sendCancelNotificationEmail(email, data) {
                 </div>
             </div>
         `
+    };
+
+    return await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: emailData.to,
+        subject: emailData.subject,
+        html: emailData.html
     });
 }
 
