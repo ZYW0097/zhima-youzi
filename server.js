@@ -1552,8 +1552,13 @@ app.post('/api/reservations/search-by-info', async (req, res) => {
 app.post('/api/reservations/cancel', async (req, res) => {
     try {
         const { bookingCode } = req.body;
+        
+        // 查找並更新訂位
         const reservation = await Reservation.findOneAndUpdate(
-            { bookingCode },
+            { 
+                bookingCode,
+                canceled: { $ne: true } // 確保未被取消的訂位
+            },
             { 
                 canceled: true,
                 canceledAt: new Date()
@@ -1562,7 +1567,7 @@ app.post('/api/reservations/cancel', async (req, res) => {
         );
 
         if (!reservation) {
-            return res.status(404).json({ error: '找不到訂位資料' });
+            return res.status(404).json({ error: '找不到訂位資料或訂位已被取消' });
         }
 
         // 發送取消確認郵件給客人
