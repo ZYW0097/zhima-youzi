@@ -1575,7 +1575,6 @@ app.post('/api/reservations/cancel', async (req, res) => {
         const date = reservation.date;
         const dayOfWeek = new Date(date).getDay();
         const Model = (dayOfWeek >= 1 && dayOfWeek <= 5) ? GLW : GLH;
-        W
         await Model.updateOne(
             { date },
             { $inc: { [timeSlot]: -1 } }
