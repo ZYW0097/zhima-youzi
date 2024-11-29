@@ -1645,11 +1645,14 @@ app.post('/api/reservations/cancel', async (req, res) => {
             messageTemplate.body.contents[0].text = `${reservation.name}，您好！`;
             const reservationInfo = messageTemplate.body.contents[1].contents;
             
+            const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
+            const weekDay = dayMapping[dayOfWeek];
+            
             reservationInfo.forEach(box => {
                 const label = box.contents[0].text;
                 switch(label) {
                     case "日期":
-                        box.contents[1].text = `${reservation.date} (${weekDay})`;
+                        box.contents[1].text = `${reservation.date} (週${weekDay})`;
                         break;
                     case "時間":
                         box.contents[1].text = reservation.time;
