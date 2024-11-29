@@ -423,7 +423,7 @@ function displayReservationInfo(results) {
                 <p>訂位代碼：${reservation.bookingCode}</p>
             </div>
             <div class="button-group">
-                <button onclick="confirmCancel('${reservation._id}')" class="confirm-btn">確認取消</button>
+                <button onclick="confirmCancel('${reservation.bookingCode}')" class="confirm-btn">確認取消</button>
             </div>
         </div>
     `).join('');
@@ -444,6 +444,8 @@ async function confirmCancel(bookingCode) {
     if (!confirm('確定要取消此訂位嗎？')) return;
 
     try {
+        console.log('Attempting to cancel booking:', bookingCode); // 添加日誌
+
         const response = await fetch('/api/reservations/cancel', {
             method: 'POST',
             headers: {
@@ -452,13 +454,17 @@ async function confirmCancel(bookingCode) {
             body: JSON.stringify({ bookingCode })
         });
 
+        const data = await response.json(); // 獲取詳細的回應數據
+
         if (!response.ok) {
-            throw new Error('取消失敗');
+            throw new Error(data.error || '取消失敗');
         }
 
-        alert('訂位已成功取消');
+        console.log('Cancel response:', data); // 添加日誌
+        alert(data.message || '訂位已成功取消');
         location.reload();
     } catch (error) {
+        console.error('Cancel error details:', error); // 添加詳細錯誤日誌
         alert(error.message || '取消失敗，請稍後再試');
     }
 }
