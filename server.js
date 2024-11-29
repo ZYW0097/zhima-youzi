@@ -1570,8 +1570,17 @@ app.post('/api/reservations/cancel', async (req, res) => {
             return res.status(404).json({ error: '找不到訂位資料或訂位已被取消' });
         }
 
-        // 添加這段：更新時段計數
-        const timeSlot = getTimeSlot(reservation.time, reservation.date);
+        // 修正：計算時段代碼
+        const time = reservation.time;
+        let timeSlot;
+        const hour = parseInt(time.split(':')[0]);
+        
+        if (hour < 14) {
+            timeSlot = 'm' + time.replace(':', '');
+        } else {
+            timeSlot = 'a' + time.replace(':', '');
+        }
+
         const date = reservation.date;
         const dayOfWeek = new Date(date).getDay();
         const Model = (dayOfWeek >= 1 && dayOfWeek <= 5) ? GLW : GLH;
