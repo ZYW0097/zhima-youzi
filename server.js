@@ -1522,25 +1522,29 @@ app.post('/api/reservations/search-by-code', async (req, res) => {
 app.post('/api/reservations/search-by-info', async (req, res) => {
     try {
         const { name, phone } = req.body;
-        
-        if (!name || !phone) {
-            return res.status(400).json({ error: '請填寫姓名和電話' });
-        }
-
-        const reservation = await Reservation.findOne({
+        const reservations = await Reservation.find({ 
             name,
             phone,
             canceled: { $ne: true }
         });
-
-        if (!reservation) {
+        
+        if (!reservations.length) {
             return res.status(404).json({ error: '找不到訂位資料' });
         }
-
-        res.json(reservation);
+        
+        res.json(reservations.map(r => ({
+            id: r._id,
+            name: r.name,
+            phone: r.phone,
+            email: r.email,
+            date: r.date,
+            time: r.time,
+            adults: r.adults,
+            children: r.children,
+            bookingCode: r.bookingCode
+        })));
     } catch (error) {
-        console.error('Search reservation error:', error);
-        res.status(500).json({ error: '搜尋失敗' });
+        res.status(500).json({ error: '查詢失敗' });
     }
 });
 
@@ -1641,14 +1645,11 @@ app.post('/api/reservations/cancel', async (req, res) => {
             messageTemplate.body.contents[0].text = `${reservation.name}，您好！`;
             const reservationInfo = messageTemplate.body.contents[1].contents;
             
-            const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
-            const weekDay = dayMapping[dayOfWeek];
-            
             reservationInfo.forEach(box => {
                 const label = box.contents[0].text;
                 switch(label) {
                     case "日期":
-                        box.contents[1].text = `${reservation.date} (週${weekDay})`;
+                        box.contents[1].text = reservation.date;
                         break;
                     case "時間":
                         box.contents[1].text = reservation.time;
@@ -1672,9 +1673,6 @@ app.post('/api/reservations/cancel', async (req, res) => {
 
 // 新增取消訂位郵件函數
 async function sendCancelEmail(email, data) {
-    const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
-    const weekDay = dayMapping[new Date(data.date).getDay()];
-
     const emailData = {
         to: email,
         subject: '芝麻柚子 とんかつ | 訂位取消確認',
@@ -1687,7 +1685,7 @@ async function sendCancelEmail(email, data) {
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
                     <p style="margin: 5px 0;">姓名：${data.name}</p>
-                    <p style="margin: 5px 0;">日期：${data.date} (週${weekDay})</p>
+                    <p style="margin: 5px 0;">日期：${data.date} (${data.dayOfWeek})</p>
                     <p style="margin: 5px 0;">時間：${data.time}</p>
                     <p style="margin: 5px 0;">人數：${data.adults}大${data.children}小</p>
                     <p style="margin: 5px 0;">訂位代碼：${data.bookingCode}</p>
@@ -1714,8 +1712,6 @@ async function sendCancelEmail(email, data) {
 
 // 新增餐廳通知郵件函數
 async function sendCancelNotificationEmail(email, data) {
-    const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
-    const weekDay = dayMapping[new Date(data.date).getDay()];
     const emailData = {
         to: email,
         subject: '訂位取消通知',
@@ -1727,7 +1723,7 @@ async function sendCancelNotificationEmail(email, data) {
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
                     <p style="margin: 5px 0;">姓名：${data.name}</p>
-                    <p style="margin: 5px 0;">日期：${data.date} (週${weekDay})</p>
+                    <p style="margin: 5px 0;">日期：${data.date} (${data.dayOfWeek})</p>
                     <p style="margin: 5px 0;">時間：${data.time}</p>
                     <p style="margin: 5px 0;">人數：${data.adults}大${data.children}小</p>
                     <p style="margin: 5px 0;">訂位代碼：${data.bookingCode}</p>
