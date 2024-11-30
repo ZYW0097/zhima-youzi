@@ -230,6 +230,13 @@ document.addEventListener('DOMContentLoaded', function() {
         loadVIPList(currentPage + 1);
     });
 
+    setInterval(() => {
+        const currentDate = document.getElementById('booking-date').value;
+        if (currentDate) {
+            loadBookings(new Date(currentDate));
+        }
+    }, 30000); 
+
     loadSettings();
     loadBookings();
     checkTokenValidity();
