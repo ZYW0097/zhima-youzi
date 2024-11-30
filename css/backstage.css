@@ -581,7 +581,7 @@ body {
 
 @media (min-width: 769px) {
     .new-booking-label {
-        padding-left: 110px; 
+        padding-left: 25px; 
         margin-bottom: -10px; 
     }
 }
@@ -669,10 +669,11 @@ body {
     }
 
     .booking-cell {
+        padding: 8px 0;
         display: flex;
-        padding: 10px 15px;
-        border-bottom: 1px solid #eee;
+        justify-content: space-between;
         align-items: center;
+        border-bottom: 1px solid #eee;
     }
 
     .booking-cell::before {
@@ -680,7 +681,6 @@ body {
         font-weight: 600;
         color: #666;
         width: 80px;
-        flex-shrink: 0;
     }
 
     .booking-cell:last-child {
@@ -759,14 +759,13 @@ body {
         margin-bottom: 5px;
     }
 
+    .vip-star {
+        margin-left: 10px;
+    }
+
     @keyframes blink {
         0% { opacity: 1; }
         50% { opacity: 0; }
         100% { opacity: 1; }
-    }
-
-    .vip-star {
-        margin-left: 2px;
-        display: inline;
     }
 }
