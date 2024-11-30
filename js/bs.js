@@ -235,24 +235,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 設置自動刷新訂位列表（每30秒）
     setInterval(() => {
-        const currentDate = document.getElementById('booking-date').value;
-        if (currentDate) {
-            loadBookings(new Date(currentDate));
+        const dateSelector = document.getElementById('booking-date');
+        if (dateSelector && dateSelector.value) {
+            // 保持使用者選擇的日期，而不是重置為今天
+            loadBookings(new Date(dateSelector.value + 'T00:00:00'));
         }
-    }, 30000); 
+    }, 30000);
 
     loadSettings();
     checkTokenValidity();
     loadVIPList(1);
     showPage('reservations');
 
+    // 初始化時載入今天的日期
     const today = new Date();
+    today.setHours(0, 0, 0, 0);  // 設置時間為當天 00:00:00
     const dateString = today.toISOString().split('T')[0];
     
-    // 更新日期選擇器
     if (dateSelector) {
         dateSelector.value = dateString;
-        // 觸發載入今天的訂位
         loadBookings(today);
     }
 });
@@ -271,7 +272,16 @@ function getPeriodText(time) {
 // 載入今日訂位
 async function loadBookings(selectedDate = null) {
     try {
-        const targetDate = selectedDate || new Date();
+        let targetDate = selectedDate;
+        if (!targetDate) {
+            targetDate = new Date();
+        }
+        // 確保日期對象是正確的
+        if (typeof targetDate === 'string') {
+            targetDate = new Date(targetDate + 'T00:00:00');
+        }
+        targetDate.setHours(0, 0, 0, 0);
+        
         const dateString = targetDate.toISOString().split('T')[0];
 
         // 更新標題
