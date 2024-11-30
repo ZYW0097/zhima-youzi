@@ -319,10 +319,20 @@ async function loadBookings(selectedDate = null) {
                     <div class="booking-cell" data-label="人數">${totalPeople}人</div>
                     <div class="booking-cell" data-label="備註">${noteText}</div>
                     <div class="booking-cell" data-label="狀態">
-                        <span class="${booking.canceled ? 'status-cancelled' : 'status-active'}">
-                            ${booking.canceled ? '已取消' : '未取消'}
+                        <span class="${booking.canceled ? 'status-cancelled' : (booking.seated ? 'status-seated' : 'status-not-seated')}">
+                            ${booking.canceled ? '已取消' : (booking.seated ? '已入座' : '尚未入座')}
                         </span>
                     </div>
+                    ${!booking.canceled ? `
+                        <div class="booking-cell seat-button-container">
+                            <button 
+                                class="seat-button ${booking.seated ? 'hidden' : ''}"
+                                onclick="markAsSeated('${booking._id}')"
+                            >
+                                已入座
+                            </button>
+                        </div>
+                    ` : ''}
                 `;
                 
                 bookingsList.appendChild(bookingItem);
@@ -423,5 +433,27 @@ async function loadVIPList(page = 1) {
     } catch (error) {
         console.error('載入常客列表失敗:', error);
         document.getElementById('vip-list').innerHTML = '<div class="error">載入失敗，請稍後再試</div>';
+    }
+}
+
+// 標記入座狀態
+async function markAsSeated(bookingId) {
+    try {
+        const response = await fetch(`/api/bookings/${bookingId}/seat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            // 重新載入訂位資料
+            loadBookings(new Date(document.getElementById('booking-date').value));
+        } else {
+            alert('更新入座狀態失敗');
+        }
+    } catch (error) {
+        console.error('更新入座狀態時發生錯誤:', error);
+        alert('系統錯誤，請稍後再試');
     }
 }
