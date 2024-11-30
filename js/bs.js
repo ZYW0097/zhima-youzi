@@ -307,7 +307,7 @@ async function loadBookings(selectedDate = null) {
         if (bookings && bookings.length > 0) {
             bookings.forEach(booking => {
                 const bookingItem = document.createElement('div');
-                bookingItem.className = 'booking-item';
+                bookingItem.className = 'booking-container';
                 
                 // 檢查是否為新訂位（10分鐘內）
                 const bookingTime = new Date(booking.createdAt);
@@ -342,27 +342,31 @@ async function loadBookings(selectedDate = null) {
                 const vipStar = isVIP ? '<span class="vip-star">⭐</span>' : '';
                 
                 bookingItem.innerHTML = `
-                    <div class="booking-cell new-booking-label ${!isStillNew ? 'hidden' : ''}">*新訂位</div>
-                    <div class="booking-cell" data-label="時段">${periodText} ${booking.time}</div>
-                    <div class="booking-cell" data-label="姓名">${booking.name} ${vipStar}</div>
-                    <div class="booking-cell" data-label="電話">${booking.phone}</div>
-                    <div class="booking-cell" data-label="人數">${totalPeople}人</div>
-                    <div class="booking-cell" data-label="備註">${noteText}</div>
-                    <div class="booking-cell" data-label="狀態">
-                        <span class="${booking.canceled ? 'status-cancelled' : (booking.seated ? 'status-seated' : 'status-not-seated')}">
-                            ${booking.canceled ? '已取消' : (booking.seated ? '已入座' : '尚未入座')}
-                        </span>
-                    </div>
-                    ${!booking.canceled ? `
-                        <div class="booking-cell seat-button-container">
-                            <button 
-                                class="seat-button ${booking.seated ? 'hidden' : ''}"
-                                onclick="markAsSeated('${booking._id}')"
-                            >
-                                已入座
-                            </button>
-                        </div>
+                    ${isStillNew ? `
+                        <div class="new-booking-label ${!isStillNew ? 'hidden' : ''}">*新訂位</div>
                     ` : ''}
+                    <div class="booking-item">
+                        <div class="booking-cell" data-label="時段">${periodText} ${booking.time}</div>
+                        <div class="booking-cell" data-label="姓名">${booking.name} ${vipStar}</div>
+                        <div class="booking-cell" data-label="電話">${booking.phone}</div>
+                        <div class="booking-cell" data-label="人數">${totalPeople}人</div>
+                        <div class="booking-cell" data-label="備註">${noteText}</div>
+                        <div class="booking-cell" data-label="狀態">
+                            <span class="${booking.canceled ? 'status-cancelled' : (booking.seated ? 'status-seated' : 'status-not-seated')}">
+                                ${booking.canceled ? '已取消' : (booking.seated ? '已入座' : '尚未入座')}
+                            </span>
+                        </div>
+                        ${!booking.canceled ? `
+                            <div class="booking-cell seat-button-container">
+                                <button 
+                                    class="seat-button ${booking.seated ? 'hidden' : ''}"
+                                    onclick="markAsSeated('${booking._id}')"
+                                >
+                                    已入座
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
                 `;
                 
                 bookingsList.appendChild(bookingItem);
