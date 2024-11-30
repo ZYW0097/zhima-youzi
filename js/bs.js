@@ -318,7 +318,11 @@ async function loadBookings(selectedDate = null) {
                     <div class="booking-cell" data-label="電話">${booking.phone}</div>
                     <div class="booking-cell" data-label="人數">${totalPeople}人</div>
                     <div class="booking-cell" data-label="備註">${noteText}</div>
-                    <div class="booking-cell" data-label="狀態"><span class="status-active">已確認</span></div>
+                    <div class="booking-cell" data-label="狀態">
+                        <span class="${booking.canceled ? 'status-cancelled' : 'status-active'}">
+                            ${booking.canceled ? '已取消' : '未取消'}
+                        </span>
+                    </div>
                 `;
                 
                 bookingsList.appendChild(bookingItem);
