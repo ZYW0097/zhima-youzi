@@ -296,11 +296,12 @@ body {
 }
 
 .booking-item {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 0.5fr 1.5fr 0.5fr;
+    display: block;
     padding: 15px;
-    border-bottom: 1px solid #e9ecef;
-    transition: background-color 0.3s;
+    margin: 10px 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .booking-item:hover {
@@ -581,7 +582,7 @@ body {
 
 @media (min-width: 769px) {
     .new-booking-label {
-        padding-left: 110px; 
+        padding-left: 25px; 
         margin-bottom: -10px; 
     }
 }
@@ -757,5 +758,15 @@ body {
         display: block;
         padding: 5px 15px;
         margin-bottom: 5px;
+    }
+
+    .vip-star {
+        margin-left: 10px;
+    }
+
+    @keyframes blink {
+        0% { opacity: 1; }
+        50% { opacity: 0; }
+        100% { opacity: 1; }
     }
 }
