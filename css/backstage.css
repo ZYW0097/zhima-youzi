@@ -558,7 +558,6 @@ body {
 
 .vip-star {
     color: #FFD700; 
-    margin-left: 5px;
     display: inline-block;
     vertical-align: text-top;
     line-height: 1;  
@@ -712,12 +711,6 @@ body {
     .vip-info {
         flex-direction: column;
         gap: 5px;
-    }
-
-    .vip-star {
-        margin-left: 2px; 
-        position: relative;  
-        top: -1px;  
     }
 
     .seat-button-container {
