@@ -29,6 +29,10 @@ const reservationSchema = new mongoose.Schema({
         type: Boolean, 
         default: false 
     },
+    seated: {
+        type: Boolean,
+        default: false
+    },
     canceledAt: { 
         type: Date,
         default: null
