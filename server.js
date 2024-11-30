@@ -1757,6 +1757,29 @@ async function sendCancelNotificationEmail(email, data) {
     });
 }
 
+// 處理入座狀態更新
+app.post('/api/bookings/:id/seat', async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+        
+        // 更新訂位狀態為已入座
+        const updatedBooking = await Reservation.findByIdAndUpdate(
+            bookingId,
+            { seated: true },
+            { new: true }
+        );
+
+        if (!updatedBooking) {
+            return res.status(404).json({ message: '找不到訂位記錄' });
+        }
+
+        res.json({ message: '已更新入座狀態', booking: updatedBooking });
+    } catch (error) {
+        console.error('更新入座狀態失敗:', error);
+        res.status(500).json({ message: '更新入座狀態時發生錯誤' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     console.log(`Connected to database: ${mongoose.connection.name}`);
