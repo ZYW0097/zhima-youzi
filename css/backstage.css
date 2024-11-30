@@ -570,13 +570,20 @@ body {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 @keyframes blink {
     0% { opacity: 1; }
     50% { opacity: 0; }
     100% { opacity: 1; }
+}
+
+@media (min-width: 769px) {
+    .new-booking-label {
+        padding-left: 110px; 
+        margin-bottom: -10px; 
+    }
 }
 
 @media (max-width: 768px) {
@@ -740,5 +747,21 @@ body {
     .status-active {
         display: inline-block;
         margin-top: 2px;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+    
+    .new-booking-label {
+        display: block;
+        padding: 5px 15px;
+        margin-bottom: 5px;
+    }
+
+    @keyframes blink {
+        0% { opacity: 1; }
+        50% { opacity: 0; }
+        100% { opacity: 1; }
     }
 }
