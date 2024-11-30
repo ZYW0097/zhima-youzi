@@ -340,7 +340,7 @@ async function loadBookings(selectedDate = null) {
                 const vipStar = isVIP ? '<span class="vip-star">⭐</span>' : '';
                 
                 bookingItem.innerHTML = `
-                    <${isStillNew ? `<div class="new-booking-label d-md-none">*新訂位</div>` : ''}
+                    ${isStillNew ? `<div class="new-booking-label d-md-none">*新訂位</div>` : ''}
                     <div class="booking-cell" data-label="時段">${periodText} ${booking.time}</div>
                     <div class="booking-cell" data-label="姓名">${booking.name} ${vipStar}</div>
                     <div class="booking-cell" data-label="電話">${booking.phone}</div>
