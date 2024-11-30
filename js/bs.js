@@ -8,6 +8,9 @@ let originalSettings = {
 
 let isEditing = false;
 
+// 追蹤新訂位的物件
+const newBookings = new Map(); 
+
 // 切換編輯模式
 function toggleEdit() {
     isEditing = !isEditing;
@@ -230,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadVIPList(currentPage + 1);
     });
 
+    // 設置自動刷新訂位列表（每30秒）
     setInterval(() => {
         const currentDate = document.getElementById('booking-date').value;
         if (currentDate) {
@@ -296,6 +300,7 @@ async function loadBookings(selectedDate = null) {
             vipResponse.json()
         ]);
 
+        const currentTime = new Date();
         const bookingsList = document.getElementById('bookings-list');
         bookingsList.innerHTML = '';
         
@@ -304,6 +309,23 @@ async function loadBookings(selectedDate = null) {
                 const bookingItem = document.createElement('div');
                 bookingItem.className = 'booking-item';
                 
+                // 檢查是否為新訂位（10分鐘內）
+                const bookingTime = new Date(booking.createdAt);
+                const timeDiff = currentTime - bookingTime;
+                const isNewBooking = timeDiff <= 600000; // 10分鐘
+
+                if (isNewBooking && !newBookings.has(booking._id)) {
+                    newBookings.set(booking._id, currentTime);
+                    setTimeout(() => {
+                        newBookings.delete(booking._id);
+                        loadBookings(selectedDate); // 重新載入以更新顯示
+                    }, 600000);
+                }
+
+                const isStillNew = newBookings.has(booking._id);
+                const newBookingLabel = isStillNew ? 
+                    '<span class="new-booking-label">*新訂位</span>' : '';
+
                 const totalPeople = booking.adults + booking.children;
                 
                 // 組合備註資訊
@@ -320,6 +342,7 @@ async function loadBookings(selectedDate = null) {
                 const vipStar = isVIP ? '<span class="vip-star">⭐</span>' : '';
                 
                 bookingItem.innerHTML = `
+                    <div class="booking-cell new-booking-label ${!isStillNew ? 'hidden' : ''}">*新訂位</div>
                     <div class="booking-cell" data-label="時段">${periodText} ${booking.time}</div>
                     <div class="booking-cell" data-label="姓名">${booking.name} ${vipStar}</div>
                     <div class="booking-cell" data-label="電話">${booking.phone}</div>
