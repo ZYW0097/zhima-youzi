@@ -242,10 +242,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 30000); 
 
     loadSettings();
-    loadBookings();
     checkTokenValidity();
     loadVIPList(1);
     showPage('reservations');
+
+    const today = new Date();
+    const dateString = today.toISOString().split('T')[0];
+    
+    // 更新日期選擇器
+    if (dateSelector) {
+        dateSelector.value = dateString;
+        // 觸發載入今天的訂位
+        loadBookings(today);
+    }
 });
 
 function getPeriodText(time) {
@@ -307,7 +316,7 @@ async function loadBookings(selectedDate = null) {
         if (bookings && bookings.length > 0) {
             bookings.forEach(booking => {
                 const bookingItem = document.createElement('div');
-                bookingItem.className = 'booking-container';
+                bookingItem.className = 'booking-item';
                 
                 // 檢查是否為新訂位（10分鐘內）
                 const bookingTime = new Date(booking.createdAt);
