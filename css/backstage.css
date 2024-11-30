@@ -296,12 +296,11 @@ body {
 }
 
 .booking-item {
-    display: block;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 0.5fr 1.5fr 0.5fr;
     padding: 15px;
-    margin: 10px 15px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.3s;
 }
 
 .booking-item:hover {
@@ -580,12 +579,12 @@ body {
     100% { opacity: 1; }
 }
 
-@media (min-width: 769px) {
+/* @media (min-width: 769px) {
     .new-booking-label {
         padding-left: 25px; 
         margin-bottom: -10px; 
     }
-}
+} */
 
 @media (max-width: 768px) {
     .layout {
