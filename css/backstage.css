@@ -582,7 +582,7 @@ body {
 @media (min-width: 769px) {
     .booking-item {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 0.5fr 1.5fr 0.5fr;
+        grid-template-columns: 1fr 1fr 1fr 0.5fr 1.5fr 0.5fr; 
         padding: 15px;
         border-bottom: 1px solid #e9ecef;
         transition: background-color 0.3s;
@@ -596,10 +596,6 @@ body {
         0% { background-color: white; }
         50% { background-color: rgba(255, 0, 0, 0.1); }
         100% { background-color: white; }
-    }
-
-    .new-booking-label {
-        display: none;
     }
 }
 
