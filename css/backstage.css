@@ -579,12 +579,12 @@ body {
     100% { opacity: 1; }
 }
 
-/* @media (min-width: 769px) {
+@media (min-width: 769px) {
     .new-booking-label {
         padding-left: 25px; 
         margin-bottom: -10px; 
     }
-} */
+}
 
 @media (max-width: 768px) {
     .layout {
