@@ -1098,32 +1098,41 @@ app.post('/line/webhook', async (req, res) => {
                             const maskedName = recentReservation.name.charAt(0) + '*'.repeat(recentReservation.name.length - 1);
                             const maskedPhone = `${userMessage.slice(0, 4)}**${userMessage.slice(-2)}`;
                             
-                            // 直接設定正確的值，而不是使用字串替換
-                            messageTemplate.body.contents.forEach(content => {
-                                // 確保 content 和 content.text 存在
-                                if (content && content.text) {
-                                    // 根據實際內容直接賦值
-                                    switch (content.text) {
-                                        case '${maskedName}':
-                                            content.text = maskedName;
-                                            break;
-                                        case '${maskedPhone}':
-                                            content.text = maskedPhone;
-                                            break;
-                                        case '${date}':
-                                            const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
-                                            const weekDay = dayMapping[new Date(recentReservation.date).getDay()];
-                                            content.text = `${moment(recentReservation.date).format('YYYY/MM/DD')} (${weekDay})`;
-                                            break;
-                                        case '${time}':
-                                            content.text = recentReservation.time;
-                                            break;
-                                        case '${people}':
-                                            content.text = `${recentReservation.adults}大${recentReservation.children}小`;
-                                            break;
+                            // 遞迴函數來處理巢狀結構
+                            const updateTemplateValues = (contents) => {
+                                if (Array.isArray(contents)) {
+                                    contents.forEach(content => updateTemplateValues(content));
+                                } else if (contents && typeof contents === 'object') {
+                                    // 處理當前物件的 text 屬性
+                                    if (contents.text) {
+                                        switch (contents.text) {
+                                            case '${maskedName}':
+                                                contents.text = maskedName;
+                                                break;
+                                            case '${maskedPhone}':
+                                                contents.text = maskedPhone;
+                                                break;
+                                            case '${date}':
+                                                const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
+                                                const weekDay = dayMapping[new Date(recentReservation.date).getDay()];
+                                                contents.text = `${moment(recentReservation.date).format('YYYY/MM/DD')} (${weekDay})`;
+                                                break;
+                                            case '${time}':
+                                                contents.text = recentReservation.time;
+                                                break;
+                                        }
                                     }
+                                    // 遞迴處理所有子屬性
+                                    Object.values(contents).forEach(value => {
+                                        if (typeof value === 'object') {
+                                            updateTemplateValues(value);
+                                        }
+                                    });
                                 }
-                            });
+                            };
+
+                            // 更新整個模板
+                            updateTemplateValues(messageTemplate);
 
                             // 更新確認按鈕的 data
                             messageTemplate.footer.contents[1].action.data = 
@@ -1683,7 +1692,7 @@ app.post('/api/reservations/cancel', async (req, res) => {
 async function sendCancelEmail(email, data) {
     const emailData = {
         to: email,
-        subject: '芝麻柚��� とんかつ | 訂位取消確認',
+        subject: '芝麻柚子 とんかつ | 訂位取消確認',
         html: `
             <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h2 style="color: #333;">訂位取消確認</h2>
