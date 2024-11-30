@@ -340,9 +340,8 @@ async function loadBookings(selectedDate = null) {
                 const vipStar = isVIP ? '<span class="vip-star">⭐</span>' : '';
                 
                 bookingItem.innerHTML = `
-                    ${isStillNew ? `
-                        <div class="new-booking-label ${isStillNew ? '' : 'hidden'}">*新訂位</div>
-                    ` : ''}
+                    <div class="booking-item ${isStillNew ? 'new-booking' : ''}">
+        ${isStillNew ? `<div class="new-booking-label d-md-none">*新訂位</div>` : ''}
                     <div class="booking-cell" data-label="時段">${periodText} ${booking.time}</div>
                     <div class="booking-cell" data-label="姓名">${booking.name} ${vipStar}</div>
                     <div class="booking-cell" data-label="電話">${booking.phone}</div>
@@ -480,7 +479,7 @@ async function markAsSeated(bookingId) {
             // 重新載入訂位資料
             loadBookings(new Date(document.getElementById('booking-date').value));
         } else {
-            alert('更新入座狀���失敗');
+            alert('更新入座狀態失敗');
         }
     } catch (error) {
         console.error('更新入座狀態時發生錯誤:', error);
