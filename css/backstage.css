@@ -564,6 +564,21 @@ body {
     font-size: 0.9em; 
 }
 
+.new-booking-label {
+    color: #ff0000;
+    animation: blink 1s infinite;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
 @media (max-width: 768px) {
     .layout {
         flex-direction: column;
