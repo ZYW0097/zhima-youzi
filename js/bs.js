@@ -323,8 +323,6 @@ async function loadBookings(selectedDate = null) {
                 }
 
                 const isStillNew = newBookings.has(booking._id);
-                const newBookingLabel = isStillNew ? 
-                    '<span class="new-booking-label">*新訂位</span>' : '';
 
                 const totalPeople = booking.adults + booking.children;
                 
@@ -343,7 +341,7 @@ async function loadBookings(selectedDate = null) {
                 
                 bookingItem.innerHTML = `
                     ${isStillNew ? `
-                        <div class="new-booking-label ${!isStillNew ? 'hidden' : ''}">*新訂位</div>
+                        <div class="new-booking-label ${isStillNew ? '' : 'hidden'}">*新訂位</div>
                     ` : ''}
                     <div class="booking-item">
                         <div class="booking-cell" data-label="時段">${periodText} ${booking.time}</div>
