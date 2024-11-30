@@ -313,12 +313,12 @@ body {
 
 .status-active {
     color: #4CAF50;
-    font-weight: 500;
+    font-weight: bold;
 }
 
 .status-cancelled {
     color: #F44336;
-    font-weight: 500;
+    font-weight: bold;
 }
 
 .header-actions {
@@ -682,5 +682,11 @@ body {
     .vip-info {
         flex-direction: column;
         gap: 5px;
+    }
+
+    .vip-star {
+        margin-left: 2px; 
+        position: relative;  
+        top: -1px;  
     }
 }
