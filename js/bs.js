@@ -343,28 +343,26 @@ async function loadBookings(selectedDate = null) {
                     ${isStillNew ? `
                         <div class="new-booking-label ${isStillNew ? '' : 'hidden'}">*新訂位</div>
                     ` : ''}
-                    <div class="booking-item">
-                        <div class="booking-cell" data-label="時段">${periodText} ${booking.time}</div>
-                        <div class="booking-cell" data-label="姓名">${booking.name} ${vipStar}</div>
-                        <div class="booking-cell" data-label="電話">${booking.phone}</div>
-                        <div class="booking-cell" data-label="人數">${totalPeople}人</div>
-                        <div class="booking-cell" data-label="備註">${noteText}</div>
-                        <div class="booking-cell" data-label="狀態">
-                            <span class="${booking.canceled ? 'status-cancelled' : (booking.seated ? 'status-seated' : 'status-not-seated')}">
-                                ${booking.canceled ? '已取消' : (booking.seated ? '已入座' : '尚未入座')}
-                            </span>
-                        </div>
-                        ${!booking.canceled ? `
-                            <div class="booking-cell seat-button-container">
-                                <button 
-                                    class="seat-button ${booking.seated ? 'hidden' : ''}"
-                                    onclick="markAsSeated('${booking._id}')"
-                                >
-                                    已入座
-                                </button>
-                            </div>
-                        ` : ''}
+                    <div class="booking-cell" data-label="時段">${periodText} ${booking.time}</div>
+                    <div class="booking-cell" data-label="姓名">${booking.name} ${vipStar}</div>
+                    <div class="booking-cell" data-label="電話">${booking.phone}</div>
+                    <div class="booking-cell" data-label="人數">${totalPeople}人</div>
+                    <div class="booking-cell" data-label="備註">${noteText}</div>
+                    <div class="booking-cell" data-label="狀態">
+                        <span class="${booking.canceled ? 'status-cancelled' : (booking.seated ? 'status-seated' : 'status-not-seated')}">
+                            ${booking.canceled ? '已取消' : (booking.seated ? '已入座' : '尚未入座')}
+                        </span>
                     </div>
+                    ${!booking.canceled ? `
+                        <div class="booking-cell seat-button-container">
+                            <button 
+                                class="seat-button ${booking.seated ? 'hidden' : ''}"
+                                onclick="markAsSeated('${booking._id}')"
+                            >
+                                已入座
+                            </button>
+                        </div>
+                    ` : ''}
                 `;
                 
                 bookingsList.appendChild(bookingItem);
@@ -482,7 +480,7 @@ async function markAsSeated(bookingId) {
             // 重新載入訂位資料
             loadBookings(new Date(document.getElementById('booking-date').value));
         } else {
-            alert('更新入座狀態失敗');
+            alert('更新入座狀���失敗');
         }
     } catch (error) {
         console.error('更新入座狀態時發生錯誤:', error);
