@@ -1,0 +1,88 @@
+{
+    "type": "bubble",
+    "header": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "已入座通知",
+                        "color": "#ffffff",
+                        "align": "center",
+                        "gravity": "center",
+                        "size": "lg",
+                        "flex": 4,
+                        "weight": "bold"
+                    }
+                ],
+                "alignItems": "center"
+            }
+        ],
+        "backgroundColor": "#66BB6A",
+        "paddingAll": "20px"
+    },
+    "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "${name}，您好！",
+                "weight": "bold",
+                "size": "md",
+                "wrap": true,
+                "align": "center",
+                "color": "#2E4A62",
+                "margin": "md"
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "margin": "lg",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "入座時間",
+                                "size": "sm",
+                                "color": "#555555",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "${seatedTime}",
+                                "size": "sm",
+                                "color": "#111111",
+                                "flex": 7,
+                                "wrap": true
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "paddingAll": "20px"
+    },
+    "footer": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "祝您用餐愉快！",
+                "align": "center",
+                "color": "#66BB6A",
+                "weight": "bold"
+            }
+        ],
+        "paddingAll": "20px"
+    }
+}
