@@ -261,6 +261,12 @@ nav a {
     font-weight: bold;
 }
 
+input[type="tel"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
 input[type="text"],
 input[type="tel"],
 input[type="email"],
