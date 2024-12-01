@@ -306,23 +306,25 @@ async function loadBookings(selectedDate = null) {
         
         if (bookings && bookings.length > 0) {
             bookings.forEach(booking => {
-                const bookingItem = document.createElement('div');
-                bookingItem.className = `booking-item${isStillNew ? ' new-booking' : ''}`;
-                
-                // 檢查是否為新訂位（10分鐘內）
+                // 先檢查是否為新訂位（10分鐘內）
                 const bookingTime = new Date(booking.createdAt);
                 const timeDiff = currentTime - bookingTime;
                 const isNewBooking = timeDiff <= 600000; // 10分鐘
 
-                if (isNewBooking && !newBookings.has(booking._id)) {
+                // 檢查是否仍在新訂位狀態
+                const isStillNew = isNewBooking && !newBookings.has(booking._id);
+
+                // 創建訂位項目
+                const bookingItem = document.createElement('div');
+                bookingItem.className = `booking-item${isStillNew ? ' new-booking' : ''}`;
+                
+                if (isStillNew) {
                     newBookings.set(booking._id, currentTime);
                     setTimeout(() => {
                         newBookings.delete(booking._id);
                         loadBookings(selectedDate); // 重新載入以更新顯示
                     }, 600000);
                 }
-
-                const isStillNew = newBookings.has(booking._id);
 
                 const totalPeople = booking.adults + booking.children;
                 
