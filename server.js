@@ -22,6 +22,7 @@ const bindingSuccessTemplate = require('./line-templates/binding-success.json');
 const confirmReservationTemplate = require('./line-templates/confirm-reservation.json');
 const confirmBindingTemplate = require('./line-templates/confirm-binding.json');
 const reservationCancelTemplate = require('./line-templates/reservation-cancel.json');
+const seatedNotificationTemplate = require('./line-templates/seated-notification.json');
 
 
 const app = express();
@@ -1771,6 +1772,78 @@ app.post('/api/bookings/:id/seat', async (req, res) => {
 
         if (!updatedBooking) {
             return res.status(404).json({ message: '找不到訂位記錄' });
+        }
+
+        // 發送入座通知 email
+        if (updatedBooking.email) {
+            const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
+            const weekDay = dayMapping[new Date(updatedBooking.date).getDay()];
+            
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: updatedBooking.email,
+                subject: '芝麻柚子 とんかつ | 入座通知',
+                html: `
+                    <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <h2 style="color: #333;">入座通知</h2>
+                        <p style="color: #666;">${updatedBooking.name} 您好，</p>
+                        
+                        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                            <p style="margin: 5px 0;">入座時間：${new Date().toLocaleTimeString('zh-TW', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}</p>
+                        </div>
+
+                        <p style="color: #666;">祝您用餐愉快！</p>
+                        
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                            <p style="color: #999; font-size: 14px;">芝麻柚子 とんかつ</p>
+                            <p style="color: #999; font-size: 14px;">電話：03 558 7360</p>
+                            <p style="color: #999; font-size: 14px;">地址：新竹縣竹北市光明一路490號</p>
+                        </div>
+                    </div>
+                `
+            });
+        }
+
+        // 檢查是否有綁定 LINE 帳號並發送通知
+        const lineUser = await UserID.findOne({ phone: updatedBooking.phone });
+        if (lineUser) {
+            const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
+            const weekDay = dayMapping[new Date(updatedBooking.date).getDay()];
+            const seatedTime = new Date().toLocaleTimeString('zh-TW', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const messageTemplate = JSON.parse(JSON.stringify(seatedNotificationTemplate));
+            messageTemplate.body.contents[0].text = `${updatedBooking.name}，您好！`;
+            const reservationInfo = messageTemplate.body.contents[1].contents;
+            
+            reservationInfo.forEach(box => {
+                const label = box.contents[0].text;
+                switch(label) {
+                    case "日期":
+                        // 使用 en-CA 格式但轉換為繁體中文顯示
+                        const formattedDate = new Date(updatedBooking.date)
+                            .toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' })
+                            .replace(/-/g, '年')
+                            .replace(/年(\d{2})年/, '年$1月')
+                            .replace(/月(\d{2})$/, '月$1日');
+                        box.contents[1].text = `${formattedDate} ${weekDay}`;
+                        break;
+                    case "入座時間":
+                        box.contents[1].text = seatedTime;
+                        break;
+                }
+            });
+
+            await sendLineMessage(lineUser.lineUserId, {
+                type: 'flex',
+                altText: '入座通知',
+                contents: messageTemplate
+            });
         }
 
         res.json({ message: '已更新入座狀態', booking: updatedBooking });
