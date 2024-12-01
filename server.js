@@ -24,6 +24,7 @@ const confirmBindingTemplate = require('./line-templates/confirm-binding.json');
 const reservationCancelTemplate = require('./line-templates/reservation-cancel.json');
 const seatedNotificationTemplate = require('./line-templates/seated-notification.json');
 const manualCancelNotificationTemplate = require('./line-templates/manual-cancel-notification.json');
+const customerNotificationTemplate = require('./line-templates/customer-notification.json');
 
 
 const app = express();
@@ -1933,21 +1934,23 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         };
 
         // 發送 Line 通知給餐廳
-        const restaurantNotification = {
-            type: 'flex',
-            altText: '訂位手動取消通知',
-            contents: JSON.parse(JSON.stringify(manualCancelNotificationTemplate))
-        };
-
-        // 替換模板中的變數
         Object.keys(notificationData).forEach(key => {
-            const template = JSON.stringify(restaurantNotification);
-            restaurantNotification.contents = JSON.parse(
-                template.replace(new RegExp(`{{${key}}}`, 'g'), notificationData[key])
-            );
+            const value = notificationData[key];
+            const replaceTemplateValues = (contents) => {
+                if (Array.isArray(contents)) {
+                    contents.forEach(replaceTemplateValues);
+                } else if (contents && typeof contents === 'object') {
+                    Object.keys(contents).forEach(field => {
+                        if (typeof contents[field] === 'string' && contents[field].includes(`{{${key}}}`)) {
+                            contents[field] = contents[field].replace(new RegExp(`{{${key}}}`, 'g'), value);
+                        }
+                    });
+                }
+            };
+            replaceTemplateValues(manualCancelNotificationTemplate.contents.body.contents);
         });
-
-        await sendLineMessage('U249a6f35efe3b1f769228683a1d36e13', restaurantNotification);
+        
+        await sendLineMessage('U249a6f35efe3b1f769228683a1d36e13', manualCancelNotificationTemplate);
 
         // 發送通知給客人
         if (reservation.email) {
@@ -1958,27 +1961,24 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         }
 
         // 如果客人有 Line 帳號，發送 Line 通知
+        if (reservation.email) {
+            await sendManualCancelEmail(reservation.email, {
+                ...notificationData,
+                weekDay
+            });
+        }
+        
+        // 如果客人有 Line 帳號，發送 Line 通知
         const lineUser = await UserID.findOne({ phone: reservation.phone });
         if (lineUser) {
-            const customerNotification = {
-                ...restaurantNotification,
-                contents: {
-                    ...restaurantNotification.contents,
-                    body: {
-                        ...restaurantNotification.contents.body,
-                        contents: [
-                            {
-                                type: "text",
-                                text: `${reservation.name}，您好！`,
-                                weight: "bold",
-                                size: "xl",
-                                color: "#D32F2F"
-                            },
-                            ...restaurantNotification.contents.body.contents.slice(1)
-                        ]
-                    }
-                }
-            };
+            const customerNotification = JSON.parse(JSON.stringify(customerNotificationTemplate));
+            customerNotification.contents.body.contents.unshift({
+                type: "text",
+                text: `${reservation.name}，您好！`,
+                weight: "bold",
+                size: "xl",
+                color: "#D32F2F"
+            });
             await sendLineMessage(lineUser.lineUserId, customerNotification);
         }
 
