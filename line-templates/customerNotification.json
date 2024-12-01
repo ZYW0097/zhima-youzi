@@ -1,0 +1,36 @@
+{
+    "type": "bubble",
+    "body": {
+      "type": "box",
+      "layout": "vertical",
+      "contents": [
+        {
+          "type": "text",
+          "text": "訂位手動取消通知",
+          "weight": "bold",
+          "size": "xl",
+          "color": "#D32F2F"
+        },
+        {
+          "type": "box",
+          "layout": "vertical",
+          "margin": "lg",
+          "contents": [
+            {
+              "type": "text",
+              "text": "取消時間：{{cancelTime}}",
+              "size": "sm",
+              "color": "#333333"
+            },
+            {
+              "type": "text",
+              "text": "取消原因：{{reason}}",
+              "size": "sm",
+              "color": "#333333"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  
