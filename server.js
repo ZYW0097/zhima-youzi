@@ -23,6 +23,7 @@ const confirmReservationTemplate = require('./line-templates/confirm-reservation
 const confirmBindingTemplate = require('./line-templates/confirm-binding.json');
 const reservationCancelTemplate = require('./line-templates/reservation-cancel.json');
 const seatedNotificationTemplate = require('./line-templates/seated-notification.json');
+const manualCancelNotificationTemplate = require('./line-templates/manual-cancel-notification.json');
 
 
 const app = express();
@@ -1850,6 +1851,141 @@ app.post('/api/bookings/:id/seat', async (req, res) => {
     } catch (error) {
         console.error('更新入座狀態失敗:', error);
         res.status(500).json({ message: '更新入座狀態時發生錯誤' });
+    }
+});
+
+app.post('/api/reservations/manual-cancel', async (req, res) => {
+    try {
+        const { bookingCode, reason, staffName } = req.body;
+        
+        // 驗證輸入
+        if (!bookingCode || !reason || !staffName) {
+            return res.status(400).json({ error: '缺少必要資訊' });
+        }
+
+        // 查找並更新訂位
+        const reservation = await Reservation.findOneAndUpdate(
+            { bookingCode, canceled: { $ne: true } },
+            { 
+                canceled: true,
+                cancelReason: reason,
+                canceledBy: staffName,
+                canceledAt: new Date(),
+                cancelType: 'manual'
+            },
+            { new: true }
+        );
+
+        if (!reservation) {
+            return res.status(404).json({ error: '找不到有效的訂位' });
+        }
+
+        // 更新時段計數
+        const date = reservation.date;
+        const time = reservation.time;
+        const hour = parseInt(time.split(':')[0]);
+        const dayOfWeek = new Date(date).getDay();
+        
+        // 確定是平日還是假日
+        const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+        const Model = isWeekday ? GLW : GLH;
+        
+        // 確定時段代碼
+        let timeSlot;
+        if (isWeekday) {
+            if (hour === 11) timeSlot = 'wm1';
+            else if (hour === 12) timeSlot = 'wm2';
+            else if (hour === 13) timeSlot = 'wm3';
+            else if (hour === 17) timeSlot = 'wa1';
+            else if (hour === 18) timeSlot = 'wa2';
+            else if (hour >= 19) timeSlot = 'wa3';
+        } else {
+            if (hour === 11) timeSlot = 'hm1';
+            else if (hour === 12) timeSlot = 'hm2';
+            else if (hour === 13) timeSlot = 'hm3';
+            else if (hour === 14) timeSlot = 'hm4';
+            else if (hour === 17) timeSlot = 'ha1';
+            else if (hour === 18) timeSlot = 'ha2';
+            else if (hour >= 19) timeSlot = 'ha3';
+        }
+
+        console.log('Updating time slot:', { date, timeSlot, isWeekday }); // 添加日誌
+
+        // 更新時段資料
+        const updateResult = await Model.updateOne(
+            { date },
+            { $inc: { [timeSlot]: -1 } }
+        );
+        console.log('Time slot update result:', updateResult); // 添加日誌
+
+        // 取得星期幾的字串
+        const dayMapping = ['日', '一', '二', '三', '四', '五', '六'];
+        const weekDay = dayMapping[dayOfWeek];
+
+        // 準備通知內容
+        const notificationData = {
+            cancelTime: new Date().toLocaleString('zh-TW'),
+            reason: reason,
+            staffName: staffName,
+            name: reservation.name,
+            date: `${reservation.date} (${weekDay})`,
+            time: reservation.time
+        };
+
+        // 發送 Line 通知給餐廳
+        const restaurantNotification = {
+            type: 'flex',
+            altText: '訂位手動取消通知',
+            contents: JSON.parse(JSON.stringify(manualCancelNotificationTemplate))
+        };
+
+        // 替換模板中的變數
+        Object.keys(notificationData).forEach(key => {
+            const template = JSON.stringify(restaurantNotification);
+            restaurantNotification.contents = JSON.parse(
+                template.replace(new RegExp(`{{${key}}}`, 'g'), notificationData[key])
+            );
+        });
+
+        await sendLineMessage('U249a6f35efe3b1f769228683a1d36e13', restaurantNotification);
+
+        // 發送通知給客人
+        if (reservation.email) {
+            await sendManualCancelEmail(reservation.email, {
+                ...notificationData,
+                weekDay
+            });
+        }
+
+        // 如果客人有 Line 帳號，發送 Line 通知
+        const lineUser = await UserID.findOne({ phone: reservation.phone });
+        if (lineUser) {
+            const customerNotification = {
+                ...restaurantNotification,
+                contents: {
+                    ...restaurantNotification.contents,
+                    body: {
+                        ...restaurantNotification.contents.body,
+                        contents: [
+                            {
+                                type: "text",
+                                text: `${reservation.name}，您好！`,
+                                weight: "bold",
+                                size: "xl",
+                                color: "#D32F2F"
+                            },
+                            ...restaurantNotification.contents.body.contents.slice(1)
+                        ]
+                    }
+                }
+            };
+            await sendLineMessage(lineUser.lineUserId, customerNotification);
+        }
+
+        res.json({ message: '訂位已成功取消' });
+    } catch (error) {
+        console.error('取消訂位失敗:', error);
+        res.status(500).json({ error: '取消訂位時發生錯誤' });
     }
 });
 
