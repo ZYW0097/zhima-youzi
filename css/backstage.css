@@ -598,9 +598,9 @@ body {
     }
 
     @keyframes backgroundBlink {
-        0% { background-color: white; }
-        50% { background-color: rgba(255, 0, 0, 0.1); }
-        100% { background-color: white; }
+        0% { background-color: #ffffff; }
+        50% { background-color: #ffebee; } /* 改用更明顯的紅色背景 */
+        100% { background-color: #ffffff; }
     }
 }
 
