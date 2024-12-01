@@ -11,6 +11,9 @@ let isEditing = false;
 // 追蹤新訂位的物件
 const newBookings = new Map(); 
 
+// 全局變量
+let selectedBooking = null;
+
 // 切換編輯模式
 function toggleEdit() {
     isEditing = !isEditing;
@@ -486,4 +489,183 @@ async function markAsSeated(bookingId) {
         console.error('更新入座狀態時發生錯誤:', error);
         alert('系統錯誤，請稍後再試');
     }
+}
+
+// 切換搜尋方式
+document.querySelectorAll('.search-type-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // 更新按鈕狀態
+        document.querySelectorAll('.search-type-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // 切換表單顯示
+        const type = this.dataset.type;
+        document.getElementById('code-search').style.display = type === 'code' ? 'block' : 'none';
+        document.getElementById('info-search').style.display = type === 'info' ? 'block' : 'none';
+        
+        // 清空搜尋結果和取消原因
+        clearSearchResults();
+    });
+});
+
+// 使用訂位代碼搜尋
+async function searchByCode() {
+    const code = document.getElementById('booking-code').value.trim();
+    if (!code) {
+        alert('請輸入訂位代碼');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/reservations/search-by-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ bookingCode: code })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            displaySearchResult([data]);
+        } else {
+            alert(data.error || '搜尋失敗');
+        }
+    } catch (error) {
+        console.error('搜尋失敗:', error);
+        alert('系統錯誤，請稍後再試');
+    }
+}
+
+// 使用姓名和電話搜尋
+async function searchByInfo() {
+    const name = document.getElementById('customer-name').value.trim();
+    const phone = document.getElementById('customer-phone').value.trim();
+    
+    if (!name || !phone) {
+        alert('請輸入姓名和電話');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/reservations/search-by-info', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, phone })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            displaySearchResult(data);
+        } else {
+            alert(data.error || '搜尋失敗');
+        }
+    } catch (error) {
+        console.error('搜尋失敗:', error);
+        alert('系統錯誤，請稍後再試');
+    }
+}
+
+// 顯示搜尋結果
+function displaySearchResult(bookings) {
+    const resultsContainer = document.getElementById('search-results');
+    resultsContainer.innerHTML = '';
+    
+    bookings.forEach(booking => {
+        const bookingElement = document.createElement('div');
+        bookingElement.className = 'booking-result';
+        bookingElement.innerHTML = `
+            <div class="booking-info">
+                <p><strong>訂位日期：</strong>${booking.date}</p>
+                <p><strong>訂位時間：</strong>${booking.time}</p>
+                <p><strong>姓名：</strong>${booking.name}</p>
+                <p><strong>電話：</strong>${booking.phone}</p>
+                <p><strong>人數：</strong>${booking.adults}大${booking.children}小</p>
+                <p><strong>訂位代碼：</strong>${booking.bookingCode}</p>
+            </div>
+            <div class="button-group">
+                <button class="confirm-btn" onclick="selectBooking('${booking.bookingCode}')">
+                    選擇取消此訂位
+                </button>
+            </div>
+        `;
+        resultsContainer.appendChild(bookingElement);
+    });
+}
+
+// 選擇要取消的訂位
+function selectBooking(bookingCode) {
+    selectedBooking = bookingCode;
+    document.getElementById('cancel-reason-container').style.display = 'block';
+}
+
+// 確認取消訂位
+function confirmCancel() {
+    const reason = document.getElementById('cancel-reason').value.trim();
+    if (!reason) {
+        alert('請輸入取消原因');
+        return;
+    }
+    
+    // 顯示員工姓名輸入框
+    document.getElementById('staff-name-modal').style.display = 'block';
+}
+
+// 關閉員工姓名輸入框
+function closeStaffModal() {
+    document.getElementById('staff-name-modal').style.display = 'none';
+}
+
+// 處理取消訂位
+async function processCancel() {
+    const staffName = document.getElementById('staff-name').value.trim();
+    if (!staffName) {
+        alert('請輸入員工姓名');
+        return;
+    }
+
+    const reason = document.getElementById('cancel-reason').value.trim();
+    
+    try {
+        const response = await fetch('/api/reservations/manual-cancel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                bookingCode: selectedBooking,
+                reason: reason,
+                staffName: staffName
+            })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert('訂位已成功取消');
+            clearSearchResults();
+            closeStaffModal();
+        } else {
+            alert(data.error || '取消失敗');
+        }
+    } catch (error) {
+        console.error('取消失敗:', error);
+        alert('系統錯誤，請稍後再試');
+    }
+}
+
+// 放棄取消
+function abandonCancel() {
+    selectedBooking = null;
+    document.getElementById('cancel-reason-container').style.display = 'none';
+    document.getElementById('cancel-reason').value = '';
+}
+
+// 清空搜尋結果
+function clearSearchResults() {
+    document.getElementById('search-results').innerHTML = '';
+    document.getElementById('cancel-reason-container').style.display = 'none';
+    document.getElementById('cancel-reason').value = '';
+    selectedBooking = null;
 }
