@@ -15,157 +15,24 @@
         "type": "box",
         "layout": "vertical",
         "margin": "lg",
-        "spacing": "sm",
-        "contents": [
-          {
-            "type": "box",
-            "layout": "baseline",
-            "spacing": "sm",
-            "contents": [
-              {
-                "type": "text",
-                "text": "取消時間",
-                "color": "#666666",
-                "size": "sm",
-                "flex": 2
-              },
-              {
-                "type": "text",
-                "text": "{{cancelTime}}",
-                "wrap": true,
-                "color": "#333333",
-                "size": "sm",
-                "flex": 5
-              }
-            ]
-          },
-          {
-            "type": "box",
-            "layout": "baseline",
-            "spacing": "sm",
-            "contents": [
-              {
-                "type": "text",
-                "text": "取消原因",
-                "color": "#666666",
-                "size": "sm",
-                "flex": 2
-              },
-              {
-                "type": "text",
-                "text": "{{reason}}",
-                "wrap": true,
-                "color": "#333333",
-                "size": "sm",
-                "flex": 5
-              }
-            ]
-          },
-          {
-            "type": "box",
-            "layout": "baseline",
-            "spacing": "sm",
-            "contents": [
-              {
-                "type": "text",
-                "text": "操作人員",
-                "color": "#666666",
-                "size": "sm",
-                "flex": 2
-              },
-              {
-                "type": "text",
-                "text": "{{staffName}}",
-                "wrap": true,
-                "color": "#333333",
-                "size": "sm",
-                "flex": 5
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "separator",
-        "margin": "lg"
-      },
-      {
-        "type": "box",
-        "layout": "vertical",
-        "margin": "lg",
-        "spacing": "sm",
         "contents": [
           {
             "type": "text",
-            "text": "訂位資訊",
-            "weight": "bold",
-            "size": "md"
+            "text": "取消時間：{{cancelTime}}",
+            "size": "sm",
+            "color": "#333333"
           },
           {
-            "type": "box",
-            "layout": "baseline",
-            "spacing": "sm",
-            "contents": [
-              {
-                "type": "text",
-                "text": "姓名",
-                "color": "#666666",
-                "size": "sm",
-                "flex": 2
-              },
-              {
-                "type": "text",
-                "text": "{{name}}",
-                "wrap": true,
-                "color": "#333333",
-                "size": "sm",
-                "flex": 5
-              }
-            ]
+            "type": "text",
+            "text": "取消原因：{{reason}}",
+            "size": "sm",
+            "color": "#333333"
           },
           {
-            "type": "box",
-            "layout": "baseline",
-            "spacing": "sm",
-            "contents": [
-              {
-                "type": "text",
-                "text": "日期",
-                "color": "#666666",
-                "size": "sm",
-                "flex": 2
-              },
-              {
-                "type": "text",
-                "text": "{{date}}",
-                "wrap": true,
-                "color": "#333333",
-                "size": "sm",
-                "flex": 5
-              }
-            ]
-          },
-          {
-            "type": "box",
-            "layout": "baseline",
-            "spacing": "sm",
-            "contents": [
-              {
-                "type": "text",
-                "text": "時間",
-                "color": "#666666",
-                "size": "sm",
-                "flex": 2
-              },
-              {
-                "type": "text",
-                "text": "{{time}}",
-                "wrap": true,
-                "color": "#333333",
-                "size": "sm",
-                "flex": 5
-              }
-            ]
+            "type": "text",
+            "text": "取消者：{{staffName}}",
+            "size": "sm",
+            "color": "#333333"
           }
         ]
       }
