@@ -579,6 +579,7 @@ body {
     100% { opacity: 1; }
 }
 
+/* 電腦版樣式 */
 @media (min-width: 769px) {
     .booking-item {
         display: grid;
@@ -592,6 +593,10 @@ body {
         animation: backgroundBlink 2s infinite;
     }
 
+    .new-booking-label {
+        display: none; /* 在電腦版隱藏文字 */
+    }
+
     @keyframes backgroundBlink {
         0% { background-color: white; }
         50% { background-color: rgba(255, 0, 0, 0.1); }
@@ -599,6 +604,7 @@ body {
     }
 }
 
+/* 手機版樣式 */
 @media (max-width: 768px) {
     .layout {
         flex-direction: column;
@@ -776,9 +782,20 @@ body {
         margin-left: 10px;
     }
 
+    .booking-item.new-booking {
+        animation: backgroundBlink 2s infinite;
+    }
+
+    .new-booking-label {
+        display: block; /* 在手機版顯示文字 */
+        color: #ff0000;
+        animation: blink 1s infinite;
+    }
+
     @keyframes blink {
         0% { opacity: 1; }
         50% { opacity: 0; }
         100% { opacity: 1; }
     }
+
 }
