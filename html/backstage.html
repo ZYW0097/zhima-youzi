@@ -12,7 +12,6 @@
             <h1 class="mobile-title">後台管理</h1>
             <div class="sidebar-menu">
                 <div class="menu-item active" data-page="reservations">查看訂位</div>
-                <div class="menu-item" data-page="cancelled">查看已取消訂位</div>
                 <div class="menu-item" data-page="cancel-reservation">手動取消訂位</div>
                 <div class="menu-item" data-page="settings">訂位設定</div>
                 <div class="menu-item" data-page="vip">常客管理</div>
@@ -48,12 +47,58 @@
                 </div>
             </div>
 
-            <div class="content-page" id="cancelled" style="display: none;">
-                <h2>已取消訂位</h2>
-            </div>
-
             <div class="content-page" id="cancel-reservation" style="display: none;">
                 <h2>手動取消訂位</h2>
+                <div class="cancel-form">
+                    <!-- 搜尋方式選擇 -->
+                    <div class="search-type-container">
+                        <button class="search-type-btn active" data-type="code">使用訂位代碼</button>
+                        <button class="search-type-btn" data-type="info">使用姓名與電話</button>
+                    </div>
+
+                    <!-- 訂位代碼搜尋表單 -->
+                    <div class="search-form" id="code-search">
+                        <div class="form-group">
+                            <input type="text" id="booking-code" class="cancel-input" placeholder="請輸入訂位代碼">
+                            <button class="search-btn" onclick="searchByCode()">搜尋</button>
+                        </div>
+                    </div>
+
+                    <!-- 姓名電話搜尋表單 -->
+                    <div class="search-form" id="info-search" style="display: none;">
+                        <div class="form-group">
+                            <input type="text" id="customer-name" class="cancel-input" placeholder="請輸入姓名">
+                            <input type="text" id="customer-phone" class="cancel-input" placeholder="請輸入電話">
+                            <button class="search-btn" onclick="searchByInfo()">搜尋</button>
+                        </div>
+                    </div>
+
+                    <!-- 搜尋結果顯示區域 -->
+                    <div id="search-results" class="search-results"></div>
+
+                    <!-- 取消原因輸入區域 -->
+                    <div id="cancel-reason-container" style="display: none;">
+                        <div class="form-group">
+                            <textarea id="cancel-reason" class="cancel-input" placeholder="請輸入取消原因" rows="3"></textarea>
+                        </div>
+                        <div class="button-group">
+                            <button class="cancel-btn" onclick="abandonCancel()">放棄取消</button>
+                            <button class="confirm-btn" onclick="confirmCancel()">確認取消</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 員工姓名輸入彈窗 -->
+                <div id="staff-name-modal" class="modal">
+                    <div class="modal-content">
+                        <h3>請輸入員工姓名</h3>
+                        <input type="text" id="staff-name" class="cancel-input" placeholder="請輸入員工姓名">
+                        <div class="button-group">
+                            <button class="cancel-btn" onclick="closeStaffModal()">取消</button>
+                            <button class="confirm-btn" onclick="processCancel()">確認</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="content-page" id="settings" style="display: none;">
