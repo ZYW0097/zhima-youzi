@@ -307,7 +307,7 @@ async function loadBookings(selectedDate = null) {
         if (bookings && bookings.length > 0) {
             bookings.forEach(booking => {
                 const bookingItem = document.createElement('div');
-                bookingItem.className = 'booking-item';
+                bookingItem.className = `booking-item${isStillNew ? ' new-booking' : ''}`;
                 
                 // 檢查是否為新訂位（10分鐘內）
                 const bookingTime = new Date(booking.createdAt);
