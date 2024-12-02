@@ -1,40 +1,83 @@
 {
   "type": "bubble",
-  "body": {
+  "header": {
     "type": "box",
-    "layout": "vertical",
+    "layout": "horizontal",
     "contents": [
       {
         "type": "text",
         "text": "訂位手動取消通知",
         "weight": "bold",
         "size": "xl",
-        "color": "#D32F2F"
+        "color": "#FFFFFF",
+        "align": "center"
+      }
+    ],
+    "paddingAll": "20px",
+    "backgroundColor": "#F44336"
+  },
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "margin": "lg",
+    "spacing": "sm",
+    "contents": [
+      {
+        "type": "text",
+        "text": "管理者您好，有訂位已被手動取消",
+        "size": "md",
+        "weight": "bold",
+        "margin": "md",
+        "wrap": true
       },
       {
-        "type": "box",
-        "layout": "vertical",
-        "margin": "lg",
-        "contents": [
-          {
-            "type": "text",
-            "text": "取消時間：{{cancelTime}}",
-            "size": "sm",
-            "color": "#333333"
-          },
-          {
-            "type": "text",
-            "text": "取消原因：{{reason}}",
-            "size": "sm",
-            "color": "#333333"
-          },
-          {
-            "type": "text",
-            "text": "取消者：{{staffName}}",
-            "size": "sm",
-            "color": "#333333"
-          }
-        ]
+        "type": "text",
+        "text": "姓名：${name}",
+        "size": "sm",
+        "color": "#333333",
+        "margin": "lg"
+      },
+      {
+        "type": "text",
+        "text": "電話：${phone}",
+        "size": "sm",
+        "color": "#333333",
+        "margin": "lg"
+      },
+      {
+        "type": "text",
+        "text": "電子郵件：${email}",
+        "size": "sm",
+        "color": "#333333",
+        "margin": "lg"
+      },
+      {
+        "type": "text",
+        "text": "日期：${date}",
+        "size": "sm",
+        "color": "#333333",
+        "margin": "lg"
+      },
+      {
+        "type": "text",
+        "text": "取消時間：${cancelTime}",
+        "size": "sm",
+        "color": "#333333",
+        "margin": "lg"
+      },
+      {
+        "type": "text",
+        "text": "取消原因：${reason}",
+        "size": "sm",
+        "color": "#333333",
+        "margin": "lg"
+      },
+      {
+        "type": "text",
+        "text": "取消者：${staffName}",
+        "size": "sm",
+        "color": "#333333",
+        "margin": "lg"
       }
     ]
   }
