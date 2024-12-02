@@ -2008,12 +2008,20 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
             messageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
         }
 
-        messageTemplate.body.contents.forEach(content => {
+        const contents = messageTemplate.body.contents;
+        contents.forEach((content, index) => {
             if (content.type === 'text') {
-                content.text = content.text
-                    .replace('${date}', `${reservation.date} (${weekDay})`)
-                    .replace('${cancelTime}', new Date().toLocaleString('zh-TW'))
-                    .replace('${reason}', reason);
+                switch (content.text) {
+                    case '日期：${date}':
+                        contents[index].text = `日期：${reservation.date} (${weekDay})`;
+                        break;
+                    case '取消時間：${cancelTime}':
+                        contents[index].text = `取消時間：${today().toLocaleString('zh-TW')}`;
+                        break;
+                    case '取消原因：${reason}':
+                        contents[index].text = `取消原因：${reason}`;
+                        break;
+                }      
             }
         });
 
