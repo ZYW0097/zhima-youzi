@@ -1511,8 +1511,10 @@ app.post('/api/vip/add', async (req, res) => {
 app.post('/api/reservations/search-by-code', async (req, res) => {
     try {
         const { bookingCode } = req.body;
+        const today = moment.tz('Asia/Taipei').startOf('day').format('YYYY-MM-DD');
         const reservation = await Reservation.findOne({ 
             bookingCode,
+            date: { $gte: today },
             canceled: { $ne: true }
         });
         
@@ -1539,9 +1541,11 @@ app.post('/api/reservations/search-by-code', async (req, res) => {
 app.post('/api/reservations/search-by-info', async (req, res) => {
     try {
         const { name, phone } = req.body;
+        const today = moment.tz('Asia/Taipei').startOf('day').format('YYYY-MM-DD');
         const reservations = await Reservation.find({ 
             name,
             phone,
+            date: { $gte: today },
             canceled: { $ne: true }
         });
         
@@ -1864,14 +1868,11 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
             return res.status(400).json({ error: '缺少必要資訊' });
         }
 
-        const today = moment.tz('Asia/Taipei').startOf('day').format('YYYY-MM-DD');
-
         // 查找並更新訂位
         const reservation = await Reservation.findOneAndUpdate(
             { 
                 bookingCode,
-                canceled: { $ne: true },
-                date: { $gte: today }
+                canceled: { $ne: true }
             },
             { 
                 canceled: true,
