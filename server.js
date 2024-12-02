@@ -2001,32 +2001,30 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         // 如果客人有 Line 帳號，發送 Line 通知
         const lineUser = await UserID.findOne({ phone: reservation.phone });
         if (lineUser) {
-            const CmessageTemplate = JSON.parse(JSON.stringify(customerNotificationTemplate));
             const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
+            const messageTemplate = JSON.parse(JSON.stringify(reservationCancelTemplate));
+            messageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
+            const reservationInfo = messageTemplate.body.contents[1].contents;
             
-        // 更新問候語
-            if (CmessageTemplate.body?.contents?.[0]) {
-                CmessageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
-            }
-
-            CmessageTemplate.body.contents.forEach(content => {
-                if (content.type === 'text') {
-                    const text = content.text;
-                    if (text.includes('日期：')) {
-                        content.text = `日期：${reservation.date} (${weekDay})`;
-                    } else if (text.includes('取消時間：')) {
-                        content.text = `取消時間：${today}`;
-                    } else if (text.includes('取消原因：')) {
-                        content.text = `取消原因：${reason}`;
-                    }
+            reservationInfo.forEach(box => {
+                const label = box.contents[0].text;
+                switch(label) {
+                    case "日期：":
+                        box.contents[1].text = `${reservation.date} (${weekDay})`;
+                        break;
+                    case "取消時間：":
+                        box.contents[1].text = `${today}`;
+                        break;
+                    case "取消原因：":
+                        box.contents[1].text = `${reason}`;
+                        break;
                 }
             });
 
-        // 發送 LINE 訊息
             await sendLineMessage(lineUser.lineUserId, {
                 type: 'flex',
                 altText: '訂位取消通知',
-                contents: CmessageTemplate
+                contents: messageTemplate
             });
         }
         res.json({ message: '訂位已成功取消' });
