@@ -2003,23 +2003,31 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         if (lineUser) {
             const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
             const messageTemplate = JSON.parse(JSON.stringify(reservationCancelTemplate));
-            messageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
-            const reservationInfo = messageTemplate.body.contents[1].contents;
-
-            reservationInfo.body.contents.forEach(content => {
-                if (content.type === 'text') {
-                    const text = content.text;
-                    if (text.includes('日期：')) {
-                        content.text = `日期：${reservation.date} (${weekDay})`;
-                    } else if (text.includes('取消時間：')) {
-                        content.text = `取消時間：${today}`;
-                    } else if (text.includes('取消原因：')) {
-                        content.text = `取消原因：${reason}`;
+            
+            // 更新問候語
+            if (messageTemplate.body?.contents?.[0]) {
+                messageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
+            }
+        
+            // 確保 reservationInfo 是一個陣列
+            const reservationInfo = messageTemplate.body.contents[1]?.contents;
+            if (Array.isArray(reservationInfo)) {
+                reservationInfo.forEach(content => {
+                    if (content.type === 'text') {
+                        if (content.text.includes('日期：')) {
+                            content.text = `日期：${reservation.date} (${weekDay})`;
+                        } else if (content.text.includes('取消時間：')) {
+                            content.text = `取消時間：${today}`;
+                        } else if (content.text.includes('取消原因：')) {
+                            content.text = `取消原因：${reason}`;
+                        }
                     }
-                }
-            });
-
-        // 發送 LINE 訊息
+                });
+            } else {
+                console.error('Invalid reservationInfo structure:', reservationInfo);
+            }
+        
+            // 發送 LINE 訊息
             await sendLineMessage(lineUser.lineUserId, {
                 type: 'flex',
                 altText: '訂位取消通知',
