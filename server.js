@@ -1872,7 +1872,7 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
             { 
                 bookingCode,
                 canceled: { $ne: true },
-                date: { $gte: today }
+                date: { $gt: today }
             },
             { 
                 canceled: true,
