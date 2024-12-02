@@ -2002,7 +2002,7 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         const lineUser = await UserID.findOne({ phone: reservation.phone });
         if (lineUser) {
             const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
-            const messageTemplate = JSON.parse(JSON.stringify(reservationCancelTemplate));
+            const messageTemplate = JSON.parse(JSON.stringify(customerNotificationTemplate));
             
             // 更新問候語
             if (messageTemplate.body?.contents?.[0]) {
