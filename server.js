@@ -2006,25 +2006,20 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         }
     
     // 更新訂位資訊
-        if (messageTemplate.body?.contents) {
-            messageTemplate.body.contents.forEach(content => {
-                if (content.type === 'box' && content.contents) {
-                content.contents.forEach(item => {
-                    if (item.type === 'text') {
-                        if (item.text.includes('日期：')) {
-                            item.text = `日期：${reservation.date} (${weekDay})`;
-                        } else if (item.text.includes('時間：')) {
-                            item.text = `時間：${reservation.time}`;
-                        } else if (item.text.includes('取消時間：')) {
-                            item.text = `取消時間：${new Date().toLocaleString('zh-TW')}`;
-                        } else if (item.text.includes('取消原因：')) {
-                            item.text = `取消原因：${reason}`;
-                        }
-                    }
-                });
+        messageTemplate.body.contents.forEach(content => {
+        if (content.type === 'text') {
+            const text = content.text;
+            if (text.includes('姓名：')) {
+                content.text = `姓名：${reservation.name}`;
+            } else if (text.includes('日期：')) {
+                content.text = `日期：${reservation.date} (${weekDay})`;
+            } else if (text.includes('取消時間：')) {
+                content.text = `取消時間：${new Date().toLocaleString('zh-TW')}`;
+            } else if (text.includes('取消原因：')) {
+                content.text = `取消原因：${reason}`;
             }
-        });
-    }
+        }
+    });
 
     // 發送 LINE 訊息
     await sendLineMessage(lineUser.lineUserId, {
