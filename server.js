@@ -1935,35 +1935,23 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         
         // 更新模板內容
         messageTemplate.body.contents.forEach(content => {
-            if (content.type === 'box' && content.layout === 'vertical') {
-                content.contents.forEach(box => {
-                    const label = box.contents?.[0]?.text;
-                    if (label) {
-                        switch(label) {
-                            case "姓名":
-                                box.contents[1].text = reservation.name;
-                                break;
-                            case "電話":
-                                box.contents[1].text = reservation.phone;
-                                break;
-                            case "電子郵件":
-                                box.contents[1].text = reservation.email;
-                                break;
-                            case "日期":
-                                box.contents[1].text = `${reservation.date} (${weekDay})`;
-                                break;
-                            case "取消時間":
-                                box.contents[1].text = new Date().toLocaleString('zh-TW');
-                                break;
-                            case "取消原因":
-                                box.contents[1].text = reason;
-                                break;
-                            case "取消者":
-                                box.contents[1].text = staffName;
-                                break;
-                        }
-                    }
-                });
+            if (content.type === 'text') {
+                const text = content.text;
+                if (text.includes('姓名：')) {
+                    content.text = `姓名：${reservation.name}`;
+                } else if (text.includes('電話：')) {
+                    content.text = `電話：${reservation.phone}`;
+                } else if (text.includes('電子郵件：')) {
+                    content.text = `電子郵件：${reservation.email}`;
+                } else if (text.includes('日期：')) {
+                    content.text = `日期：${reservation.date} (${weekDay})`;
+                } else if (text.includes('取消時間：')) {
+                    content.text = `取消時間：${new Date().toLocaleString('zh-TW')}`;
+                } else if (text.includes('取消原因：')) {
+                    content.text = `取消原因：${reason}`;
+                } else if (text.includes('取消者：')) {
+                    content.text = `取消者：${staffName}`;
+                }
             }
         });
 
@@ -2016,30 +2004,22 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
 
             // 更新其他資訊
             customerNotification.body.contents.forEach(content => {
-                if (content.type === 'box' && content.layout === 'vertical') {
-                    content.contents.forEach(box => {
-                        const label = box.contents[0].text;
-                        if (label) {
-                            switch(label) {
-                                case "日期":
-                                    box.contents[1].text = `${reservation.date} (${weekDay})`;
-                                    break;
-                                case "取消時間":
-                                    box.contents[1].text = new Date().toLocaleString('zh-TW');
-                                    break;
-                                case "取消原因":
-                                    box.contents[1].text = reason;
-                                    break;
-                            }
-                        }
-                    });
+                if (content.type === 'text') {
+                    const text = content.text;
+                    if (text.includes('日期：')) {
+                        content.text = `日期：${reservation.date} (${weekDay})`;
+                    } else if (text.includes('取消時間：')) {
+                        content.text = `取消時間：${new Date().toLocaleString('zh-TW')}`;
+                    } else if (text.includes('取消原因：')) {
+                        content.text = `取消原因：${reason}`;
+                    }
                 }
             });
 
             await sendLineMessage(lineUser.lineUserId, {
                 type: 'flex',
                 altText: '訂位取消通知',
-                contents: customerNotification
+                contents: messageTemplate
             });
         }
         
