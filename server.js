@@ -2009,9 +2009,7 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         messageTemplate.body.contents.forEach(content => {
         if (content.type === 'text') {
             const text = content.text;
-            if (text.includes('姓名：')) {
-                content.text = `姓名：${reservation.name}`;
-            } else if (text.includes('日期：')) {
+            if (text.includes('日期：')) {
                 content.text = `日期：${reservation.date} (${weekDay})`;
             } else if (text.includes('取消時間：')) {
                 content.text = `取消時間：${new Date().toLocaleString('zh-TW')}`;
