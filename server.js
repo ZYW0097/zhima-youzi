@@ -1924,47 +1924,76 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         const weekDay = dayMapping[dayOfWeek];
 
         // 準備通知內容
-        const notificationData = {
-            cancelTime: new Date().toLocaleString('zh-TW'),
-            reason: reason,
-            staffName: staffName,
-            name: reservation.name,
-            date: `${reservation.date} (${weekDay})`,
-            time: reservation.time
-        };
-
-        // 發送 Line 通知給餐廳
-        Object.keys(notificationData).forEach(key => {
-            const value = notificationData[key];
-            const replaceTemplateValues = (contents) => {
-                if (Array.isArray(contents)) {
-                    contents.forEach(replaceTemplateValues);
-                } else if (contents && typeof contents === 'object') {
-                    Object.keys(contents).forEach(field => {
-                        if (typeof contents[field] === 'string' && contents[field].includes(`{{${key}}}`)) {
-                            contents[field] = contents[field].replace(new RegExp(`{{${key}}}`, 'g'), value);
-                        }
-                    });
-                }
-            };
-            replaceTemplateValues(manualCancelNotificationTemplate.contents.body.contents);
-        });
+        const messageTemplate = JSON.parse(JSON.stringify(manualCancelNotificationTemplate));
         
-        await sendLineMessage('U249a6f35efe3b1f769228683a1d36e13', manualCancelNotificationTemplate);
+        // 更新模板內容
+        messageTemplate.body.contents.forEach(content => {
+            if (content.type === 'box' && content.layout === 'vertical') {
+                content.contents.forEach(box => {
+                    const label = box.contents?.[0]?.text;
+                    if (label) {
+                        switch(label) {
+                            case "取消時間":
+                                box.contents[1].text = new Date().toLocaleString('zh-TW');
+                                break;
+                            case "取消原因":
+                                box.contents[1].text = reason;
+                                break;
+                            case "操作人員":
+                                box.contents[1].text = staffName;
+                                break;
+                            case "姓名":
+                                box.contents[1].text = reservation.name;
+                                break;
+                            case "日期":
+                                box.contents[1].text = `${reservation.date} (${weekDay})`;
+                                break;
+                            case "時間":
+                                box.contents[1].text = reservation.time;
+                                break;
+                        }
+                    }
+                });
+            }
+        });
+
+        // 使用正確格式發送LINE通知
+        await sendLineMessage('U249a6f35efe3b1f769228683a1d36e13', {
+            type: 'flex',
+            altText: '訂位手動取消通知',
+            contents: messageTemplate
+        });
+
 
         // 發送通知給客人
         if (reservation.email) {
-            await sendManualCancelEmail(reservation.email, {
-                ...notificationData,
-                weekDay
-            });
-        }
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: reservation.email,
+                subject: '芝麻柚子 とんかつ | 訂位取消通知',
+                html: `
+                    <div style="font-family: 'Microsoft JhengHei', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <h2 style="color: #333;">訂位取消通知</h2>
+                        <p style="color: #666;">${reservation.name} 您好，</p>
+                        <p style="color: #666;">很抱歉通知您，您的訂位已被取消：</p>
+                        
+                        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                            <p style="margin: 5px 0;"><strong>訂位資訊：</strong></p>
+                            <p style="margin: 5px 0;">姓名：${reservation.name}</p>
+                            <p style="margin: 5px 0;">日期：${reservation.date} (${weekDay})</p>
+                            <p style="margin: 5px 0;">時間：${reservation.time}</p>
+                            <p style="margin: 5px 0;">取消原因：${reason}</p>
+                        </div>
 
-        // 如果客人有 Line 帳號，發送 Line 通知
-        if (reservation.email) {
-            await sendManualCancelEmail(reservation.email, {
-                ...notificationData,
-                weekDay
+                        <p style="color: #666;">如有任何疑問，請與我們聯繫。</p>
+                        
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                            <p style="color: #999; font-size: 14px;">芝麻柚子 とんかつ</p>
+                            <p style="color: #999; font-size: 14px;">電話：03 558 7360</p>
+                            <p style="color: #999; font-size: 14px;">地址：新竹縣竹北市光明一路490號</p>
+                        </div>
+                    </div>
+                `
             });
         }
         
@@ -1972,15 +2001,55 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         const lineUser = await UserID.findOne({ phone: reservation.phone });
         if (lineUser) {
             const customerNotification = JSON.parse(JSON.stringify(customerNotificationTemplate));
-            customerNotification.contents.body.contents.unshift({
+            
+            // 先加入問候語
+            customerNotification.body.contents.unshift({
                 type: "text",
                 text: `${reservation.name}，您好！`,
                 weight: "bold",
                 size: "xl",
                 color: "#D32F2F"
             });
-            await sendLineMessage(lineUser.lineUserId, customerNotification);
+
+            // 更新其他資訊
+            customerNotification.body.contents.forEach(content => {
+                if (content.type === 'box' && content.layout === 'vertical') {
+                    content.contents.forEach(box => {
+                        const label = box.contents?.[0]?.text;
+                        if (label) {
+                            switch(label) {
+                                case "取消時間":
+                                    box.contents[1].text = new Date().toLocaleString('zh-TW');
+                                    break;
+                                case "取消原因":
+                                    box.contents[1].text = reason;
+                                        break;
+                                case "操作人員":
+                                    box.contents[1].text = staffName;
+                                    break;
+                                case "姓名":
+                                    box.contents[1].text = reservation.name;
+                                    break;
+                                case "日期":
+                                    box.contents[1].text = `${reservation.date} (${weekDay})`;
+                                    break;
+                                case "時間":
+                                    box.contents[1].text = reservation.time;
+                                    break;
+                            }
+                        }
+                    });
+                }
+            });
+
+            await sendLineMessage(lineUser.lineUserId, {
+                type: 'flex',
+                altText: '訂位取消通知',
+                contents: customerNotification
+            });
         }
+        
+        
 
         res.json({ message: '訂位已成功取消' });
     } catch (error) {
