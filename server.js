@@ -2009,19 +2009,19 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
     
     // 更新訂位資訊
         messageTemplate.body.contents.forEach(content => {
-        if (content.type === 'text') {
-            const text = content.text;
-            if (text.includes('日期：')) {
-                content.text = `日期：${reservation.date} (${weekDay})`;
-            } else if (text.includes('取消時間：')) {
-                content.text = `取消時間：${today}`;
-            } else if (text.includes('取消原因：')) {
-                content.text = `取消原因：${reason}`;
+            if (content.type === 'text') {
+                const text = content.text;
+                if (text.includes('日期：')) {
+                    content.text = `日期：${reservation.date} (${weekDay})`;
+                } else if (text.includes('取消時間：')) {
+                    content.text = `取消時間：${today}`;
+                } else if (text.includes('取消原因：')) {
+                    content.text = `取消原因：${reason}`;
+                }
             }
-        }
-    });
+        });
 
-    // 發送 LINE 訊息
+        // 發送 LINE 訊息
         await sendLineMessage(lineUser.lineUserId, {
             type: 'flex',
             altText: '訂位取消通知',
