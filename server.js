@@ -1956,6 +1956,7 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
                 }
             }
         });
+        
 
         // 使用正確格式發送LINE通知
         await sendLineMessage('U249a6f35efe3b1f769228683a1d36e13', {
@@ -2002,22 +2003,17 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         if (lineUser) {
             const messageTemplate = JSON.parse(JSON.stringify(customerNotificationTemplate));
             
-    // 更新問候語
+        // 更新問候語
         if (messageTemplate.body?.contents?.[0]) {
             messageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
         }
-    
-    // 更新訂位資訊
+
         messageTemplate.body.contents.forEach(content => {
             if (content.type === 'text') {
-                const text = content.text;
-                if (text.includes('日期：')) {
-                    content.text = `日期：${reservation.date} (${weekDay})`;
-                } else if (text.includes('取消時間：')) {
-                    content.text = `取消時間：${today}`;
-                } else if (text.includes('取消原因：')) {
-                    content.text = `取消原因：${reason}`;
-                }
+                content.text = content.text
+                    .replace('${date}', `${reservation.date} (${weekDay})`)
+                    .replace('${cancelTime}', new Date().toLocaleString('zh-TW'))
+                    .replace('${reason}', reason);
             }
         });
 
