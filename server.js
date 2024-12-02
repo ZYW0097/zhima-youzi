@@ -1864,8 +1864,7 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
             return res.status(400).json({ error: '缺少必要資訊' });
         }
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const today = moment.tz('Asia/Taipei').startOf('day').format('YYYY-MM-DD');
 
         // 查找並更新訂位
         const reservation = await Reservation.findOneAndUpdate(
