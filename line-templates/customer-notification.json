@@ -24,24 +24,38 @@
     "contents": [
       {
         "type": "text",
-        "text": "日期：${date}",
-        "size": "sm",
+        "text": "${lineUser}，您好！",
+        "size": "md",
         "color": "#333333",
-        "margin": "lg"
+        "margin": "md",
+        "weight": "bold"
       },
       {
-        "type": "text",
-        "text": "取消時間：${cancelTime}",
-        "size": "sm",
-        "color": "#333333",
-        "margin": "lg"
-      },
-      {
-        "type": "text",
-        "text": "取消原因：${reason}",
-        "size": "sm",
-        "color": "#333333",
-        "margin": "lg"
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "text",
+            "text": "日期：${date}",
+            "size": "sm",
+            "color": "#333333",
+            "margin": "lg"
+          },
+          {
+            "type": "text",
+            "text": "取消時間：${cancelTime}",
+            "size": "sm",
+            "color": "#333333",
+            "margin": "lg"
+          },
+          {
+            "type": "text",
+            "text": "取消原因：${reason}",
+            "size": "sm",
+            "color": "#333333",
+            "margin": "lg"
+          }
+        ]
       }
     ]
   }
