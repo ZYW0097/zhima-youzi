@@ -1862,6 +1862,8 @@ app.post('/api/bookings/:id/seat', async (req, res) => {
 app.post('/api/reservations/manual-cancel', async (req, res) => {
     try {
         const { bookingCode, reason, staffName } = req.body;
+
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
         
         // 驗證輸入
         if (!bookingCode || !reason || !staffName) {
@@ -1946,7 +1948,7 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
                 } else if (text.includes('日期：')) {
                     content.text = `日期：${reservation.date} (${weekDay})`;
                 } else if (text.includes('取消時間：')) {
-                    content.text = `取消時間：${new Date().toLocaleString('zh-TW')}`;
+                    content.text = `取消時間：${today}`;
                 } else if (text.includes('取消原因：')) {
                     content.text = `取消原因：${reason}`;
                 } else if (text.includes('取消者：')) {
@@ -2012,7 +2014,7 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
             if (text.includes('日期：')) {
                 content.text = `日期：${reservation.date} (${weekDay})`;
             } else if (text.includes('取消時間：')) {
-                content.text = `取消時間：${new Date().toLocaleString('zh-TW')}`;
+                content.text = `取消時間：${today}`;
             } else if (text.includes('取消原因：')) {
                 content.text = `取消原因：${reason}`;
             }
@@ -2020,12 +2022,12 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
     });
 
     // 發送 LINE 訊息
-    await sendLineMessage(lineUser.lineUserId, {
-        type: 'flex',
-        altText: '訂位取消通知',
-        contents: messageTemplate
-            });
-        }
+        await sendLineMessage(lineUser.lineUserId, {
+            type: 'flex',
+            altText: '訂位取消通知',
+            contents: messageTemplate
+        });
+    }
         
 
         res.json({ message: '訂位已成功取消' });
