@@ -1940,23 +1940,26 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
                     const label = box.contents?.[0]?.text;
                     if (label) {
                         switch(label) {
+                            case "姓名":
+                                box.contents[1].text = reservation.name;
+                                break;
+                            case "電話":
+                                box.contents[1].text = reservation.phone;
+                                break;
+                            case "電子郵件":
+                                box.contents[1].text = reservation.email;
+                                break;
+                            case "日期":
+                                box.contents[1].text = `${reservation.date} (${weekDay})`;
+                                break;
                             case "取消時間":
                                 box.contents[1].text = new Date().toLocaleString('zh-TW');
                                 break;
                             case "取消原因":
                                 box.contents[1].text = reason;
                                 break;
-                            case "操作人員":
+                            case "取消者":
                                 box.contents[1].text = staffName;
-                                break;
-                            case "姓名":
-                                box.contents[1].text = reservation.name;
-                                break;
-                            case "日期":
-                                box.contents[1].text = `${reservation.date} (${weekDay})`;
-                                break;
-                            case "時間":
-                                box.contents[1].text = reservation.time;
                                 break;
                         }
                     }
@@ -1967,7 +1970,6 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         // 使用正確格式發送LINE通知
         await sendLineMessage('U249a6f35efe3b1f769228683a1d36e13', {
             type: 'flex',
-            altText: '訂位手動取消通知',
             contents: messageTemplate
         });
 
@@ -2007,41 +2009,25 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         // 如果客人有 Line 帳號，發送 Line 通知
         const lineUser = await UserID.findOne({ phone: reservation.phone });
         if (lineUser) {
-            const customerNotification = JSON.parse(JSON.stringify(customerNotificationTemplate));
-            
-            // 先加入問候語
-            customerNotification.body.contents.unshift({
-                type: "text",
-                text: `${reservation.name}，您好！`,
-                weight: "bold",
-                size: "xl",
-                color: "#D32F2F"
-            });
+            const messageTemplate = JSON.parse(JSON.stringify(customerNotificationTemplate));
+            messageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
+            const customerNotification = messageTemplate.body.contents[1].contents;
 
             // 更新其他資訊
             customerNotification.body.contents.forEach(content => {
                 if (content.type === 'box' && content.layout === 'vertical') {
                     content.contents.forEach(box => {
-                        const label = box.contents?.[0]?.text;
+                        const label = box.contents[0].text;
                         if (label) {
                             switch(label) {
+                                case "日期":
+                                    box.contents[1].text = `${reservation.date} (${weekDay})`;
+                                    break;
                                 case "取消時間":
                                     box.contents[1].text = new Date().toLocaleString('zh-TW');
                                     break;
                                 case "取消原因":
                                     box.contents[1].text = reason;
-                                        break;
-                                case "操作人員":
-                                    box.contents[1].text = staffName;
-                                    break;
-                                case "姓名":
-                                    box.contents[1].text = reservation.name;
-                                    break;
-                                case "日期":
-                                    box.contents[1].text = `${reservation.date} (${weekDay})`;
-                                    break;
-                                case "時間":
-                                    box.contents[1].text = reservation.time;
                                     break;
                             }
                         }
