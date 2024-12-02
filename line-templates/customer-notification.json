@@ -1,36 +1,48 @@
 {
-    "type": "bubble",
-    "body": {
-      "type": "box",
-      "layout": "vertical",
-      "contents": [
-        {
-          "type": "text",
-          "text": "訂位手動取消通知",
-          "weight": "bold",
-          "size": "xl",
-          "color": "#D32F2F"
-        },
-        {
-          "type": "box",
-          "layout": "vertical",
-          "margin": "lg",
-          "contents": [
-            {
-              "type": "text",
-              "text": "取消時間：{{cancelTime}}",
-              "size": "sm",
-              "color": "#333333"
-            },
-            {
-              "type": "text",
-              "text": "取消原因：{{reason}}",
-              "size": "sm",
-              "color": "#333333"
-            }
-          ]
-        }
-      ]
-    }
+  "type": "bubble",
+  "header": {
+    "type": "box",
+    "layout": "horizontal",
+    "contents": [
+      {
+        "type": "text",
+        "text": "訂位取消通知",
+        "weight": "bold",
+        "size": "xl",
+        "color": "#FFFFFF",
+        "align": "center"
+      }
+    ],
+    "paddingAll": "20px",
+    "backgroundColor": "#F44336"
+  },
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "margin": "lg",
+    "spacing": "sm",
+    "contents": [
+      {
+        "type": "text",
+        "text": "日期：${date}",
+        "size": "sm",
+        "color": "#333333",
+        "margin": "lg"
+      },
+      {
+        "type": "text",
+        "text": "取消時間：${cancelTime}",
+        "size": "sm",
+        "color": "#333333",
+        "margin": "lg"
+      },
+      {
+        "type": "text",
+        "text": "取消原因：${reason}",
+        "size": "sm",
+        "color": "#333333",
+        "margin": "lg"
+      }
+    ]
   }
-  
+}
