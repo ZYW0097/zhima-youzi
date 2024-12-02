@@ -505,6 +505,7 @@ document.querySelectorAll('.search-type-btn').forEach(btn => {
         
         // 清空搜尋結果和取消原因
         clearSearchResults();
+        clearForm();
     });
 });
 
@@ -668,4 +669,11 @@ function clearSearchResults() {
     document.getElementById('cancel-reason-container').style.display = 'none';
     document.getElementById('cancel-reason').value = '';
     selectedBooking = null;
+}
+
+function clearForm() {
+    // 清除所有輸入框的值
+    document.getElementById('booking-code').value = '';
+    document.getElementById('customer-name').value = '';
+    document.getElementById('customer-phone').value = '';
 }
