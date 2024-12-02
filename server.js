@@ -2005,32 +2005,30 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
             const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
             
         // 更新問候語
-        if (CmessageTemplate.body?.contents?.[0]) {
-            CmessageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
-        }
-
-        CmessageTemplate.body.contents.forEach(content => {
-            if (content.type === 'text') {
-                const text = content.text;
-                if (text.includes('日期：')) {
-                    content.text = `日期：${reservation.date} (${weekDay})`;
-                } else if (text.includes('取消時間：')) {
-                    content.text = `取消時間：${today}`;
-                } else if (text.includes('取消原因：')) {
-                    content.text = `取消原因：${reason}`;
-                }
+            if (CmessageTemplate.body?.contents?.[0]) {
+                CmessageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
             }
-        });
+
+            CmessageTemplate.body.contents.forEach(content => {
+                if (content.type === 'text') {
+                    const text = content.text;
+                    if (text.includes('日期：')) {
+                        content.text = `日期：${reservation.date} (${weekDay})`;
+                    } else if (text.includes('取消時間：')) {
+                        content.text = `取消時間：${today}`;
+                    } else if (text.includes('取消原因：')) {
+                        content.text = `取消原因：${reason}`;
+                    }
+                }
+            });
 
         // 發送 LINE 訊息
-        await sendLineMessage(lineUser.lineUserId, {
-            type: 'flex',
-            altText: '訂位取消通知',
-            contents: CmessageTemplate
-        });
-    }
-        
-
+            await sendLineMessage(lineUser.lineUserId, {
+                type: 'flex',
+                altText: '訂位取消通知',
+                contents: CmessageTemplate
+            });
+        }
         res.json({ message: '訂位已成功取消' });
     } catch (error) {
         console.error('取消訂位失敗:', error);
