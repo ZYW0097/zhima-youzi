@@ -2002,26 +2002,23 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         const lineUser = await UserID.findOne({ phone: reservation.phone });
         if (lineUser) {
             const messageTemplate = JSON.parse(JSON.stringify(customerNotificationTemplate));
+            const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
             
         // 更新問候語
         if (messageTemplate.body?.contents?.[0]) {
             messageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
         }
 
-        const contents = messageTemplate.body.contents;
-        contents.forEach((content, index) => {
+        messageTemplate.body.contents.forEach(content => {
             if (content.type === 'text') {
-                switch (content.text) {
-                    case '日期：${date}':
-                        contents[index].text = `日期：${reservation.date} (${weekDay})`;
-                        break;
-                    case '取消時間：${cancelTime}':
-                        contents[index].text = `取消時間：${today().toLocaleString('zh-TW')}`;
-                        break;
-                    case '取消原因：${reason}':
-                        contents[index].text = `取消原因：${reason}`;
-                        break;
-                }      
+                const text = content.text;
+                if (text.includes('日期：')) {
+                    content.text = `日期：${reservation.date} (${weekDay})`;
+                } else if (text.includes('取消時間：')) {
+                    content.text = `取消時間：${today}`;
+                } else if (text.includes('取消原因：')) {
+                    content.text = `取消原因：${reason}`;
+                }
             }
         });
 
