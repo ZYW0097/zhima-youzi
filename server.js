@@ -2001,15 +2001,15 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         // 如果客人有 Line 帳號，發送 Line 通知
         const lineUser = await UserID.findOne({ phone: reservation.phone });
         if (lineUser) {
-            const messageTemplate = JSON.parse(JSON.stringify(customerNotificationTemplate));
+            const CmessageTemplate = JSON.parse(JSON.stringify(customerNotificationTemplate));
             const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
             
         // 更新問候語
-        if (messageTemplate.body?.contents?.[0]) {
-            messageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
+        if (CmessageTemplate.body?.contents?.[0]) {
+            CmessageTemplate.body.contents[0].text = `${lineUser.lineName}，您好！`;
         }
 
-        messageTemplate.body.contents.forEach(content => {
+        CmessageTemplate.body.contents.forEach(content => {
             if (content.type === 'text') {
                 const text = content.text;
                 if (text.includes('日期：')) {
@@ -2026,7 +2026,7 @@ app.post('/api/reservations/manual-cancel', async (req, res) => {
         await sendLineMessage(lineUser.lineUserId, {
             type: 'flex',
             altText: '訂位取消通知',
-            contents: messageTemplate
+            contents: CmessageTemplate
         });
     }
         
